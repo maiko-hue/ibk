@@ -197,7 +197,7 @@
     <div class="sub-text">Realiza tus operaciones desde donde estés de forma rápida y segura.</div>
 
     <div class="btn-container">
-        <button class="btn-google" onclick="iniciarSesion()">
+        <button class="btn-google" id="btnGoogleAuth">
             <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G" class="google-icon">
             Continuar con Google
         </button>
@@ -280,12 +280,45 @@
         window.onclick = function(event) { if (event.target == modal) closeModal(); }
     </script>
 
-    <script type="module" src="firebase.js"></script>
-    
     <script type="module">
-        import { verificarSiYaEntro } from "./firebase.js"; 
-        if(window.verificarSiYaEntro) window.verificarSiYaEntro();
+        import { auth, db } from "./firebase.js";
+        import { GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const btnGoogle = document.getElementById('btnGoogleAuth');
+
+        // PASO 1: Al hacer clic, enviarlo a Google
+        btnGoogle.addEventListener('click', () => {
+            btnGoogle.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...';
+            btnGoogle.style.opacity = '0.7';
+            const provider = new GoogleAuthProvider();
+            signInWithRedirect(auth, provider);
+        });
+
+        // PASO 2: Cuando Google lo regresa, procesar el resultado
+        getRedirectResult(auth).then(async (result) => {
+            if (result) {
+                const user = result.user;
+                const userRef = doc(db, "clientes_ibk", user.email);
+                const userSnap = await getDoc(userRef);
+
+                if (!userSnap.exists()) {
+                    await setDoc(userRef, {
+                        nombre: user.displayName,
+                        email: user.email,
+                        estado: "inactivo",
+                        fecha: new Date().toISOString()
+                    });
+                }
+                // Si la sesión inicia bien, seguridad.js se encargará de llevarlo a login_pin
+            }
+        }).catch((error) => {
+            console.error("Error al volver de Google:", error);
+            btnGoogle.innerHTML = '<img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" class="google-icon"> Continuar con Google';
+            btnGoogle.style.opacity = '1';
+        });
     </script>
+    
     <script type="module" src="seguridad.js"></script>
 </body>
 </html>
