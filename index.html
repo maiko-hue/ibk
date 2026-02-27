@@ -6,7 +6,6 @@
     <title>Bienvenido a Interbank</title>
     
     <script>
-        // Si el usuario ya entró antes, lo mandamos al PIN de inmediato
         if (localStorage.getItem('sesion_iniciada') === 'true') {
             window.location.replace('login_pin.html');
         }
@@ -52,128 +51,47 @@
             position: relative;
         }
 
-        /* --- LOGO Y TEXTOS --- */
         .logo-container { margin-bottom: 35px; text-align: center; }
-
-        .logo-img {
-            width: 110px; height: 110px; object-fit: contain;
-            border-radius: 25px; 
-            box-shadow: 0 10px 25px rgba(0, 57, 166, 0.15);
-        }
-
+        .logo-img { width: 110px; height: 110px; object-fit: contain; border-radius: 25px; box-shadow: 0 10px 25px rgba(0, 57, 166, 0.15); }
         .welcome-text { font-size: 26px; font-weight: 800; margin-bottom: 10px; text-align: center; color: var(--brand-blue); letter-spacing: -0.5px; }
-
-        .sub-text {
-            font-size: 15px; color: #666; margin-bottom: 45px;
-            text-align: center; max-width: 300px; line-height: 1.4; font-weight: 500;
-        }
-
-        /* --- BOTONES --- */
-        .btn-container {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            max-width: 320px;
-        }
-
+        .sub-text { font-size: 15px; color: #666; margin-bottom: 45px; text-align: center; max-width: 300px; line-height: 1.4; font-weight: 500; }
+        
+        .btn-container { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 15px; max-width: 320px; }
+        
         .btn-google {
-            background-color: white; color: #333;
-            width: 100%; padding: 15px;
-            border-radius: 12px; border: 1px solid #e0e4e8;
-            font-size: 16px; font-weight: 700;
-            display: flex; align-items: center; justify-content: center;
-            gap: 12px; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            transition: transform 0.2s, background-color 0.2s;
-            text-decoration: none;
+            background-color: white; color: #333; width: 100%; padding: 15px;
+            border-radius: 12px; border: 1px solid #e0e4e8; font-size: 16px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: transform 0.2s, background-color 0.2s; text-decoration: none;
         }
-
         .btn-access {
-            background-color: var(--brand-green); 
-            color: white;
-            width: 100%; padding: 15px;
-            border-radius: 12px; border: none;
-            font-size: 16px; font-weight: 700;
-            display: flex; align-items: center; justify-content: center;
-            gap: 12px; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 181, 81, 0.3);
-            transition: background 0.2s, transform 0.2s;
-            text-decoration: none;
+            background-color: var(--brand-green); color: white; width: 100%; padding: 15px;
+            border-radius: 12px; border: none; font-size: 16px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 181, 81, 0.3); transition: background 0.2s, transform 0.2s; text-decoration: none;
         }
         
         .btn-google:active, .btn-access:active { transform: scale(0.97); }
         .btn-google:active { background-color: #f5f5f5; }
         .btn-access:active { background-color: #009e47; }
-
         .google-icon { width: 24px; height: 24px; }
 
-        /* --- PANTALLA DE INSTALACIÓN --- */
-        #pantallaInstalacion {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            background-color: #ffffff; z-index: 999999; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            text-align: center; color: var(--brand-blue);
-        }
-        .btn-omitir {
-            background: transparent; color: #888; border: none;
-            margin-top: 25px; font-size: 15px; font-weight: 700;
-            cursor: pointer; text-decoration: underline;
-        }
+        #pantallaInstalacion { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #ffffff; z-index: 999999; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: var(--brand-blue); }
+        .btn-omitir { background: transparent; color: #888; border: none; margin-top: 25px; font-size: 15px; font-weight: 700; cursor: pointer; text-decoration: underline; }
 
-        /* --- FOOTER --- */
-        .footer-links {
-            position: absolute; bottom: 35px;
-            font-size: 13.5px; font-weight: 600;
-            text-align: center; width: 100%;
-            display: flex; justify-content: center; gap: 20px;
-        }
-        
+        .footer-links { position: absolute; bottom: 35px; font-size: 13.5px; font-weight: 600; text-align: center; width: 100%; display: flex; justify-content: center; gap: 20px; }
         .footer-link { color: var(--brand-blue); text-decoration: none; cursor: pointer; opacity: 0.8; }
         .footer-link:active { opacity: 1; }
 
-        /* --- MODAL TÉRMINOS --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 2000;
-            display: none; justify-content: center; align-items: center;
-            padding: 20px; backdrop-filter: blur(3px);
-        }
-
-        .modal-card {
-            background: white; color: #333;
-            width: 100%; max-width: 340px;
-            border-radius: 16px; padding: 25px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(3px); }
+        .modal-card { background: white; color: #333; width: 100%; max-width: 340px; border-radius: 16px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.15); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes popIn { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-
         .modal-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; color: var(--brand-blue); }
-        
-        .modal-body {
-            font-size: 14px; line-height: 1.5; color: #555; margin-bottom: 20px; text-align: left;
-        }
-        
+        .modal-body { font-size: 14px; line-height: 1.5; color: #555; margin-bottom: 20px; text-align: left; }
         .warning-text { color: #d32f2f; font-weight: 700; margin-top: 12px; display: block; border: 1px solid #ffcdd2; background: #ffebee; padding: 12px; border-radius: 8px; font-size: 13px; }
-        
         .dev-credits { font-size: 12px; color: #888; margin-top: 15px; font-weight: 700; display: block; text-align: center; }
-
-        .btn-telegram {
-            background-color: #229ED9; color: white;
-            width: 100%; padding: 14px; border: none; border-radius: 10px;
-            font-weight: 700; font-size: 15px; cursor: pointer;
-            margin-bottom: 10px; text-decoration: none; display: block;
-        }
-
-        .btn-close {
-            background: #f0f4f8; color: var(--brand-blue);
-            width: 100%; padding: 14px; border: none; border-radius: 10px;
-            font-weight: 800; font-size: 15px; cursor: pointer;
-        }
+        .btn-telegram { background-color: #229ED9; color: white; width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; margin-bottom: 10px; text-decoration: none; display: block; }
+        .btn-close { background: #f0f4f8; color: var(--brand-blue); width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 800; font-size: 15px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -182,11 +100,9 @@
         <img src="img/icon.webp" alt="Logo" style="width: 110px; margin-bottom: 25px; border-radius: 25px; box-shadow: 0 10px 25px rgba(0, 57, 166, 0.15);">
         <h2 style="font-size: 22px; margin-bottom: 10px; font-weight: 800;">Instala la App</h2>
         <p style="font-size: 15px; color: #666; margin-bottom: 35px; max-width: 80%; font-weight: 500;">Para una experiencia segura y rápida, añade Interbank a tu pantalla de inicio.</p>
-        
         <button id="btnInstalarApp" style="background-color: #00b551; color: white; border: none; padding: 16px 35px; border-radius: 30px; font-weight: 800; font-size: 16px; cursor: pointer; display: none; box-shadow: 0 8px 20px rgba(0, 181, 81, 0.3);">
             <i class="fa-solid fa-download" style="margin-right: 8px;"></i> Instalar ahora
         </button>
-
         <button id="btnOmitir" class="btn-omitir">Omitir por ahora</button>
     </div>
 
@@ -220,61 +136,42 @@
             <div class="modal-body">
                 <strong>Lee atentamente esto:</strong><br><br>
                 El personal de administración no se hace responsable del mal uso de la app. No hay devoluciones ni cargos a enfrentar.<br>
-                
                 <span class="warning-text">
                     <i class="fa-solid fa-triangle-exclamation"></i>
                     NO TOLERAMOS el uso de varios dispositivos enlazados. Si compartes acceso, tu cuenta quedará BANEADA DE FORMA PERMANENTE.
-                </span>
-                <br>
+                </span><br>
                 Tendrás que comprar otro acceso para remediar eso. Avisados están.
-                
                 <span class="dev-credits">Desarrollador/Dev: @MaikolEsleiter</span>
             </div>
-
-            <a href="https://t.me/appsreborn" class="btn-telegram">
-                <i class="fa-brands fa-telegram"></i> Grupo Oficial
-            </a>
-            
+            <a href="https://t.me/appsreborn" class="btn-telegram"><i class="fa-brands fa-telegram"></i> Grupo Oficial</a>
             <button class="btn-close" onclick="closeModal()">Entendido</button>
         </div>
     </div>
 
     <script>
-        // Lógica de Instalación PWA
         const pantallaInstalacion = document.getElementById('pantallaInstalacion');
         const btnInstalar = document.getElementById('btnInstalarApp');
         const btnOmitir = document.getElementById('btnOmitir');
         let promptDiferido;
 
-        btnOmitir.addEventListener('click', () => {
-            pantallaInstalacion.style.display = 'none';
-        });
+        btnOmitir.addEventListener('click', () => { pantallaInstalacion.style.display = 'none'; });
 
         if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
             pantallaInstalacion.style.display = 'none';
         } else {
             window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault(); 
-                promptDiferido = e; 
-                btnInstalar.style.display = 'block'; 
+                e.preventDefault(); promptDiferido = e; btnInstalar.style.display = 'block'; 
             });
-
             btnInstalar.addEventListener('click', async () => {
                 if (promptDiferido) {
                     promptDiferido.prompt(); 
                     const { outcome } = await promptDiferido.userChoice;
-                    if (outcome === 'accepted') {
-                        promptDiferido = null;
-                    }
+                    if (outcome === 'accepted') promptDiferido = null;
                 }
             });
-
-            window.addEventListener('appinstalled', () => {
-                pantallaInstalacion.style.display = 'none';
-            });
+            window.addEventListener('appinstalled', () => { pantallaInstalacion.style.display = 'none'; });
         }
 
-        // Lógica del Modal de Términos
         const modal = document.getElementById('termsModal');
         function openModal() { modal.style.display = 'flex'; }
         function closeModal() { modal.style.display = 'none'; }
@@ -283,26 +180,25 @@
 
     <script type="module">
         import { auth, db } from "./firebase.js";
-        import { GoogleAuthProvider, signInWithRedirect, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const btnGoogle = document.getElementById('btnGoogleAuth');
         const btnText = document.getElementById('btnText');
-        
-        // 1. EL RADAR INFALIBLE
-        // Si el usuario regresa de Google y Firebase lo detecta, ejecutamos el código:
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                // Bloqueamos el botón visualmente para que sepa que está cargando
+
+        // 1. RECOGER AL USUARIO: Recuperar los datos cuando vuelve de Google
+        getRedirectResult(auth).then(async (result) => {
+            if (result) {
+                // Si viene de regreso de Google, bloqueamos el botón y avisamos
                 btnGoogle.disabled = true;
-                btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...';
+                btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creando registro...';
                 
+                const user = result.user;
                 try {
-                    // Verificamos si ya existe su carpeta
                     const userRef = doc(db, "clientes_ibk", user.email);
                     const userSnap = await getDoc(userRef);
 
-                    // Si es nuevo, le creamos su registro de inmediato
+                    // Si la carpeta no existe, la CREAMOS AHORA MISMO
                     if (!userSnap.exists()) {
                         await setDoc(userRef, {
                             nombre: user.displayName,
@@ -311,18 +207,38 @@
                             fecha: new Date().toISOString()
                         });
                     }
-
-                    // Ahora sí, que pase a la sala de espera
+                    
+                    // Solo cuando la carpeta se guardó con éxito, lo mandamos al PIN
                     window.location.replace("login_pin.html");
                 } catch (e) {
-                    console.error("Error guardando cliente:", e);
-                    btnText.innerHTML = "Error. Intenta de nuevo";
-                    setTimeout(() => btnText.innerHTML = "Continuar con Google", 3000);
+                    console.error("Error al registrar:", e);
+                    btnText.innerHTML = "Error de conexión";
+                }
+            }
+        }).catch((error) => console.error(error));
+
+        // 2. RESPALDO: Por si el celular pierde la memoria del redireccionamiento
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                btnGoogle.disabled = true;
+                btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando...';
+                
+                try {
+                    const userRef = doc(db, "clientes_ibk", user.email);
+                    const userSnap = await getDoc(userRef);
+                    if (!userSnap.exists()) {
+                        await setDoc(userRef, {
+                            nombre: user.displayName, email: user.email, estado: "inactivo", fecha: new Date().toISOString()
+                        });
+                    }
+                    window.location.replace("login_pin.html");
+                } catch (e) {
+                    console.error("Error:", e);
                 }
             }
         });
 
-        // 2. LA ACCIÓN DEL BOTÓN (SOLO LO MANDA A GOOGLE)
+        // 3. ACCIÓN DEL BOTÓN: Enviar a Google
         btnGoogle.addEventListener('click', () => {
             btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Redirigiendo...';
             btnGoogle.style.opacity = '0.7';
@@ -330,5 +246,7 @@
             signInWithRedirect(auth, provider);
         });
     </script>
+    
+    <script type="module" src="seguridad.js"></script>
 </body>
 </html>

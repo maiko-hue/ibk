@@ -1,19 +1,16 @@
-// seguridad.js - MODO VELOCIDAD Y PERSISTENCIA (VERSIÓN INTERBANK)
+// seguridad.js - MODO VELOCIDAD Y PERSISTENCIA (VIGILANTE CORREGIDO)
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// 1. DEFINIMOS LAS PUERTAS PRINCIPALES (ESTRICTAMENTE INDEX Y CONFIG)
 const paginaActual = window.location.pathname;
 const esPuertaPrincipal = paginaActual.includes("config.html");
 const esIndex = paginaActual.includes("index.html") || paginaActual === "/" || paginaActual.endsWith("/");
 
-// Ocultar cuerpo solo en puertas principales para evitar destellos
 if (esPuertaPrincipal || esIndex) {
     document.body.style.opacity = "0";
 }
 
-// Estilos de los modales de seguridad (Color Verde IBK)
 const style = document.createElement('style');
 style.textContent = `
     .seguridad-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
@@ -29,7 +26,6 @@ document.head.appendChild(style);
 
 let vigilanteActivo = null;
 
-// EXPULSIÓN DEFINITIVA
 window.expulsarUsuario = async function() { 
     localStorage.removeItem("pase_vip_ibk");
     localStorage.removeItem("sesion_iniciada");
@@ -40,29 +36,31 @@ window.expulsarUsuario = async function() {
     window.location.href = "index.html"; 
 };
 
-// VIGILANTE PRINCIPAL
 onAuthStateChanged(auth, async (user) => {
-    // Si NO hay usuario y NO estamos en el index, pa' fuera
+    // 1. Si NO hay usuario logueado
     if (!user) {
         if (!esIndex) window.expulsarUsuario();
-        else document.body.style.opacity = "1"; // Mostrar index si no hay usuario
+        else document.body.style.opacity = "1"; 
         return;
     }
 
-    // --- REGLA ESPECIAL PARA EL INDEX ---
-    if (esIndex && localStorage.getItem("pase_vip_ibk") === "true") {
-        window.location.href = "login_pin.html"; // IBK va al PIN primero
-        return;
+    // 2. REGLA SALVAVIDAS: Si estamos en el Index, el Vigilante NO interviene.
+    // Solo verifica si el usuario ya era VIP para mandarlo directo al PIN.
+    if (esIndex) {
+        if (localStorage.getItem("pase_vip_ibk") === "true") {
+            window.location.href = "login_pin.html";
+        } else {
+            document.body.style.opacity = "1"; // Deja que el index.html haga su trabajo
+        }
+        return; // ¡AQUÍ ESTÁ LA MAGIA! Cortamos la función para que no te expulse.
     }
 
-    // Si NO estamos en una puerta principal ni en el index, dejamos que navegue rápido
-    if (!esPuertaPrincipal && !esIndex) return;
+    if (!esPuertaPrincipal) return;
 
-    // --- LÓGICA DE PUERTAS PRINCIPALES (Vigilancia Estricta) ---
+    // 3. LÓGICA DE PUERTAS PRINCIPALES (Vigilancia Estricta)
     const miTicket = localStorage.getItem("sesion_token_ibk");
     
     try {
-        // CAMBIO A LA CARPETA DE INTERBANK
         const userRef = doc(db, "clientes_ibk", user.email);
         
         vigilanteActivo = onSnapshot(userRef, (userSnap) => {
@@ -73,7 +71,6 @@ onAuthStateChanged(auth, async (user) => {
 
             const userData = userSnap.data();
 
-            // 1. Filtro Anti-Clonación (Multidispositivo)
             if (userData.sesion_token && userData.sesion_token !== miTicket) {
                 document.body.innerHTML = `
                     <div class="seguridad-overlay">
@@ -90,7 +87,6 @@ onAuthStateChanged(auth, async (user) => {
                 return; 
             }
 
-            // 2. Filtro de Estado (Activo vs Inactivo)
             if (userData.estado === "activo") {
                 localStorage.setItem("pase_vip_ibk", "true");
                 document.body.style.opacity = "1";
