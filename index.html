@@ -282,7 +282,7 @@
 
     <script type="module">
         import { auth, db } from "./firebase.js";
-        import { GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const btnGoogle = document.getElementById('btnGoogleAuth');
@@ -302,6 +302,7 @@
                 const userRef = doc(db, "clientes_ibk", user.email);
                 const userSnap = await getDoc(userRef);
 
+                // Si es un usuario completamente nuevo, lo guardamos en la base de datos
                 if (!userSnap.exists()) {
                     await setDoc(userRef, {
                         nombre: user.displayName,
@@ -310,7 +311,9 @@
                         fecha: new Date().toISOString()
                     });
                 }
-                // Si la sesión inicia bien, seguridad.js se encargará de llevarlo a login_pin
+                
+                // Sin importar si es nuevo o viejo, lo empujamos adentro para que el Vigilante lo reciba
+                window.location.href = "login_pin.html";
             }
         }).catch((error) => {
             console.error("Error al volver de Google:", error);
@@ -318,7 +321,5 @@
             btnGoogle.style.opacity = '1';
         });
     </script>
-    
-    <script type="module" src="seguridad.js"></script>
 </body>
 </html>
