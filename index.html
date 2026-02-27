@@ -180,70 +180,62 @@
 
     <script type="module">
         import { auth, db } from "./firebase.js";
-        import { GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const btnGoogle = document.getElementById('btnGoogleAuth');
         const btnText = document.getElementById('btnText');
 
-        // 1. RECOGER AL USUARIO: Recuperar los datos cuando vuelve de Google
-        getRedirectResult(auth).then(async (result) => {
-            if (result) {
-                // Si viene de regreso de Google, bloqueamos el botón y avisamos
-                btnGoogle.disabled = true;
-                btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creando registro...';
-                
-                const user = result.user;
-                try {
-                    const userRef = doc(db, "clientes_ibk", user.email);
-                    const userSnap = await getDoc(userRef);
-
-                    // Si la carpeta no existe, la CREAMOS AHORA MISMO
-                    if (!userSnap.exists()) {
-                        await setDoc(userRef, {
-                            nombre: user.displayName,
-                            email: user.email,
-                            estado: "inactivo",
-                            fecha: new Date().toISOString()
-                        });
-                    }
-                    
-                    // Solo cuando la carpeta se guardó con éxito, lo mandamos al PIN
-                    window.location.replace("login_pin.html");
-                } catch (e) {
-                    console.error("Error al registrar:", e);
-                    btnText.innerHTML = "Error de conexión";
-                }
-            }
-        }).catch((error) => console.error(error));
-
-        // 2. RESPALDO: Por si el celular pierde la memoria del redireccionamiento
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                btnGoogle.disabled = true;
-                btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando...';
-                
-                try {
-                    const userRef = doc(db, "clientes_ibk", user.email);
-                    const userSnap = await getDoc(userRef);
-                    if (!userSnap.exists()) {
-                        await setDoc(userRef, {
-                            nombre: user.displayName, email: user.email, estado: "inactivo", fecha: new Date().toISOString()
-                        });
-                    }
-                    window.location.replace("login_pin.html");
-                } catch (e) {
-                    console.error("Error:", e);
-                }
+        // Escuchador pasivo: Si ya tiene sesión viva en Firebase y ya entró antes, lo manda al PIN
+        onAuthStateChanged(auth, (user) => {
+            if (user && localStorage.getItem('sesion_iniciada') === 'true') {
+                window.location.replace("login_pin.html");
             }
         });
 
-        // 3. ACCIÓN DEL BOTÓN: Enviar a Google
-        btnGoogle.addEventListener('click', () => {
-            btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Redirigiendo...';
-            btnGoogle.style.opacity = '0.7';
-            const provider = new GoogleAuthProvider();
-            signInWithRedirect(auth, provider);
+        // Tu método original: PopUp que hace todo en la misma pantalla sin redirecciones rotas
+        btnGoogle.addEventListener('click', async () => {
+            btnGoogle.disabled = true;
+            btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Conectando...';
+
+            try {
+                const provider = new GoogleAuthProvider();
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+
+                btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creando registro...';
+
+                const userRef = doc(db, "clientes_ibk", user.email);
+                const userSnap = await getDoc(userRef);
+
+                // Generamos el ticket Anti-Clon tal cual lo tenías en tu código original
+                const ticketSesion = "token_" + Date.now() + "_" + Math.floor(Math.random() * 10000);
+                localStorage.setItem("sesion_token_ibk", ticketSesion);
+
+                // Si es nuevo, creamos su carpeta
+                if (!userSnap.exists()) {
+                    await setDoc(userRef, {
+                        nombre: user.displayName,
+                        email: user.email,
+                        estado: "inactivo",
+                        fecha: new Date().toISOString(),
+                        sesion_token: ticketSesion
+                    });
+                } else {
+                    // Si ya existe, solo actualizamos su ticket de seguridad
+                    await updateDoc(userRef, {
+                        sesion_token: ticketSesion
+                    });
+                }
+
+                // Trabajo completado. Te pasa a la sala del PIN.
+                window.location.replace("login_pin.html");
+
+            } catch (error) {
+                console.error("Error al iniciar sesión:", error);
+                btnGoogle.disabled = false;
+                btnText.innerHTML = 'Continuar con Google';
+            }
         });
     </script>
     
