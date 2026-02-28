@@ -32,8 +32,10 @@ body {
     height: 100%; 
 }
 
-/* Si alguien lo abre en PC, ahí sí le ponemos el límite de 480px y sombra */
-@media (min-width: 600px) {
+/* LA MAGIA DE LOS 1200px: 
+   Solo si la pantalla mide más de 1200px (como una PC o laptop), 
+   ahí sí le ponemos el límite de 480px y los bordes grises. */
+@media (min-width: 1200px) {
     body { background-color: #e5e7eb; }
     .mobile-wrapper { max-width: 480px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
 }

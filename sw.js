@@ -1,5 +1,5 @@
 // sw.js - Service Worker Interbank (Optimizado)
-const CACHE_NAME = 'ibk-v2'; 
+const CACHE_NAME = 'ibk-v3'; 
 
 // Lista de archivos para carga instantánea y funcionamiento Offline
 const urlsToCache = [
@@ -9,6 +9,7 @@ const urlsToCache = [
   './infoc.html',
   './config.html',
   './sobre.html',
+  './styles.css',
   './manifest.json',
   // --- IMÁGENES EXTRAÍDAS DE TU CAPTURA ---
   './img/favicon.png',
