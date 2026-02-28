@@ -197,11 +197,11 @@
     </div>
 
     <script>
-        const defaults = [
-            { name: "Cuenta Simple Soles", curr: "S/", bal: "2.22" },
-            { name: "Cuenta Simple Dolares", curr: "US$", bal: "871.78" },
-            { name: "Ola", curr: "S/", bal: "111111.00" }
-        ];
+        const DEFAULTS = {
+            acc1: { name: "Cuenta Simple Soles", curr: "S/", bal: "1000.00" },
+            acc2: { name: "Cuenta Simple Dolares", curr: "US$", bal: "1000.00" },
+            acc3: { name: "Cuenta de Ahorros", curr: "S/", bal: "1000.00" }
+        };
 
         // Variable para recordar qué cuenta eligió el usuario
         let cuentaSeleccionadaID = 1; 

@@ -6,13 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mi Cuenta - Banca Móvil</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; font-family: 'Nunito', sans-serif; }
-        
-        body { background-color: #e5e7eb; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
-
-        .mobile-wrapper { width: 100%; max-width: 480px; background-color: #EAF7F3; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: 100%; }
-
         /* HEADER */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: #ffffff; flex-shrink: 0; z-index: 10; border-bottom: 1px solid #f0f0f0; }
         .back-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; width: 30px; }
@@ -20,10 +17,7 @@
         .header-title { font-size: 16px; font-weight: 800; color: #000; text-align: center; flex-grow: 1; margin-left: 15px; }
         
         .header-actions { display: flex; gap: 15px; align-items: center; }
-        
-        /* AQUÍ ESTÁ EL CAMBIO PARA HACER EL ICONO CIRCULAR */
         .icon-for-you { width: 24px; height: 24px; object-fit: cover; border-radius: 50%; }
-        
         .header-actions svg { width: 22px; height: 22px; fill: none; stroke: #00b551; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
         /* SCROLL VIEW */
@@ -31,7 +25,8 @@
         .scroll-content::-webkit-scrollbar { width: 0px; background: transparent; }
 
         /* --- SECCIÓN SUPERIOR (Fondo Verde Claro) --- */
-        .top-section { padding-bottom: 30px; }
+        /* Sobrescribimos el fondo solo para esta sección interior para que combine con el diseño anterior */
+        .top-section { padding-bottom: 30px; background-color: #EAF7F3; } 
 
         /* SELECTOR DE CUENTA */
         .account-card-top { background-color: #ffffff; border-radius: 8px; margin: 15px 20px; padding: 12px 15px; display: flex; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
@@ -257,9 +252,9 @@
 
     <script>
         const DEFAULTS = {
-            acc1: { name: "Cuenta Simple Soles", curr: "S/", bal: "2.22", num: "1912058951088" },
-            acc2: { name: "Cuenta Simple Dolares", curr: "US$", bal: "871.78", num: "1912058956625" },
-            acc3: { name: "Cuenta Ahorros", curr: "S/", bal: "111111.00", num: "1911111111111" }
+            acc1: { name: "Cuenta Simple Soles", curr: "S/", bal: "1000.00", num: "1912058951088" },
+            acc2: { name: "Cuenta Simple Dolares", curr: "US$", bal: "1000.00", num: "1912058956625" },
+            acc3: { name: "Cuenta de Ahorros", curr: "S/", bal: "1000.00", num: "1911111111111" }
         };
 
         document.addEventListener('DOMContentLoaded', () => {
