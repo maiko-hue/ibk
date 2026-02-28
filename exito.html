@@ -76,34 +76,7 @@
 </head>
 <body>
 
-    <audio id="notiSound" src="noti.mp3" preload="auto"></audio>
-
     <div class="mobile-wrapper" id="captureArea">
-        
-        <div class="push-notification" id="pushNoti" style="
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-150%);
-            width: 90%;
-            max-width: 400px;
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            z-index: 9999;
-            opacity: 0;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s;
-            cursor: grab;">
-            <img src="img/interbank_wrdgas.webp" alt="Interbank" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover; margin-right: 15px;">
-            <div style="flex: 1;">
-                <div style="font-size: 14px; font-weight: 800; color: #000; margin-bottom: 2px;">Interbank</div>
-                <div id="pushMessage" style="font-size: 14px; color: #333; font-weight: 500;">Nombre te ha transferido S/ 0.00</div>
-            </div>
-            <div style="font-size: 12px; color: #888; align-self: flex-start;">Ahora</div>
-        </div>
 
         <header class="header" id="topHeader">
             <div class="header-title">Constancia</div>
@@ -232,66 +205,17 @@
             
             // Formato: "25 feb 2026   02:41 PM"
             document.getElementById('finalFechaHora').innerHTML = `${day} ${month} ${year} &nbsp;&nbsp; ${timeStr}`;
-
-            // --- LÓGICA DE NOTIFICACIÓN PUSH ---
-            document.getElementById('pushMessage').innerText = `${nombreDestino} te ha transferido S/ ${parseFloat(montoEnvio).toFixed(2)}`;
-            
-            const notiSound = document.getElementById('notiSound');
-            const pushNoti = document.getElementById('pushNoti');
-            
-            // Retraso ligero para simular llegada de red
-            setTimeout(() => {
-                notiSound.play().catch(e => console.log("Audio bloqueado por navegador", e));
-                
-                pushNoti.style.transform = 'translateX(-50%) translateY(0)';
-                pushNoti.style.opacity = '1';
-
-                // Ocultar automáticamente a los 4 segundos
-                setTimeout(() => {
-                    if (pushNoti.style.opacity === '1') {
-                        cerrarNotificacion();
-                    }
-                }, 4000);
-
-            }, 500);
-
-            // Lógica para deslizar la notificación
-            let startY = 0;
-            let startX = 0;
-
-            pushNoti.addEventListener('touchstart', e => {
-                startY = e.touches[0].clientY;
-                startX = e.touches[0].clientX;
-            }, {passive: true});
-
-            pushNoti.addEventListener('touchmove', e => {
-                let currentY = e.touches[0].clientY;
-                let currentX = e.touches[0].clientX;
-                
-                // Si desliza hacia arriba o hacia la izquierda
-                if (startY - currentY > 20 || startX - currentX > 30) {
-                    cerrarNotificacion();
-                }
-            }, {passive: true});
         });
-
-        function cerrarNotificacion() {
-            const pushNoti = document.getElementById('pushNoti');
-            pushNoti.style.transform = 'translateX(-50%) translateY(-150%)';
-            pushNoti.style.opacity = '0';
-        }
 
         // --- 2. LÓGICA PARA COMPARTIR CONSTANCIA (html2canvas) ---
         function enviarConstancia() {
             const captureArea = document.getElementById('captureArea');
             const actionButtons = document.getElementById('actionButtons');
             const bottomNav = document.getElementById('bottomNav');
-            const pushNoti = document.getElementById('pushNoti');
             
             // Ocultar botones, menú y notificación antes de la foto
             actionButtons.style.display = 'none';
             bottomNav.style.display = 'none';
-            pushNoti.style.display = 'none';
 
             // Pequeña pausa para que el navegador aplique los estilos ocultos
             setTimeout(() => {
@@ -309,10 +233,10 @@
                                 title: `Constancia Plin a ${nombreParaArchivo}`,
                                 files: [file]
                             }).then(() => {
-                                restaurarUI(actionButtons, bottomNav, pushNoti);
+                                restaurarUI(actionButtons, bottomNav);
                             }).catch(err => {
                                 console.log('Error al compartir:', err);
-                                restaurarUI(actionButtons, bottomNav, pushNoti);
+                                restaurarUI(actionButtons, bottomNav);
                             });
                         } else {
                             // Descargar automáticamente si está en PC
@@ -320,7 +244,7 @@
                             link.download = `Constancia_Plin_${nombreParaArchivo}.png`;
                             link.href = canvas.toDataURL('image/png');
                             link.click();
-                            restaurarUI(actionButtons, bottomNav, pushNoti);
+                            restaurarUI(actionButtons, bottomNav);
                         }
                     });
                 });
@@ -328,10 +252,9 @@
         }
 
         // Función auxiliar para regresar los botones a la pantalla tras capturar
-        function restaurarUI(actionButtons, bottomNav, pushNoti) {
+        function restaurarUI(actionButtons, bottomNav) {
             actionButtons.style.display = 'flex';
             bottomNav.style.display = 'flex';
-            // Nota: No restauramos el 'display: flex' de la notificación para que no vuelva a aparecer sola tras tomar la captura.
         }
     </script>
 </body>
