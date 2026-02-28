@@ -9,19 +9,15 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
+    <link rel="stylesheet" href="styles.css">
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; font-family: 'Nunito', sans-serif; }
-        
-        body { background-color: #e5e7eb; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
-
-        .mobile-wrapper { width: 100%; max-width: 480px; background-color: #ffffff; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: 100%; }
-
         /* HEADER - Ajuste de sombra pedido */
         .header { display: flex; justify-content: center; align-items: center; padding: 15px 20px; background-color: #ffffff; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.06); border-bottom: none; z-index: 10; }
         .header-title { font-size: 16px; font-weight: 700; color: #000; }
 
         /* CONTENIDO PRINCIPAL */
-        .content { flex: 1; overflow-y: auto; padding-bottom: 100px; display: flex; flex-direction: column; align-items: center; }
+        .content { flex: 1; overflow-y: auto; padding-bottom: 120px; /* Incrementado para no ocultar botones finales */ display: flex; flex-direction: column; align-items: center; }
         .content::-webkit-scrollbar { width: 0px; background: transparent; }
 
         /* SECCIÓN SUPERIOR DE ÉXITO */
@@ -76,22 +72,39 @@
         .btn-volver { background-color: white; color: #00b551; border: 1.5px solid #00b551; width: 100%; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; text-decoration: none; display: flex; justify-content: center; align-items: center;}
         .btn-volver:active { background-color: #f0fdf4; }
 
-        /* MENÚ INFERIOR */
-        .bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; height: 70px; background-color: #ffffff; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-around; align-items: center; padding: 0 10px; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #666; text-decoration: none; font-size: 11px; flex: 1; cursor: pointer; border: none; background: none; }
-        .nav-item.active { color: #00b551; }
-        .nav-icon { width: 24px; height: 24px; margin-bottom: 4px; fill: none; stroke: currentColor; stroke-width: 1.5; }
-        .nav-item.active .nav-icon { stroke: #00b551; stroke-width: 2; }
-        .nav-icon-img { width: 24px; height: 24px; margin-bottom: 4px; object-fit: contain; }
-        .nav-icon-op { width: 24px; height: 24px; margin-bottom: 4px; object-fit: contain; filter: grayscale(100%) opacity(0.6); }
-        .qr-fab-container { position: relative; top: -20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .qr-fab { width: 60px; height: 60px; background-color: #2bd071; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(43, 208, 113, 0.4); cursor: pointer; border: 4px solid #ffffff; }
     </style>
 </head>
 <body>
 
+    <audio id="notiSound" src="noti.mp3" preload="auto"></audio>
+
     <div class="mobile-wrapper" id="captureArea">
         
+        <div class="push-notification" id="pushNoti" style="
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-150%);
+            width: 90%;
+            max-width: 400px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            z-index: 9999;
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s;
+            cursor: grab;">
+            <img src="img/interbank_wrdgas.webp" alt="Interbank" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover; margin-right: 15px;">
+            <div style="flex: 1;">
+                <div style="font-size: 14px; font-weight: 800; color: #000; margin-bottom: 2px;">Interbank</div>
+                <div id="pushMessage" style="font-size: 14px; color: #333; font-weight: 500;">Nombre te ha transferido S/ 0.00</div>
+            </div>
+            <div style="font-size: 12px; color: #888; align-self: flex-start;">Ahora</div>
+        </div>
+
         <header class="header" id="topHeader">
             <div class="header-title">Constancia</div>
         </header>
@@ -219,17 +232,66 @@
             
             // Formato: "25 feb 2026   02:41 PM"
             document.getElementById('finalFechaHora').innerHTML = `${day} ${month} ${year} &nbsp;&nbsp; ${timeStr}`;
+
+            // --- LÓGICA DE NOTIFICACIÓN PUSH ---
+            document.getElementById('pushMessage').innerText = `${nombreDestino} te ha transferido S/ ${parseFloat(montoEnvio).toFixed(2)}`;
+            
+            const notiSound = document.getElementById('notiSound');
+            const pushNoti = document.getElementById('pushNoti');
+            
+            // Retraso ligero para simular llegada de red
+            setTimeout(() => {
+                notiSound.play().catch(e => console.log("Audio bloqueado por navegador", e));
+                
+                pushNoti.style.transform = 'translateX(-50%) translateY(0)';
+                pushNoti.style.opacity = '1';
+
+                // Ocultar automáticamente a los 4 segundos
+                setTimeout(() => {
+                    if (pushNoti.style.opacity === '1') {
+                        cerrarNotificacion();
+                    }
+                }, 4000);
+
+            }, 500);
+
+            // Lógica para deslizar la notificación
+            let startY = 0;
+            let startX = 0;
+
+            pushNoti.addEventListener('touchstart', e => {
+                startY = e.touches[0].clientY;
+                startX = e.touches[0].clientX;
+            }, {passive: true});
+
+            pushNoti.addEventListener('touchmove', e => {
+                let currentY = e.touches[0].clientY;
+                let currentX = e.touches[0].clientX;
+                
+                // Si desliza hacia arriba o hacia la izquierda
+                if (startY - currentY > 20 || startX - currentX > 30) {
+                    cerrarNotificacion();
+                }
+            }, {passive: true});
         });
+
+        function cerrarNotificacion() {
+            const pushNoti = document.getElementById('pushNoti');
+            pushNoti.style.transform = 'translateX(-50%) translateY(-150%)';
+            pushNoti.style.opacity = '0';
+        }
 
         // --- 2. LÓGICA PARA COMPARTIR CONSTANCIA (html2canvas) ---
         function enviarConstancia() {
             const captureArea = document.getElementById('captureArea');
             const actionButtons = document.getElementById('actionButtons');
             const bottomNav = document.getElementById('bottomNav');
+            const pushNoti = document.getElementById('pushNoti');
             
-            // Ocultar botones y menú inferior antes de la foto
+            // Ocultar botones, menú y notificación antes de la foto
             actionButtons.style.display = 'none';
             bottomNav.style.display = 'none';
+            pushNoti.style.display = 'none';
 
             // Pequeña pausa para que el navegador aplique los estilos ocultos
             setTimeout(() => {
@@ -247,10 +309,10 @@
                                 title: `Constancia Plin a ${nombreParaArchivo}`,
                                 files: [file]
                             }).then(() => {
-                                restaurarUI(actionButtons, bottomNav);
+                                restaurarUI(actionButtons, bottomNav, pushNoti);
                             }).catch(err => {
                                 console.log('Error al compartir:', err);
-                                restaurarUI(actionButtons, bottomNav);
+                                restaurarUI(actionButtons, bottomNav, pushNoti);
                             });
                         } else {
                             // Descargar automáticamente si está en PC
@@ -258,7 +320,7 @@
                             link.download = `Constancia_Plin_${nombreParaArchivo}.png`;
                             link.href = canvas.toDataURL('image/png');
                             link.click();
-                            restaurarUI(actionButtons, bottomNav);
+                            restaurarUI(actionButtons, bottomNav, pushNoti);
                         }
                     });
                 });
@@ -266,9 +328,10 @@
         }
 
         // Función auxiliar para regresar los botones a la pantalla tras capturar
-        function restaurarUI(actionButtons, bottomNav) {
+        function restaurarUI(actionButtons, bottomNav, pushNoti) {
             actionButtons.style.display = 'flex';
             bottomNav.style.display = 'flex';
+            // Nota: No restauramos el 'display: flex' de la notificación para que no vuelva a aparecer sola tras tomar la captura.
         }
     </script>
 </body>
