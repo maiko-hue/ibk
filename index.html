@@ -93,7 +93,7 @@
         .btn-telegram { background-color: #229ED9; color: white; width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; margin-bottom: 10px; text-decoration: none; display: block; }
         .btn-close { background: #f0f4f8; color: var(--brand-blue); width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 800; font-size: 15px; cursor: pointer; }
 
-        /* --- NUEVO: PANTALLA DE ÉXITO / SOLICITUD ENVIADA --- */
+        /* --- PANTALLA DE ÉXITO / SOLICITUD ENVIADA --- */
         #successOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: var(--brand-green);
@@ -114,7 +114,7 @@
     <div id="successOverlay">
         <i class="fa-solid fa-paper-plane success-icon"></i>
         <div class="success-title">¡Solicitud enviada!</div>
-        <div class="success-desc">Si ya adquiriste tu acceso, te aprobaremos pronto. Redirigiendo...</div>
+        <div class="success-desc">Si ya adquiriste tu acceso, te aprobaremos pronto. Verificando...</div>
     </div>
 
     <div id="pantallaInstalacion">
@@ -201,7 +201,7 @@
 
     <script type="module">
         import { auth, db } from "./firebase.js";
-        import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const btnGoogle = document.getElementById('btnGoogleAuth');
@@ -215,12 +215,30 @@
             }
         });
 
-        // Función para mostrar la animación chula antes de ir al PIN
-        function mostrarAnimacionYRedirigir() {
+        // 1. FUNCIÓN DE BLOQUEO: Muestra el cartel verde de Interbank y cierra sesión
+        function mostrarModalInactivo(user) {
+            document.body.innerHTML += `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+                    <div style="background: white; width: 85%; max-width: 320px; border-radius: 20px; padding: 30px 20px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.4); animation: popIn 0.3s ease-out;">
+                        <i class="fa-solid fa-circle-user" style="font-size: 55px; color: #00b551; margin-bottom: 20px;"></i>
+                        <div style="font-size: 20px; font-weight: 700; color: #333; margin-bottom: 12px;">¡Cuenta no activada!</div>
+                        <div style="font-size: 14px; color: #666; margin-bottom: 25px; line-height: 1.6;">Hola <strong>${user.displayName || 'Usuario'}</strong>, tu acceso a Interbank Premium se encuentra <strong>inactivo</strong>. Contacta a soporte para validarlo.</div>
+                        <a href="https://t.me/MaikolEsleiter" style="background-color: #00b551; color: white; border: none; width: 100%; padding: 15px; border-radius: 15px; font-size: 16px; font-weight: 700; cursor: pointer; display: block; text-decoration: none; margin-bottom: 12px;">Contactar Soporte</a>
+                        <button style="background: none; border: none; color: #888; font-size: 14px; font-weight: 600; cursor: pointer;" onclick="location.reload()">Volver al inicio</button>
+                    </div>
+                </div>
+            `;
+            // Cierra la sesión inmediatamente para evitar colados
+            signOut(auth);
+        }
+
+        // 2. FUNCIÓN DE ANIMACIÓN: Muestra el avión verde por 3.5s y luego lo bloquea
+        function mostrarAnimacionYRechazar(user) {
             successOverlay.style.display = 'flex';
             setTimeout(() => {
-                window.location.replace("login_pin.html");
-            }, 3500); // 3.5 segundos de pura elegancia
+                successOverlay.style.display = 'none';
+                mostrarModalInactivo(user); // ¡Boom! Puerta cerrada.
+            }, 3500); 
         }
 
         // PopUp que hace todo en la misma pantalla
@@ -242,7 +260,7 @@
                 localStorage.setItem("sesion_token_ibk", ticketSesion);
 
                 if (!userSnap.exists()) {
-                    // Es completamentee NUEVO: Guardamos datos y mostramos animación "Solicitud enviada"
+                    // Es completamentee NUEVO: Guardamos datos, animamos y BLOQUEAMOS
                     await setDoc(userRef, {
                         nombre: user.displayName,
                         email: user.email,
@@ -250,16 +268,17 @@
                         fecha: new Date().toISOString(),
                         sesion_token: ticketSesion
                     });
-                    mostrarAnimacionYRedirigir();
+                    mostrarAnimacionYRechazar(user);
                 } else {
                     // Ya existe. Actualizamos ticket de seguridad
                     await updateDoc(userRef, { sesion_token: ticketSesion });
                     
-                    // Si ya está activo, lo pasamos de una sin rodeos. Si sigue inactivo, le mostramos la animación.
                     if (userSnap.data().estado === "activo") {
+                        // Es VIP: Abre la puerta al PIN
                         window.location.replace("login_pin.html");
                     } else {
-                        mostrarAnimacionYRedirigir();
+                        // Sigue inactivo: Bloqueo inmediato sin volver a ver el avioncito
+                        mostrarModalInactivo(user);
                     }
                 }
 
