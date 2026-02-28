@@ -17,7 +17,8 @@ body {
     background-color: #fafbfc; /* Fondo blanco/gris claro para que se fusione con la app */
     display: flex; 
     justify-content: center; 
-    height: 100vh; 
+    height: 100vh; /* Respaldo para navegadores viejos */
+    height: 100dvh; /* Altura dinámica real (evita que la barra del navegador oculte el menú) */
     width: 100vw;
     overflow: hidden; 
 }
@@ -68,8 +69,8 @@ body {
 .logo { height: 24px; object-fit: contain; }
 
 /* VISTAS */
-.view-inicio { display: block; flex: 1; overflow-y: auto; padding-bottom: 100px; }
-.view-operaciones { display: none; flex: 1; overflow-y: auto; padding-bottom: 100px; background-color: #f4f6f9; }
+.view-inicio { display: block; flex: 1; overflow-y: auto; padding-bottom: 85px; /* Espacio extra para que no pise el menú fijo */ }
+.view-operaciones { display: none; flex: 1; overflow-y: auto; padding-bottom: 85px; background-color: #f4f6f9; }
 
 .view-inicio::-webkit-scrollbar, .view-operaciones::-webkit-scrollbar { width: 0px; background: transparent; }
 
@@ -144,8 +145,29 @@ body {
 
 .op-item .arrow-right { font-size: 28px; font-weight: 900; transform: scaleY(1.1); margin-left: 10px; color: #00b551; }
 
-/* MENÚ INFERIOR (ESTÁTICO) */
-.bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; height: 70px; background-color: #ffffff; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-around; align-items: center; padding: 0 10px; z-index: 100; }
+/* MENÚ INFERIOR FIJO Y SEGURO (CORRECCIÓN) */
+.bottom-nav { 
+    position: fixed; /* Ahora flota sobre todo, independiente del contenedor */
+    bottom: 0; 
+    left: 50%;
+    transform: translateX(-50%); /* Lo centra perfectamente */
+    width: 100%; 
+    max-width: 100%; /* Igual que el contenedor principal */
+    height: 70px; 
+    background-color: #ffffff; 
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05); 
+    display: flex; 
+    justify-content: space-around; 
+    align-items: center; 
+    padding: 0 10px; 
+    z-index: 1000; /* Lo pone por encima de todo */
+}
+
+/* Solo en PCs le aplicamos el ancho del contenedor */
+@media (min-width: 1200px) {
+    .bottom-nav { max-width: 480px; }
+}
+
 .nav-item { display: flex; flex-direction: column; align-items: center; color: #666; text-decoration: none; font-size: 11px; flex: 1; cursor: pointer; border: none; background: none; }
 .nav-item.active { color: #00b551; }
 .nav-icon { width: 24px; height: 24px; margin-bottom: 4px; fill: none; stroke: currentColor; stroke-width: 1.5; }
