@@ -6,13 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Recarga de Celular - Banca Móvil</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; font-family: 'Nunito', sans-serif; }
-        
-        body { background-color: #e5e7eb; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
-
-        .mobile-wrapper { width: 100%; max-width: 480px; background-color: #ffffff; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: 100%; }
-
         /* HEADER */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: #ffffff; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.06); z-index: 10; }
         .back-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; width: 30px; }
@@ -267,6 +264,7 @@
 
         function irCuentas() {
             if (btnSiguienteForm.classList.contains('active')) {
+                // AQUI SE CORRIGIÓ: Llama a la función antes de cambiar de vista
                 cargarCuentasCargo();
                 cambiarVistaActiva('view-form', 'view-cuentas');
             }
@@ -285,7 +283,6 @@
 
                 let formattedBal = parseFloat(savedBal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
-                // AHORA MANDAMOS EL 'i' (El ID de la cuenta) EN LA FUNCIÓN
                 let cardHTML = `
                     <div class="account-card" onclick="seleccionarCuenta(${i}, '${savedName}', '${savedNum}', '${savedCurr}')">
                         <img src="img/pig.png" alt="Icono Cuenta" class="acc-icon" style="background-color: #F6F6EA; padding: 5px;">

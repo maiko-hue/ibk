@@ -6,13 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Elige cuenta - Plin</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; font-family: 'Nunito', sans-serif; }
-        
-        body { background-color: #e5e7eb; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
-
-        .mobile-wrapper { width: 100%; max-width: 480px; background-color: #fafbfc; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: 100%; }
-
         /* HEADER */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: #ffffff; flex-shrink: 0; border-bottom: 1px solid #f0f0f0; }
         .back-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; width: 30px; }
@@ -145,33 +142,10 @@
         <div id="view-cuentas" class="view active">
             <div class="content">
                 <div class="subtitle">Elige la cuenta de cargo</div>
-
-                <div class="account-card" onclick="seleccionarCuentaCargo(1)">
-                    <img src="img/target.jpg" alt="Icono Cuenta" class="acc-icon">
-                    <div class="acc-details">
-                        <div class="acc-name" id="acc1-name">Cuenta Simple Soles</div>
-                        <div class="acc-balance" id="acc1-bal">S/ 2.22</div>
+                
+                <div id="accountsListContainer">
                     </div>
-                    <div class="arrow-right">›</div>
-                </div>
 
-                <div class="account-card" onclick="seleccionarCuentaCargo(2)">
-                    <img src="img/target.jpg" alt="Icono Cuenta" class="acc-icon">
-                    <div class="acc-details">
-                        <div class="acc-name" id="acc2-name">Cuenta Simple Dolares</div>
-                        <div class="acc-balance" id="acc2-bal">US$ 871.78</div>
-                    </div>
-                    <div class="arrow-right">›</div>
-                </div>
-
-                <div class="account-card" onclick="seleccionarCuentaCargo(3)">
-                    <img src="img/target.jpg" alt="Icono Cuenta" class="acc-icon">
-                    <div class="acc-details">
-                        <div class="acc-name" id="acc3-name">Ola</div>
-                        <div class="acc-balance" id="acc3-bal">S/ 111,111.00</div>
-                    </div>
-                    <div class="arrow-right">›</div>
-                </div>
             </div>
         </div>
 
@@ -234,21 +208,36 @@
 
         // CARGAR DATOS DINÁMICOS AL INICIAR
         document.addEventListener('DOMContentLoaded', () => {
-            for (let i = 1; i <= 3; i++) {
-                let savedName = localStorage.getItem(`ibk_acc${i}_name`);
-                let savedCurr = localStorage.getItem(`ibk_acc${i}_curr`);
-                let savedBal = localStorage.getItem(`ibk_acc${i}_bal`);
-
-                let nameToUse = savedName || defaults[i-1].name;
-                let currToUse = savedCurr || defaults[i-1].curr;
-                let balToUse = savedBal || defaults[i-1].bal;
-
-                let formattedBal = parseFloat(balToUse).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
-                document.getElementById(`acc${i}-name`).innerText = nameToUse;
-                document.getElementById(`acc${i}-bal`).innerText = `${currToUse} ${formattedBal}`;
-            }
+            cargarCuentasCargo();
         });
+
+        // --- GENERADOR DINÁMICO DE CUENTAS ---
+        function cargarCuentasCargo() {
+            const listContainer = document.getElementById('accountsListContainer');
+            listContainer.innerHTML = ''; 
+
+            for (let i = 1; i <= 3; i++) {
+                let savedName = localStorage.getItem(`ibk_acc${i}_name`) || defaults[i-1].name;
+                let savedCurr = localStorage.getItem(`ibk_acc${i}_curr`) || defaults[i-1].curr;
+                let savedBal = localStorage.getItem(`ibk_acc${i}_bal`) || defaults[i-1].bal;
+                let savedNum = localStorage.getItem(`ibk_acc${i}_num`) || "191 2058951088"; // Fallback por seguridad
+
+                let formattedBal = parseFloat(savedBal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+                // Pasamos el ID, Nombre y Número directamente a la función
+                let cardHTML = `
+                    <div class="account-card" onclick="seleccionarCuentaCargo(${i}, '${savedName}', '${savedNum}')">
+                        <img src="img/target.jpg" alt="Icono Cuenta" class="acc-icon">
+                        <div class="acc-details">
+                            <div class="acc-name">${savedName}</div>
+                            <div class="acc-balance">${savedCurr} ${formattedBal}</div>
+                        </div>
+                        <div class="arrow-right">›</div>
+                    </div>
+                `;
+                listContainer.insertAdjacentHTML('beforeend', cardHTML);
+            }
+        }
 
         // NAVEGACIÓN HACIA ATRÁS
         function goBack() {
@@ -264,12 +253,9 @@
         }
 
         // ACCIÓN AL SELECCIONAR UNA CUENTA
-        function seleccionarCuentaCargo(accId) {
+        function seleccionarCuentaCargo(accId, accName, accNum) {
             cuentaSeleccionadaID = accId; // Memorizamos la cuenta elegida
             
-            const nombreCuenta = document.getElementById(`acc${accId}-name`).innerText;
-            const numCuenta = localStorage.getItem(`ibk_acc${accId}_num`) || "191 2058956625"; 
-
             const montoEnvio = parseFloat(localStorage.getItem('ibk_plin_monto') || 0).toFixed(2);
             const nombreDestino = localStorage.getItem('ibk_plin_nombre') || "Destinatario";
             const destinoBanco = localStorage.getItem('ibk_plin_destino') || "Plin";
@@ -292,8 +278,10 @@
             }
 
             document.getElementById('confDestino').innerText = destinoBanco;
-            document.getElementById('confCuentaNombre').innerText = nombreCuenta;
-            document.getElementById('confCuentaNum').innerText = numCuenta;
+            
+            // Usamos los datos dinámicos recibidos por la función
+            document.getElementById('confCuentaNombre').innerText = accName;
+            document.getElementById('confCuentaNum').innerText = accNum;
 
             document.getElementById('view-cuentas').classList.remove('active');
             document.getElementById('view-confirmacion').classList.add('active');
@@ -325,6 +313,10 @@
             // 4. Guardamos el nuevo saldo en la memoria de esa cuenta específica
             localStorage.setItem(`ibk_acc${cuentaSeleccionadaID}_bal`, nuevoSaldo.toFixed(2));
             // --- FIN DE LA LÓGICA DE RESTA ---
+
+            // Guardamos temporalmente el nombre y número de cuenta origen para que el voucher (exito.html) pueda leerlos
+            localStorage.setItem('ibk_trans_cargo_name', document.getElementById('confCuentaNombre').innerText);
+            localStorage.setItem('ibk_trans_cargo_num', document.getElementById('confCuentaNum').innerText);
 
             // Esperar 2 segundos y redirigir al voucher
             setTimeout(() => {

@@ -6,13 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Servicios - Banca Móvil</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; font-family: 'Nunito', sans-serif; }
-        
-        body { background-color: #e5e7eb; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
-
-        .mobile-wrapper { width: 100%; max-width: 480px; background-color: #ffffff; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: 100%; }
-
         /* HEADER */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: #ffffff; flex-shrink: 0; border-bottom: 1px solid #f0f0f0; z-index: 10; }
         .back-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; width: 30px; }
@@ -97,8 +94,6 @@
         
         .conf-label { font-size: 12px; color: #888; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
         .conf-val { font-size: 15px; color: #000; font-weight: 400; line-height: 1.2; }
-        
-        .badge-gratis { background-color: #00b551; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; display: inline-block; margin-top: 2px; }
         
         .text-group { display: flex; flex-direction: column; gap: 4px; }
 
@@ -226,7 +221,7 @@
                     </div>
                 </div>
 
-                <div class="conf-row">
+                <div class="conf-row" style="border-bottom: none;">
                     <div class="conf-label">MONEDA Y MONTO</div>
                     <div class="conf-val" id="confMontoFinal">US$ 123.00</div>
                 </div>
@@ -410,7 +405,6 @@
 
                 let formattedBal = parseFloat(savedBal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
-                // AHORA MANDAMOS EL 'i' (El ID de la cuenta) EN LA FUNCIÓN
                 let cardHTML = `
                     <div class="account-card" onclick="seleccionarCuenta(${i}, '${savedName}', '${savedNum}', '${savedCurr}')">
                         <img src="img/target.jpg" alt="Icono Cuenta" class="acc-icon">
@@ -462,7 +456,7 @@
             localStorage.setItem('ibk_serv_cargo_num', document.getElementById('confCargoNum').innerText);
             localStorage.setItem('ibk_serv_titular', document.getElementById('confTitular').innerText);
             localStorage.setItem('ibk_serv_codigo', document.getElementById('confCodigo').innerText);
-            localStorage.setItem('ibk_serv_fecha', document.getElementById('fechaInput').value); // Aquí va la fecha
+            localStorage.setItem('ibk_serv_fecha', document.getElementById('fechaInput').value); 
             
             // Sacamos el monto que vamos a cobrar
             const montoTexto = document.getElementById('confMontoFinal').innerText;
@@ -474,16 +468,13 @@
                 // 1. Leer el saldo actual de ESA cuenta específica
                 let saldoActual = localStorage.getItem(`ibk_acc${cuentaSeleccionadaId}_bal`);
                 
-                // Si no existía, tomamos el default para hacer la resta (previniendo errores)
+                // Si no existía, tomamos el default para hacer la resta
                 if (!saldoActual) {
                     saldoActual = DEFAULTS[cuentaSeleccionadaId - 1].bal;
                 }
                 
                 // 2. Restar el dinero
                 let nuevoSaldo = parseFloat(saldoActual) - montoARestar;
-                
-                // (Opcional) Puedes evitar que quede en negativo poniendo un límite:
-                // if (nuevoSaldo < 0) { alert("Saldo insuficiente"); return; }
                 
                 // 3. Sobrescribir la memoria con el nuevo saldo
                 localStorage.setItem(`ibk_acc${cuentaSeleccionadaId}_bal`, nuevoSaldo.toFixed(2));
