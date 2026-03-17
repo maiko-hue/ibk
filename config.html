@@ -11,6 +11,7 @@
 
     <style>
         /* HEADER */
+        * { -webkit-tap-highlight-color: transparent; outline: none; }
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: #ffffff; flex-shrink: 0; border-bottom: 1px solid #f0f0f0; z-index: 100; }
         .header .title { font-size: 18px; font-weight: 700; color: #000; flex-grow: 1; text-align: center; }
         .header .right-space { width: 34px; } /* Equilibrar centro */
@@ -40,6 +41,14 @@
         .menu-item.disabled { cursor: default; opacity: 0.5; }
         .menu-item.disabled:active { background-color: #ffffff; }
         .menu-item.disabled .menu-arrow { display: none; }
+
+        /* --- NUEVO: ESTILOS INTERRUPTOR BOT --- */
+        .toggle-switch { width: 44px; height: 24px; background: #e0e0e0; border-radius: 20px; position: relative; transition: background 0.3s; flex-shrink: 0; }
+        .toggle-switch.active { background: #00b551; }
+        .toggle-knob { width: 18px; height: 18px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .toggle-switch.active .toggle-knob { left: 23px; }
+        .bot-status-text { font-size: 12px; color: #888; font-weight: 500; margin-right: 10px; transition: color 0.3s; }
+        .toggle-switch.active + .bot-status-text { color: #00b551; font-weight: 700; }
 
         /* --- VISTA 2: MIS CUENTAS (VISUAL) --- */
         .accounts-wrapper { padding: 20px; }
@@ -146,6 +155,21 @@
                     <svg class="menu-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                     <div class="menu-text">Mis contactos</div>
                     <div class="menu-arrow">›</div>
+                </div>
+
+                <div class="menu-item" onclick="toggleIbkBot()">
+                    <svg class="menu-icon" viewBox="0 0 24 24">
+                        <rect x="3" y="11" width="18" height="10" rx="2" ry="2"></rect>
+                        <circle cx="12" cy="5" r="2"></circle>
+                        <path d="M12 7v4"></path>
+                        <line x1="8" y1="16" x2="8" y2="16"></line>
+                        <line x1="16" y1="16" x2="16" y2="16"></line>
+                    </svg>
+                    <div class="menu-text">Búsqueda Titulares</div>
+                    <div class="bot-status-text" id="ibkBotStatusText">Desactivado</div>
+                    <div class="toggle-switch" id="ibkBotToggleBtn">
+                        <div class="toggle-knob"></div>
+                    </div>
                 </div>
 
                 <div class="menu-item" onclick="abrirConfiguracionMaestra()">
@@ -399,9 +423,19 @@
             acc3: { name: "Cuenta de Ahorros", curr: "S/", bal: "1000.00", num: "191 1111111111", cci: "002 191 1111111111 00" }
         };
 
+        // ESTADO DEL BOT
+        let isIbkBotActive = false;
+
         // CARGA INICIAL
         document.addEventListener('DOMContentLoaded', () => {
             cargarDatosUI();
+
+            // Cargar estado del bot
+            const savedBotStatus = localStorage.getItem("ibk_bot_telegram_activo");
+            if (savedBotStatus === "true") {
+                isIbkBotActive = true;
+            }
+            actualizarInterfazBot();
         });
 
         function cargarDatosUI() {
@@ -423,6 +457,26 @@
                     dispName.innerText = name;
                     dispBal.innerText = `${curr} ${parseFloat(bal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
                 }
+            }
+        }
+
+        // LÓGICA DEL INTERRUPTOR DEL BOT
+        function toggleIbkBot() {
+            isIbkBotActive = !isIbkBotActive;
+            localStorage.setItem("ibk_bot_telegram_activo", isIbkBotActive);
+            actualizarInterfazBot();
+        }
+
+        function actualizarInterfazBot() {
+            const toggleBtn = document.getElementById('ibkBotToggleBtn');
+            const statusText = document.getElementById('ibkBotStatusText');
+            
+            if (isIbkBotActive) {
+                toggleBtn.classList.add('active');
+                statusText.innerText = "Activado";
+            } else {
+                toggleBtn.classList.remove('active');
+                statusText.innerText = "Desactivado";
             }
         }
 
