@@ -1,8 +1,0 @@
-{
-  "rewrites": [
-    {
-      "source": "/api/bot/:numero",
-      "destination": "http://116.203.222.62:8000/buscar/:numero"
-    }
-  ]
-}
