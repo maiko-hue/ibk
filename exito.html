@@ -12,6 +12,25 @@
     <link rel="stylesheet" href="styles.css">
 
     <style>
+        * {
+    /* Elimina el recuadro azul al hacer clic en celulares */
+    -webkit-tap-highlight-color: transparent;
+    outline: none !important;
+    
+    /* Bloquea la selección de texto en toda la app */
+    -webkit-user-select: none; 
+    -moz-user-select: none; 
+    -ms-user-select: none; 
+    user-select: none; 
+}
+
+/* Excepción para que sí se pueda seleccionar/escribir en los inputs */
+input, textarea {
+    -webkit-user-select: auto;
+    -moz-user-select: auto;
+    -ms-user-select: auto;
+    user-select: auto;
+}
         /* HEADER - Ajuste de sombra pedido */
         .header { display: flex; justify-content: center; align-items: center; padding: 15px 20px; background-color: #ffffff; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.06); border-bottom: none; z-index: 10; }
         .header-title { font-size: 16px; font-weight: 700; color: #000; }
