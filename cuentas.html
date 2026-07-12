@@ -5,30 +5,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Elige cuenta - Plin</title>
+    <link rel="icon" href="img/favicon.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="styles.css">
 
     <style>
         * {
-    /* Elimina el recuadro azul al hacer clic en celulares */
-    -webkit-tap-highlight-color: transparent;
-    outline: none !important;
-    
-    /* Bloquea la selección de texto en toda la app */
-    -webkit-user-select: none; 
-    -moz-user-select: none; 
-    -ms-user-select: none; 
-    user-select: none; 
-}
+            /* Elimina el recuadro azul al hacer clic en celulares */
+            -webkit-tap-highlight-color: transparent;
+            outline: none !important;
+            
+            /* Bloquea la selección de texto en toda la app */
+            -webkit-user-select: none; 
+            -moz-user-select: none; 
+            -ms-user-select: none; 
+            user-select: none; 
+            -webkit-touch-callout: none !important;
+        }
 
-/* Excepción para que sí se pueda seleccionar/escribir en los inputs */
-input, textarea {
-    -webkit-user-select: auto;
-    -moz-user-select: auto;
-    -ms-user-select: auto;
-    user-select: auto;
-}
+        /* Excepción para que sí se pueda seleccionar/escribir en los inputs */
+        input, textarea {
+            -webkit-user-select: auto;
+            -moz-user-select: auto;
+            -ms-user-select: auto;
+            user-select: auto;
+        }
+
+        /* Bloquea la interacción de las imágenes para evitar que se puedan guardar */
+        img {
+            pointer-events: none;
+            -webkit-user-drag: none;
+            -webkit-touch-callout: none !important;
+        }
+
+        button, a, .account-card, .back-btn {
+            pointer-events: auto;
+        }
+
         /* HEADER */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: #ffffff; flex-shrink: 0; border-bottom: 1px solid #f0f0f0; }
         .back-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; width: 30px; }
@@ -236,9 +250,9 @@ input, textarea {
             listContainer.innerHTML = ''; 
 
             for (let i = 1; i <= 3; i++) {
-                let savedName = localStorage.getItem(`ibk_acc${i}_name`) || defaults[i-1].name;
-                let savedCurr = localStorage.getItem(`ibk_acc${i}_curr`) || defaults[i-1].curr;
-                let savedBal = localStorage.getItem(`ibk_acc${i}_bal`) || defaults[i-1].bal;
+                let savedName = localStorage.getItem(`ibk_acc${i}_name`) || DEFAULTS[`acc${i}`].name;
+                let savedCurr = localStorage.getItem(`ibk_acc${i}_curr`) || DEFAULTS[`acc${i}`].curr;
+                let savedBal = localStorage.getItem(`ibk_acc${i}_bal`) || DEFAULTS[`acc${i}`].bal;
                 let savedNum = localStorage.getItem(`ibk_acc${i}_num`) || "191 2058951088"; // Fallback por seguridad
 
                 let formattedBal = parseFloat(savedBal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
@@ -318,7 +332,7 @@ input, textarea {
             // 2. Obtenemos el saldo actual de la cuenta elegida (o el default si no hay nada guardado)
             let saldoActual = localStorage.getItem(`ibk_acc${cuentaSeleccionadaID}_bal`);
             if (saldoActual === null || saldoActual === "") {
-                saldoActual = parseFloat(defaults[cuentaSeleccionadaID - 1].bal);
+                saldoActual = parseFloat(DEFAULTS[`acc${cuentaSeleccionadaID}`].bal);
             } else {
                 saldoActual = parseFloat(saldoActual);
             }
