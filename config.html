@@ -11,38 +11,77 @@
     <link rel="stylesheet" href="styles.css">
 
     <style>
+        /* --- BLOQUEO DE SELECCIÓN Y DESCARGAS --- */
         * {
-    /* Elimina el recuadro azul al hacer clic en celulares */
-    -webkit-tap-highlight-color: transparent;
-    outline: none !important;
-    
-    /* Bloquea la selección de texto en toda la app */
-    -webkit-user-select: none; 
-    -moz-user-select: none; 
-    -ms-user-select: none; 
-    user-select: none; 
-}
+            /* Elimina el recuadro azul al hacer clic en celulares */
+            -webkit-tap-highlight-color: transparent !important;
+            outline: none !important;
+            
+            /* Bloquea la selección de texto en toda la app */
+            -webkit-user-select: none !important; 
+            -moz-user-select: none !important; 
+            -ms-user-select: none !important; 
+            user-select: none !important; 
+        }
 
-/* Excepción para que sí se pueda seleccionar/escribir en los inputs */
-input, textarea {
-    -webkit-user-select: auto;
-    -moz-user-select: auto;
-    -ms-user-select: auto;
-    user-select: auto;
-}
-        /* HEADER */
-        * { -webkit-tap-highlight-color: transparent; outline: none; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: #ffffff; flex-shrink: 0; border-bottom: 1px solid #f0f0f0; z-index: 100; }
-        .header .title { font-size: 18px; font-weight: 700; color: #000; flex-grow: 1; text-align: center; }
-        .header .right-space { width: 34px; } /* Equilibrar centro */
-        .back-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; }
-        .back-btn svg { width: 24px; height: 24px; stroke: #00b551; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
-        .text-green-btn { color: #00b551; font-weight: 700; font-size: 14px; cursor: pointer; border: none; background: none; }
+        /* Excepción para que sí se pueda seleccionar/escribir en los inputs */
+        input, textarea, select {
+            -webkit-user-select: auto !important;
+            -moz-user-select: auto !important;
+            -ms-user-select: auto !important;
+            user-select: auto !important;
+        }
+
+        /* Bloquea menú contextual y descargas al mantener presionadas las imágenes */
+        img {
+            -webkit-touch-callout: none !important;
+            -webkit-user-drag: none !important;
+            pointer-events: none !important; /* Desactiva interacción directa con la imagen, la asume el botón padre */
+        }
+
+        body {
+            background-color: #f2f4f7; /* Fondo gris claro detrás de la tarjeta */
+            margin: 0;
+            padding: 0;
+        }
+
+        /* --- NUEVO FONDO ESTILO TARJETA (IMAGE_95ABD9) --- */
+        .green-bg-curve {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 220px;
+            background-color: #2BD071;
+            border-bottom-left-radius: 35px;
+            border-bottom-right-radius: 35px;
+            z-index: 1;
+        }
+
+        .content-card {
+            background-color: #ffffff;
+            border-radius: 20px;
+            margin: 10px 15px 90px 15px; /* Espacio a los lados y abajo para la navbar */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            position: relative;
+            z-index: 2;
+            padding-bottom: 20px;
+            min-height: calc(100vh - 260px);
+            overflow: hidden;
+        }
 
         /* VISTAS */
-        .view { flex: 1; overflow-y: auto; padding-bottom: 90px; display: none; }
+        .view { flex: 1; overflow-y: auto; display: none; position: relative; z-index: 2; height: 100vh;}
         .view.active { display: block; }
         .view::-webkit-scrollbar { width: 0px; background: transparent; }
+
+        /* HEADER MODIFICADO (Transparente sobre el fondo verde) */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: transparent; flex-shrink: 0; border-bottom: none; z-index: 100; }
+        .header .title { font-size: 18px; font-weight: 700; color: #ffffff; flex-grow: 1; text-align: center; }
+        .header .right-space { width: 34px; } 
+        .back-btn { background: rgba(255, 255, 255, 0.2); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 6px; border-radius: 50%; width: 34px; height: 34px;}
+        .back-btn svg { width: 20px; height: 20px; stroke: #ffffff; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+        .text-green-btn { color: #ffffff; font-weight: 700; font-size: 14px; cursor: pointer; border: none; background: none; }
 
         /* --- VISTA 1: MÁS OPCIONES --- */
         .profile-section { display: flex; align-items: center; padding: 25px 20px; }
@@ -115,7 +154,7 @@ input, textarea {
 
         /* ESTILOS DEL MENSAJE NATIVO (MODAL) */
         .modal-overlay { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background-color: rgba(0,0,0,0.6); z-index: 1000; 
             display: none; justify-content: center; align-items: center; 
             padding: 30px; backdrop-filter: blur(2px);
@@ -133,6 +172,9 @@ input, textarea {
     </style>
 </head>
 <body>
+
+    <!-- FONDO VERDE SUPERIOR -->
+    <div class="green-bg-curve"></div>
 
     <div class="mobile-wrapper">
 
@@ -156,56 +198,58 @@ input, textarea {
                 <div class="right-space"></div>
             </header>
 
-            <div class="profile-section">
-                <div class="avatar" id="avatarInitial">G</div>
-                <div class="user-info">
-                    <div class="user-name" id="userNameDisplay">Gabriel</div>
-                    <div class="user-edit">Editar tus datos <span>&rarr;</span></div>
-                </div>
-            </div>
-
-            <div class="menu-list">
-                <div class="menu-item" onclick="window.location.href='sobre.html'">
-                    <svg class="menu-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                    <div class="menu-text">Mis cuentas</div>
-                    <div class="menu-arrow">›</div>
-                </div>
-                
-                <div class="menu-item" onclick="cambiarVista('view-contactos')">
-                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                    <div class="menu-text">Mis contactos</div>
-                    <div class="menu-arrow">›</div>
-                </div>
-
-                <div class="menu-item" onclick="toggleIbkBot()">
-                    <svg class="menu-icon" viewBox="0 0 24 24">
-                        <rect x="3" y="11" width="18" height="10" rx="2" ry="2"></rect>
-                        <circle cx="12" cy="5" r="2"></circle>
-                        <path d="M12 7v4"></path>
-                        <line x1="8" y1="16" x2="8" y2="16"></line>
-                        <line x1="16" y1="16" x2="16" y2="16"></line>
-                    </svg>
-                    <div class="menu-text">Búsqueda Titulares</div>
-                    <div class="bot-status-text" id="ibkBotStatusText">Desactivado</div>
-                    <div class="toggle-switch" id="ibkBotToggleBtn">
-                        <div class="toggle-knob"></div>
+            <div class="content-card">
+                <div class="profile-section">
+                    <div class="avatar" id="avatarInitial">G</div>
+                    <div class="user-info">
+                        <div class="user-name" id="userNameDisplay">Gabriel</div>
+                        <div class="user-edit">Editar tus datos <span>&rarr;</span></div>
                     </div>
                 </div>
 
-                <div class="menu-item" onclick="abrirConfiguracionMaestra()">
-                    <svg class="menu-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                    <div class="menu-text">Configuración</div>
-                    <div class="menu-arrow">›</div>
-                </div>
+                <div class="menu-list">
+                    <div class="menu-item" onclick="window.location.href='sobre.html'">
+                        <svg class="menu-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        <div class="menu-text">Mis cuentas</div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+                    
+                    <div class="menu-item" onclick="cambiarVista('view-contactos')">
+                        <svg class="menu-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        <div class="menu-text">Mis contactos</div>
+                        <div class="menu-arrow">›</div>
+                    </div>
 
-                <div class="menu-item">
-                    <svg class="menu-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                    <div class="menu-text">Borrar movimientos</div>
-                </div>
+                    <div class="menu-item" onclick="toggleIbkBot()">
+                        <svg class="menu-icon" viewBox="0 0 24 24">
+                            <rect x="3" y="11" width="18" height="10" rx="2" ry="2"></rect>
+                            <circle cx="12" cy="5" r="2"></circle>
+                            <path d="M12 7v4"></path>
+                            <line x1="8" y1="16" x2="8" y2="16"></line>
+                            <line x1="16" y1="16" x2="16" y2="16"></line>
+                        </svg>
+                        <div class="menu-text">Búsqueda Titulares</div>
+                        <div class="bot-status-text" id="ibkBotStatusText">Desactivado</div>
+                        <div class="toggle-switch" id="ibkBotToggleBtn">
+                            <div class="toggle-knob"></div>
+                        </div>
+                    </div>
 
-                <div class="menu-item" onclick="confirmarCierre()">
-                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                    <div class="menu-text">Cerrar Sesión</div>
+                    <div class="menu-item" onclick="abrirConfiguracionMaestra()">
+                        <svg class="menu-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                        <div class="menu-text">Configuración</div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+
+                    <div class="menu-item">
+                        <svg class="menu-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        <div class="menu-text">Borrar movimientos</div>
+                    </div>
+
+                    <div class="menu-item" onclick="confirmarCierre()">
+                        <svg class="menu-icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                        <div class="menu-text">Cerrar Sesión</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -219,51 +263,53 @@ input, textarea {
                 <button class="text-green-btn">Agregar</button>
             </header>
 
-            <div class="accounts-wrapper">
-                <div class="accounts-desc">
-                    Selecciona hasta 3 productos que se mostrarán en tu pantalla de inicio.
-                </div>
+            <div class="content-card">
+                <div class="accounts-wrapper">
+                    <div class="accounts-desc">
+                        Selecciona hasta 3 productos que se mostrarán en tu pantalla de inicio.
+                    </div>
 
-                <div class="account-card">
-                    <div class="acc-badge">1</div>
-                    <div class="acc-info">
-                        <div class="acc-name" id="dispName1">Cuenta Simple Soles</div>
-                        <div class="acc-balance" id="dispBal1">S/ 2.22</div>
-                        <div class="acc-sub">Saldo Disponible</div>
+                    <div class="account-card">
+                        <div class="acc-badge">1</div>
+                        <div class="acc-info">
+                            <div class="acc-name" id="dispName1">Cuenta Simple Soles</div>
+                            <div class="acc-balance" id="dispBal1">S/ 2.22</div>
+                            <div class="acc-sub">Saldo Disponible</div>
+                        </div>
+                        <div class="acc-actions">
+                            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            <svg onclick="abrirConfiguracionMaestra()" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        </div>
                     </div>
-                    <div class="acc-actions">
-                        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        <svg onclick="abrirConfiguracionMaestra()" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    </div>
-                </div>
 
-                <div class="account-card">
-                    <div class="acc-badge">2</div>
-                    <div class="acc-info">
-                        <div class="acc-name" id="dispName2">Cuenta Simple Dolares</div>
-                        <div class="acc-balance" id="dispBal2">US$ 871.78</div>
-                        <div class="acc-sub">Saldo Disponible</div>
+                    <div class="account-card">
+                        <div class="acc-badge">2</div>
+                        <div class="acc-info">
+                            <div class="acc-name" id="dispName2">Cuenta Simple Dolares</div>
+                            <div class="acc-balance" id="dispBal2">US$ 871.78</div>
+                            <div class="acc-sub">Saldo Disponible</div>
+                        </div>
+                        <div class="acc-actions">
+                            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            <svg onclick="abrirConfiguracionMaestra()" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        </div>
                     </div>
-                    <div class="acc-actions">
-                        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        <svg onclick="abrirConfiguracionMaestra()" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    </div>
-                </div>
 
-                <div class="account-card">
-                    <div class="acc-badge">3</div>
-                    <div class="acc-info">
-                        <div class="acc-name" id="dispName3">Ola</div>
-                        <div class="acc-balance" id="dispBal3">S/ 111,111.00</div>
-                        <div class="acc-sub">Saldo Disponible</div>
+                    <div class="account-card">
+                        <div class="acc-badge">3</div>
+                        <div class="acc-info">
+                            <div class="acc-name" id="dispName3">Ola</div>
+                            <div class="acc-balance" id="dispBal3">S/ 111,111.00</div>
+                            <div class="acc-sub">Saldo Disponible</div>
+                        </div>
+                        <div class="acc-actions">
+                            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            <svg onclick="abrirConfiguracionMaestra()" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        </div>
                     </div>
-                    <div class="acc-actions">
-                        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        <svg onclick="abrirConfiguracionMaestra()" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    </div>
-                </div>
 
-                <button class="btn-guardar-ghost">Guardar</button>
+                    <button class="btn-guardar-ghost">Guardar</button>
+                </div>
             </div>
         </div>
 
@@ -276,22 +322,24 @@ input, textarea {
                 <div class="right-space"></div>
             </header>
 
-            <div class="contacts-wrapper">
-                <div class="contact-input-row">
-                    <input type="text" id="contactName" class="contact-input" placeholder="Titular">
-                    <button class="cam-btn"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></button>
-                </div>
-                <div class="input-full" style="padding:0; border:none; margin-bottom:15px;">
-                    <input type="tel" id="contactPhone" class="contact-input" placeholder="Celular" style="width: 100%;" maxlength="9" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                </div>
-                
-                <button class="btn-green-full" id="btnSaveContact">Guardar</button>
+            <div class="content-card">
+                <div class="contacts-wrapper">
+                    <div class="contact-input-row">
+                        <input type="text" id="contactName" class="contact-input" placeholder="Titular">
+                        <button class="cam-btn"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></button>
+                    </div>
+                    <div class="input-full" style="padding:0; border:none; margin-bottom:15px;">
+                        <input type="tel" id="contactPhone" class="contact-input" placeholder="Celular" style="width: 100%;" maxlength="9" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    </div>
+                    
+                    <button class="btn-green-full" id="btnSaveContact">Guardar</button>
 
-                <div class="info-box">
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                    <div>
-                        <p style="margin-bottom: 8px;">Los números que registres formarán parte del autocompletado.</p>
-                        <p style="font-weight: 700; color: #00b551;">Recuerda que todas las apps de @appsreborn comparten la misma base de datos.</p>
+                    <div class="info-box">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        <div>
+                            <p style="margin-bottom: 8px;">Los números que registres formarán parte del autocompletado.</p>
+                            <p style="font-weight: 700; color: #00b551;">Recuerda que todas las apps de @appsreborn comparten la misma base de datos.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -306,56 +354,58 @@ input, textarea {
                 <div class="right-space"></div>
             </header>
 
-            <div class="settings-wrapper">
-                
-                <div class="settings-section-title">Perfil de Usuario</div>
-                <input type="text" id="setUserName" class="input-full" placeholder="Nombre completo">
+            <div class="content-card">
+                <div class="settings-wrapper">
+                    
+                    <div class="settings-section-title">Perfil de Usuario</div>
+                    <input type="text" id="setUserName" class="input-full" placeholder="Nombre completo">
 
-                <div class="settings-section-title">Edición de Cuentas</div>
+                    <div class="settings-section-title">Edición de Cuentas</div>
 
-                <div class="set-account-box">
-                    <div class="set-account-header">Cuenta 1 (Soles)</div>
-                    <input type="text" id="setAcc1Name" class="input-full" style="margin-bottom:10px;" placeholder="Nombre de la cuenta">
-                    <div class="input-row">
-                        <select id="setAcc1Curr" class="input-select" tabindex="-1">
-                            <option value="S/" selected>Soles (S/)</option>
-                            <option value="US$">Dólares (US$)</option>
-                        </select>
-                        <input type="number" id="setAcc1Bal" class="input-amount" placeholder="0.00" step="0.01">
+                    <div class="set-account-box">
+                        <div class="set-account-header">Cuenta 1 (Soles)</div>
+                        <input type="text" id="setAcc1Name" class="input-full" style="margin-bottom:10px;" placeholder="Nombre de la cuenta">
+                        <div class="input-row">
+                            <select id="setAcc1Curr" class="input-select" tabindex="-1">
+                                <option value="S/" selected>Soles (S/)</option>
+                                <option value="US$">Dólares (US$)</option>
+                            </select>
+                            <input type="number" id="setAcc1Bal" class="input-amount" placeholder="0.00" step="0.01">
+                        </div>
+                        <input type="tel" id="setAcc1Num" class="input-full" style="margin-bottom:10px;" placeholder="Número de cuenta (ej. 191 2058951088)">
+                        <input type="tel" id="setAcc1CCI" class="input-full" style="margin-bottom:0;" placeholder="CCI (ej. 002 191 002058951088 12)">
                     </div>
-                    <input type="tel" id="setAcc1Num" class="input-full" style="margin-bottom:10px;" placeholder="Número de cuenta (ej. 191 2058951088)">
-                    <input type="tel" id="setAcc1CCI" class="input-full" style="margin-bottom:0;" placeholder="CCI (ej. 002 191 002058951088 12)">
-                </div>
 
-                <div class="set-account-box">
-                    <div class="set-account-header">Cuenta 2 (Dólares)</div>
-                    <input type="text" id="setAcc2Name" class="input-full" style="margin-bottom:10px;" placeholder="Nombre de la cuenta">
-                    <div class="input-row">
-                        <select id="setAcc2Curr" class="input-select" tabindex="-1">
-                            <option value="S/">Soles (S/)</option>
-                            <option value="US$" selected>Dólares (US$)</option>
-                        </select>
-                        <input type="number" id="setAcc2Bal" class="input-amount" placeholder="0.00" step="0.01">
+                    <div class="set-account-box">
+                        <div class="set-account-header">Cuenta 2 (Dólares)</div>
+                        <input type="text" id="setAcc2Name" class="input-full" style="margin-bottom:10px;" placeholder="Nombre de la cuenta">
+                        <div class="input-row">
+                            <select id="setAcc2Curr" class="input-select" tabindex="-1">
+                                <option value="S/">Soles (S/)</option>
+                                <option value="US$" selected>Dólares (US$)</option>
+                            </select>
+                            <input type="number" id="setAcc2Bal" class="input-amount" placeholder="0.00" step="0.01">
+                        </div>
+                        <input type="tel" id="setAcc2Num" class="input-full" style="margin-bottom:10px;" placeholder="Número de cuenta">
+                        <input type="tel" id="setAcc2CCI" class="input-full" style="margin-bottom:0;" placeholder="CCI">
                     </div>
-                    <input type="tel" id="setAcc2Num" class="input-full" style="margin-bottom:10px;" placeholder="Número de cuenta">
-                    <input type="tel" id="setAcc2CCI" class="input-full" style="margin-bottom:0;" placeholder="CCI">
-                </div>
 
-                <div class="set-account-box">
-                    <div class="set-account-header">Cuenta 3 (Soles)</div>
-                    <input type="text" id="setAcc3Name" class="input-full" style="margin-bottom:10px;" placeholder="Nombre de la cuenta">
-                    <div class="input-row">
-                        <select id="setAcc3Curr" class="input-select" tabindex="-1">
-                            <option value="S/" selected>Soles (S/)</option>
-                            <option value="US$">Dólares (US$)</option>
-                        </select>
-                        <input type="number" id="setAcc3Bal" class="input-amount" placeholder="0.00" step="0.01">
+                    <div class="set-account-box">
+                        <div class="set-account-header">Cuenta 3 (Soles)</div>
+                        <input type="text" id="setAcc3Name" class="input-full" style="margin-bottom:10px;" placeholder="Nombre de la cuenta">
+                        <div class="input-row">
+                            <select id="setAcc3Curr" class="input-select" tabindex="-1">
+                                <option value="S/" selected>Soles (S/)</option>
+                                <option value="US$">Dólares (US$)</option>
+                            </select>
+                            <input type="number" id="setAcc3Bal" class="input-amount" placeholder="0.00" step="0.01">
+                        </div>
+                        <input type="tel" id="setAcc3Num" class="input-full" style="margin-bottom:10px;" placeholder="Número de cuenta">
+                        <input type="tel" id="setAcc3CCI" class="input-full" style="margin-bottom:0;" placeholder="CCI">
                     </div>
-                    <input type="tel" id="setAcc3Num" class="input-full" style="margin-bottom:10px;" placeholder="Número de cuenta">
-                    <input type="tel" id="setAcc3CCI" class="input-full" style="margin-bottom:0;" placeholder="CCI">
-                </div>
 
-                <button class="btn-green-full" onclick="guardarConfiguracionGlobal()">Guardar Cambios</button>
+                    <button class="btn-green-full" onclick="guardarConfiguracionGlobal()">Guardar Cambios</button>
+                </div>
             </div>
         </div>
 
