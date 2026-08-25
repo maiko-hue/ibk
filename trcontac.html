@@ -11,26 +11,27 @@
     <link rel="stylesheet" href="styles.css">
 
     <style>
+        /* REGLAS ANTI-SELECCIÓN Y ZOOM PEDIDAS */
         * {
-    /* Elimina el recuadro azul al hacer clic en celulares */
-    -webkit-tap-highlight-color: transparent;
-    outline: none !important;
-    
-    /* Bloquea la selección de texto en toda la app */
-    -webkit-user-select: none; 
-    -moz-user-select: none; 
-    -ms-user-select: none; 
-    user-select: none; 
-}
+            -webkit-tap-highlight-color: transparent !important;
+            -webkit-touch-callout: none !important; 
+            -webkit-user-select: none !important; 
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+            outline: none !important;
+            box-sizing: border-box;
+        }
 
-/* Excepción para que sí se pueda seleccionar/escribir en los inputs */
-input, textarea {
-    -webkit-user-select: auto;
-    -moz-user-select: auto;
-    -ms-user-select: auto;
-    user-select: auto;
-}
-        /* HEADER */
+        /* Excepción para que sí se pueda seleccionar/escribir en los inputs */
+        input, textarea {
+            -webkit-user-select: auto !important;
+            -moz-user-select: auto !important;
+            -ms-user-select: auto !important;
+            user-select: auto !important;
+        }
+
+        /* HEADER GENERAL (Oculto en la primera vista) */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: #ffffff; border-bottom: 1px solid #f0f0f0; flex-shrink: 0; }
         .back-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; width: 30px; }
         .back-btn svg { width: 20px; height: 20px; stroke: #00b551; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; fill: none; }
@@ -42,28 +43,130 @@ input, textarea {
         .view.active { display: flex; }
         .view::-webkit-scrollbar { width: 0px; background: transparent; }
 
-        /* --- VISTA 1: BÚSQUEDA Y LISTA --- */
-        .search-wrapper { padding: 20px 20px 10px 20px; background-color: #ffffff; flex-shrink: 0; }
-        .search-container { display: flex; align-items: center; background-color: #f5f6f8; border-radius: 8px; padding: 12px 15px; }
-        .search-icon { width: 20px; height: 20px; stroke: #a0aab5; stroke-width: 2; fill: none; margin-right: 12px; }
-        .search-input { border: none; background: transparent; width: 100%; font-size: 15px; color: #333; outline: none; }
-        .search-input::placeholder { color: #888; font-weight: 400; }
+        /* --- NUEVOS ESTILOS VISTA 1 (DISEÑO PLIN) --- */
+        #viewSearch { background-color: #f7f9fa; }
         
-        .contacts-list { flex: 1; padding: 0 20px 20px 20px; }
+        .green-top-bg {
+            background-color: #00b14f;
+            padding: 20px 20px 30px 20px;
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+        }
+        
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+        
+        .top-nav-back {
+            width: 34px; height: 34px;
+            background-color: rgba(0,0,0,0.15);
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            border: none;
+            flex-shrink: 0;
+        }
+        
+        .top-nav-title {
+            color: white; font-size: 18px; font-weight: 700; flex-grow: 1; margin-left: 15px;
+        }
+        
+        .top-nav-icons { display: flex; gap: 15px; }
+        
+        .search-row {
+            display: flex; align-items: center; gap: 15px;
+        }
+        
+        .search-pill-container {
+            flex: 1; background: white; border-radius: 30px;
+            display: flex; align-items: center; padding: 12px 15px;
+            min-width: 0; /* Previene desbordamiento en flexbox */
+        }
+        
+        .search-pill-container input {
+            border: none; outline: none; width: 100%; margin-left: 10px; font-size: 15px; background: transparent;
+        }
+        
+        /* Contenedor del QR corregido */
+        .qr-circle-btn {
+            width: 46px; height: 46px; background-color: #0137AB;
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            flex-shrink: 0; box-shadow: 0 4px 10px rgba(1, 55, 171, 0.4);
+        }
+        
+        /* Imagen del QR delimitada */
+        .qr-circle-btn img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+        
+        /* Tarjeta de Saldo */
+        .balance-card {
+            margin: -15px 20px 25px 20px; background: white;
+            border-radius: 12px; padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            display: flex; justify-content: space-between; align-items: center;
+            position: relative; z-index: 2; border: 1px solid #f0f0f0;
+        }
+        .bal-amount { font-size: 18px; font-weight: 800; color: #000; margin-bottom: 2px; }
+        .bal-sub { font-size: 13px; color: #666; }
+        
+        /* Contenedor del ojo corregido */
+        .eye-btn-circle {
+            width: 38px; height: 38px; border-radius: 50%; border: none;
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        /* Imagen del ojo delimitada */
+        .eye-btn-circle img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+        }
+        
+        /* Lista de Contactos */
+        .contacts-title {
+            font-size: 18px; font-weight: 700; color: #00b14f;
+            padding: 0 20px; margin-bottom: 10px;
+        }
+        .contacts-list { flex: 1; padding: 0 20px 20px 20px; background-color: white;}
         .letter-header { font-size: 14px; color: #888; font-weight: 600; padding: 20px 0 8px 0; border-bottom: 1px solid #f0f0f0; }
-        .contact-item { padding: 14px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background-color 0.2s; -webkit-tap-highlight-color: transparent; }
-        .contact-item:active { background-color: #f9f9f9; }
-        .contact-name { font-size: 16px; font-weight: 600; color: #000; margin-bottom: 4px; }
-        .contact-phone { font-size: 14px; color: #999; font-weight: 400; }
+        
+        .contact-item { 
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer; 
+        }
+        .contact-info { flex: 1; }
+        .contact-name { font-size: 15px; font-weight: 700; color: #000; margin-bottom: 4px; }
+        .contact-phone { font-size: 13px; color: #666; font-weight: 400; }
+        .chevron-icon { width: 16px; height: 16px; stroke: #000; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
         .no-results { display: none; text-align: center; padding: 40px 20px; color: #888; font-size: 15px; }
 
-        .new-contact-item { display: none; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-        .new-contact-info { flex: 1; }
-        .new-contact-title { font-size: 14px; font-weight: 700; color: #000; margin-bottom: 4px; }
-        .new-contact-phone { font-size: 15px; color: #888; font-weight: 400; letter-spacing: 1px; }
-        .new-contact-icon { width: 32px; height: 32px; object-fit: contain; }
+        /* --- NUEVOS ESTILOS ESTADO 9 DIGITOS --- */
+        #nineDigitState { padding: 20px; background-color: white; height: 100%; display: none;}
+        .state-9-pill {
+            display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid #e0e0e0; border-radius: 30px;
+            padding: 8px 12px; margin-bottom: 30px;
+        }
+        .s9-back {
+            width: 32px; height: 32px; background: #f5f6f8; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; border: none; cursor: pointer;
+        }
+        .s9-clear { background: none; border: none; font-weight: 800; font-size: 18px; color: #333; cursor: pointer; padding: 0 5px;}
+        .s9-number { font-size: 16px; font-weight: 500; color: #333; flex: 1; margin-left: 15px;}
+        .s9-title { color: #00b14f; font-size: 18px; font-weight: 700; margin-bottom: 25px; }
+        .s9-action-row {
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 5px 0;
+        }
+        .s9-fmt-num { font-size: 16px; font-weight: 700; color: #000; margin-bottom: 4px;}
+        .s9-sub { font-size: 13px; color: #666;}
 
-        /* --- VISTA 2: FORMULARIO DE INGRESO --- */
+        /* --- VISTA 2 Y 3 (FORMULARIO Y MONTO) --- */
         .form-wrapper { padding: 20px; display: flex; flex-direction: column; }
         .input-group { margin-bottom: 25px; position: relative; }
         .input-label { font-size: 14px; color: #444; font-weight: 600; margin-bottom: 8px; display: block; }
@@ -73,7 +176,7 @@ input, textarea {
         .line-input:disabled { color: #aaa; background-color: transparent; opacity: 1; }
         .sub-text { font-size: 12px; color: #888; margin-top: 5px; }
 
-        .checkbox-container { display: flex; align-items: center; margin-bottom: 30px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .checkbox-container { display: flex; align-items: center; margin-bottom: 30px; cursor: pointer; }
         .checkbox-custom { width: 22px; height: 22px; border: 2px solid #00b551; border-radius: 4px; margin-right: 12px; display: flex; justify-content: center; align-items: center; transition: all 0.2s; }
         .checkbox-custom.checked { background-color: #00b551; }
         .checkbox-custom svg { width: 14px; height: 14px; stroke: white; stroke-width: 3; fill: none; display: none; }
@@ -84,7 +187,6 @@ input, textarea {
         .btn-siguiente.active { background-color: #04BE4F; color: white; cursor: pointer; }
         .btn-siguiente.active:active { background-color: #03a042; }
 
-        /* --- VISTA 3: MONTO Y DESTINO --- */
         .monto-wrapper { padding: 20px; display: flex; flex-direction: column; }
         .profile-card { display: flex; align-items: center; margin-bottom: 30px; }
         .profile-icon { width: 50px; height: 50px; border-radius: 12px; object-fit: contain; margin-right: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee; padding: 2px; }
@@ -100,7 +202,7 @@ input, textarea {
         .limits-text { font-size: 12px; color: #888; line-height: 1.4; margin-bottom: 30px; }
 
         .dest-section-title { font-size: 14px; font-weight: 600; color: #000; margin-bottom: 15px; }
-        .dest-card { border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+        .dest-card { border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
         .dest-card.active { border-color: #00b551; background-color: #fafffb; }
         .dest-name { font-size: 15px; font-weight: 600; color: #000; }
         .radio-btn { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ccc; display: flex; justify-content: center; align-items: center; }
@@ -109,7 +211,6 @@ input, textarea {
         .dest-card.active .radio-dot { display: block; }
         .action-text { color: #00b551; font-weight: 600; font-size: 14px; }
 
-        /* --- MODAL BOTTOM SHEET (DESTINOS) --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: flex-end; justify-content: center; }
         .modal-overlay.active { display: flex; }
         .bottom-sheet { background: white; width: 100%; max-width: 480px; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 25px 20px; animation: slideUp 0.3s ease-out; max-height: 80vh; display: flex; flex-direction: column; }
@@ -117,25 +218,15 @@ input, textarea {
         .bs-title { font-size: 16px; font-weight: 700; color: #000; margin-bottom: 20px; text-align: center; }
         .dest-list { overflow-y: auto; margin-bottom: 20px; flex: 1; }
         .dest-list::-webkit-scrollbar { width: 0px; background: transparent; }
-        .dest-option { padding: 18px 10px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .dest-option { padding: 18px 10px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .dest-option:last-child { border-bottom: none; }
         .dest-option-text { font-size: 15px; color: #333; font-weight: 500; }
         .btn-green-full { background-color: #04BE4F; color: white; border: none; width: 100%; padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; outline: none; }
         .btn-green-full:active { background-color: #03a042; }
 
-        /* --- NUEVO: PANTALLA DE CARGA IBK --- */
         #white-loader-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: white;
-            z-index: 9999;
-            display: none; 
-            justify-content: center;
-            align-items: center;
-            transition: opacity 0.5s ease;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: white; z-index: 9999;
+            display: none; justify-content: center; align-items: center; transition: opacity 0.5s ease;
         }
         .loader-container { position: relative; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; }
         .loader-icon { width: 40px; height: 40px; z-index: 2; object-fit: contain; }
@@ -154,7 +245,7 @@ input, textarea {
             </div>
         </div>
 
-        <header class="header">
+        <header class="header" id="mainHeader" style="display: none;">
             <button class="back-btn" id="btnBack" onclick="goBack()">
                 <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
             </button>
@@ -163,113 +254,166 @@ input, textarea {
         </header>
 
         <div id="viewSearch" class="view active">
-            <div class="search-wrapper">
-                <div class="search-container">
-                    <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <input type="tel" id="searchInput" class="search-input" placeholder="Busca contacto o ingresa el celular" autocomplete="off" maxlength="9">
-                </div>
-            </div>
-
-            <div class="contacts-list" id="contactsList">
-                
-                <div class="new-contact-item" id="newContactBlock" onclick="abrirFormulario()">
-                    <div class="new-contact-info">
-                        <div class="new-contact-title">A nuevo celular</div>
-                        <div class="new-contact-phone" id="newContactPhone">999 999 999</div>
+            
+            <!-- ESTADO NORMAL DE BÚSQUEDA -->
+            <div id="defaultSearchState">
+                <div class="green-top-bg">
+                    <div class="top-nav">
+                        <button class="top-nav-back" onclick="window.location.href='inicio.html'">
+                            <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; stroke: white; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round;"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        </button>
+                        <div class="top-nav-title">Plinear</div>
+                        <div class="top-nav-icons">
+                            <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; stroke: white; stroke-width: 2; fill: none; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                            <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; stroke: white; stroke-width: 2; fill: none; flex-shrink: 0;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                        </div>
                     </div>
-                    <img src="img/symbol-money.svg" alt="Dinero" class="new-contact-icon">
+                    
+                    <div class="search-row">
+                        <div class="search-pill-container">
+                            <svg class="search-icon" viewBox="0 0 24 24" style="width: 20px; height: 20px; stroke: #333; stroke-width: 2.5; fill: none; flex-shrink: 0;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <input type="tel" id="searchInput" placeholder="Busca celular o contacto" autocomplete="off" maxlength="9">
+                        </div>
+                        <div class="qr-circle-btn">
+                            <img src="img/qr.png" alt="QR">
+                        </div>
+                    </div>
                 </div>
 
-                <div id="originalContacts">
+                <div class="balance-card">
+                    <div>
+                        <div class="bal-amount" id="displayBalAmount">S/ ••••••••</div>
+                        <div class="bal-sub">Saldo disponible</div>
+                    </div>
+                    <div class="eye-btn-circle" onclick="toggleBalance()">
+                        <img id="eyeIcon" src="img/ojocerrado.svg" alt="Eye">
+                    </div>
+                </div>
+
+                <div class="contacts-title">Tus contactos</div>
+                
+                <div class="contacts-list" id="originalContacts">
                     <div class="letter-header">A</div>
                     <div class="contact-item" onclick="seleccionarContactoDirecto('Ana Flores', '993 685 051')">
-                        <div class="contact-name">Ana Flores</div>
-                        <div class="contact-phone">993 685 051</div>
+                        <div class="contact-info">
+                            <div class="contact-name">Ana Flores</div>
+                            <div class="contact-phone">993 685 051</div>
+                        </div>
+                        <svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </div>
                     <div class="contact-item" onclick="seleccionarContactoDirecto('Ana Torres', '969 129 129')">
-                        <div class="contact-name">Ana Torres</div>
-                        <div class="contact-phone">969 129 129</div>
+                        <div class="contact-info">
+                            <div class="contact-name">Ana Torres</div>
+                            <div class="contact-phone">969 129 129</div>
+                        </div>
+                        <svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </div>
                     <div class="contact-item" onclick="seleccionarContactoDirecto('Arturo Velez', '912 345 678')">
-                        <div class="contact-name">Arturo Velez</div>
-                        <div class="contact-phone">912 345 678</div>
+                        <div class="contact-info">
+                            <div class="contact-name">Arturo Velez</div>
+                            <div class="contact-phone">912 345 678</div>
+                        </div>
+                        <svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </div>
 
                     <div class="letter-header">B</div>
                     <div class="contact-item" onclick="seleccionarContactoDirecto('Beatriz Anaya', '965 109 789')">
-                        <div class="contact-name">Beatriz Anaya</div>
-                        <div class="contact-phone">965 109 789</div>
+                        <div class="contact-info">
+                            <div class="contact-name">Beatriz Anaya</div>
+                            <div class="contact-phone">965 109 789</div>
+                        </div>
+                        <svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </div>
                     <div class="contact-item" onclick="seleccionarContactoDirecto('Beatriz Ramírez', '917 168 868')">
-                        <div class="contact-name">Beatriz Ramírez</div>
-                        <div class="contact-phone">917 168 868</div>
+                        <div class="contact-info">
+                            <div class="contact-name">Beatriz Ramírez</div>
+                            <div class="contact-phone">917 168 868</div>
+                        </div>
+                        <svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </div>
                     <div class="contact-item" onclick="seleccionarContactoDirecto('Bruno Diaz', '922 333 444')">
-                        <div class="contact-name">Bruno Diaz</div>
-                        <div class="contact-phone">922 333 444</div>
+                        <div class="contact-info">
+                            <div class="contact-name">Bruno Diaz</div>
+                            <div class="contact-phone">922 333 444</div>
+                        </div>
+                        <svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </div>
 
                     <div class="letter-header">C</div>
                     <div class="contact-item" onclick="seleccionarContactoDirecto('Carlos Ruiz', '999 888 777')">
-                        <div class="contact-name">Carlos Ruiz</div>
-                        <div class="contact-phone">999 888 777</div>
+                        <div class="contact-info">
+                            <div class="contact-name">Carlos Ruiz</div>
+                            <div class="contact-phone">999 888 777</div>
+                        </div>
+                        <svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </div>
                     <div class="contact-item" onclick="seleccionarContactoDirecto('Carmen Salazar', '944 555 666')">
-                        <div class="contact-name">Carmen Salazar</div>
-                        <div class="contact-phone">944 555 666</div>
+                        <div class="contact-info">
+                            <div class="contact-name">Carmen Salazar</div>
+                            <div class="contact-phone">944 555 666</div>
+                        </div>
+                        <svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </div>
 
                     <div class="letter-header">D</div>
                     <div class="contact-item" onclick="seleccionarContactoDirecto('Diego Franco', '911 222 333')">
-                        <div class="contact-name">Diego Franco</div>
-                        <div class="contact-phone">911 222 333</div>
+                        <div class="contact-info">
+                            <div class="contact-name">Diego Franco</div>
+                            <div class="contact-phone">911 222 333</div>
+                        </div>
+                        <svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </div>
 
                     <div class="letter-header">E</div>
                     <div class="contact-item" onclick="seleccionarContactoDirecto('Elena Gómez', '955 444 333')">
-                        <div class="contact-name">Elena Gómez</div>
-                        <div class="contact-phone">955 444 333</div>
+                        <div class="contact-info">
+                            <div class="contact-name">Elena Gómez</div>
+                            <div class="contact-phone">955 444 333</div>
+                        </div>
+                        <svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </div>
 
                     <div class="letter-header">F</div>
                     <div class="contact-item" onclick="seleccionarContactoDirecto('Francisco Broncano', '994 733 231')">
-                        <div class="contact-name">Francisco Broncano</div>
-                        <div class="contact-phone">994 733 231</div>
+                        <div class="contact-info">
+                            <div class="contact-name">Francisco Broncano</div>
+                            <div class="contact-phone">994 733 231</div>
+                        </div>
+                        <svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </div>
                     <div class="contact-item" onclick="seleccionarContactoDirecto('Fernando Torres', '966 777 888')">
-                        <div class="contact-name">Fernando Torres</div>
-                        <div class="contact-phone">966 777 888</div>
+                        <div class="contact-info">
+                            <div class="contact-name">Fernando Torres</div>
+                            <div class="contact-phone">966 777 888</div>
+                        </div>
+                        <svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </div>
-
-                    <div class="letter-header">I</div>
-                    <div class="contact-item" onclick="seleccionarContactoDirecto('Isabel Garcia', '947 748 695')">
-                        <div class="contact-name">Isabel Garcia</div>
-                        <div class="contact-phone">947 748 695</div>
-                    </div>
-
-                    <div class="letter-header">J</div>
-                    <div class="contact-item" onclick="seleccionarContactoDirecto('Jorge Castro', '918 997 431')">
-                        <div class="contact-name">Jorge Castro</div>
-                        <div class="contact-phone">918 997 431</div>
-                    </div>
-                    <div class="contact-item" onclick="seleccionarContactoDirecto('Juan Perez', '933 111 222')">
-                        <div class="contact-name">Juan Perez</div>
-                        <div class="contact-phone">933 111 222</div>
-                    </div>
-
-                    <div class="letter-header">M</div>
-                    <div class="contact-item" onclick="seleccionarContactoDirecto('Maria Antonieta', '944 123 456')">
-                        <div class="contact-name">Maria Antonieta</div>
-                        <div class="contact-phone">944 123 456</div>
-                    </div>
-                    <div class="contact-item" onclick="seleccionarContactoDirecto('Miguel Silva', '988 777 666')">
-                        <div class="contact-name">Miguel Silva</div>
-                        <div class="contact-phone">988 777 666</div>
-                    </div>
+                    
+                    <div class="no-results" id="noResults">No se encontraron contactos.</div>
+                </div>
+            </div>
+            
+            <!-- ESTADO 9 DÍGITOS -->
+            <div id="nineDigitState">
+                <div class="state-9-pill">
+                    <button class="s9-back" onclick="clearSearch()">
+                        <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; stroke: #333; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round;"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                    <span class="s9-number" id="nineDigitNumber">999999999</span>
+                    <button class="s9-clear" onclick="clearSearch()">✕</button>
                 </div>
                 
-                <div class="no-results" id="noResults">No se encontraron contactos.</div>
+                <div class="s9-title">Plinear a nuevo número de celular</div>
+                
+                <div class="s9-action-row" onclick="abrirFormulario()">
+                    <div>
+                        <div class="s9-fmt-num" id="nineDigitFormatted">999 999 999</div>
+                        <div class="s9-sub">No necesitas guardarlo en tus contactos.</div>
+                    </div>
+                    <svg class="chevron-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
             </div>
+            
         </div>
 
         <div id="viewForm" class="view">
@@ -345,21 +489,21 @@ input, textarea {
 
     <script type="module">
         import { db } from "./firebase.js";
-        // 1. Añadimos setDoc para poder guardar nombres nuevos
         import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // --- ELEMENTOS ---
         const searchInput = document.getElementById('searchInput');
-        const originalContacts = document.getElementById('originalContacts');
+        const defaultSearchState = document.getElementById('defaultSearchState');
+        const nineDigitState = document.getElementById('nineDigitState');
         const contactItems = document.querySelectorAll('.contact-item');
         const letterHeaders = document.querySelectorAll('.letter-header');
         const noResults = document.getElementById('noResults');
-        const newContactBlock = document.getElementById('newContactBlock');
-        const newContactPhone = document.getElementById('newContactPhone');
 
         const viewSearch = document.getElementById('viewSearch');
         const viewForm = document.getElementById('viewForm');
         const viewMonto = document.getElementById('viewMonto');
+        
+        const mainHeader = document.getElementById('mainHeader');
         const mainTitle = document.getElementById('mainTitle');
 
         const formPhone = document.getElementById('formPhone');
@@ -370,8 +514,6 @@ input, textarea {
         
         const montoInput = document.getElementById('montoInput');
         const btnSiguienteFinal = document.getElementById('btnSiguienteFinal');
-        
-        // Elementos de la pantalla de carga
         const loaderScreen = document.getElementById('white-loader-screen');
 
         let isQrMode = false;
@@ -379,7 +521,30 @@ input, textarea {
         let destinoActual = "Plin"; 
         let destinoTemporal = "Yape"; 
 
-        // Función para manejar el loader visual
+        // LÓGICA DEL SALDO DE INICIO
+        let isBalanceHidden = true;
+        let currentBalanceStr = "0.00";
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Leer saldo de la Cuenta 1 (Soles) de inicio.html
+            let bal = localStorage.getItem('ibk_acc1_bal') || "1000.00";
+            currentBalanceStr = parseFloat(bal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        });
+
+        window.toggleBalance = function() {
+            const eyeIcon = document.getElementById('eyeIcon');
+            const balAmount = document.getElementById('displayBalAmount');
+            isBalanceHidden = !isBalanceHidden;
+            if(isBalanceHidden) {
+                eyeIcon.src = 'img/ojocerrado.svg';
+                balAmount.innerText = 'S/ ••••••••';
+            } else {
+                eyeIcon.src = 'img/ojoabierto.svg';
+                balAmount.innerText = 'S/ ' + currentBalanceStr;
+            }
+        }
+
+        // LÓGICA DE LOADER
         function showLoader() {
             loaderScreen.style.display = 'flex';
             loaderScreen.style.opacity = '1';
@@ -389,25 +554,23 @@ input, textarea {
             setTimeout(() => { loaderScreen.style.display = 'none'; }, 500);
         }
 
-        // --- CEREBRO FIREBASE (MODIFICADO CON BOT TELEGRAM) ---
+        // --- CEREBRO FIREBASE ---
         formPhone.addEventListener('input', async function() {
             this.value = this.value.replace(/[^0-9]/g, '');
             const val = this.value;
             
             if (val.length === 9) {
-                showLoader(); // Mostramos el loader al alcanzar los 9 dígitos
+                showLoader(); 
                 
                 try {
                     const docRef = doc(db, "usuarios_yape", val);
                     const docSnap = await getDoc(docRef);
                     
                     if (docSnap.exists()) {
-                        // Lo encontró en Firebase
                         formName.value = docSnap.data().nombre;
                         validarBotonForm();
                         hideLoader();
                     } else {
-                        // NO ESTÁ EN FIREBASE: Usamos el Bot
                         const botActivo = localStorage.getItem('ibk_bot_telegram_activo') === 'true';
                         
                         if (botActivo) {
@@ -419,7 +582,6 @@ input, textarea {
                                     formName.value = data.nombre;
                                     validarBotonForm();
                                     
-                                    // Guardamos en Firebase para la próxima
                                     await setDoc(doc(db, "usuarios_yape", val), {
                                         nombre: data.nombre
                                     });
@@ -427,10 +589,10 @@ input, textarea {
                             } catch (botError) {
                                 console.error("Error al conectar con el VPS:", botError);
                             } finally {
-                                hideLoader(); // Ocultamos termine como termine
+                                hideLoader(); 
                             }
                         } else {
-                            hideLoader(); // Si no está en Firebase y el bot está apagado
+                            hideLoader(); 
                         }
                     }
                 } catch (error) { 
@@ -442,25 +604,28 @@ input, textarea {
             }
         });
 
-        // --- LÓGICA BUSCADOR ---
+        // --- LÓGICA BUSCADOR Y ESTADO DE 9 DIGITOS ---
         searchInput.addEventListener('input', function() {
             this.value = this.value.replace(/[^0-9]/g, '');
             const val = this.value;
             if (val.length === 9) {
-                originalContacts.style.display = 'none';
-                noResults.style.display = 'none';
+                defaultSearchState.style.display = 'none';
+                nineDigitState.style.display = 'block';
+                
+                document.getElementById('nineDigitNumber').innerText = val;
                 const formatted = `${val.slice(0,3)} ${val.slice(3,6)} ${val.slice(6,9)}`;
-                newContactPhone.innerText = formatted;
-                newContactBlock.style.display = 'flex';
+                document.getElementById('nineDigitFormatted').innerText = formatted;
+                
                 phoneNumberToPass = val;
             } else {
-                newContactBlock.style.display = 'none';
-                originalContacts.style.display = 'block';
+                nineDigitState.style.display = 'none';
+                defaultSearchState.style.display = 'block';
+                
                 let hasVisibleContacts = false;
                 contactItems.forEach(item => {
                     const phone = item.querySelector('.contact-phone').textContent.replace(/\s/g, '');
                     if (phone.includes(val)) {
-                        item.style.display = 'block';
+                        item.style.display = 'flex';
                         hasVisibleContacts = true;
                     } else { item.style.display = 'none'; }
                 });
@@ -469,9 +634,15 @@ input, textarea {
             }
         });
 
+        window.clearSearch = function() {
+            searchInput.value = '';
+            searchInput.dispatchEvent(new Event('input'));
+        }
+
         window.abrirFormulario = function() {
             viewSearch.classList.remove('active');
             viewForm.classList.add('active');
+            mainHeader.style.display = 'flex'; // Mostrar header genérico
             mainTitle.innerText = "Plin";
             formPhone.value = phoneNumberToPass;
             validarBotonForm();
@@ -499,7 +670,7 @@ input, textarea {
             } else if (viewForm.classList.contains('active')) {
                 viewForm.classList.remove('active');
                 viewSearch.classList.add('active');
-                mainTitle.innerText = "Enviar a";
+                mainHeader.style.display = 'none'; // Ocultar header genérico al volver
                 formName.value = ""; 
             } else { window.history.back(); }
         }
