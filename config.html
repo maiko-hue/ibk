@@ -45,17 +45,29 @@
             padding: 0;
         }
 
-        /* --- NUEVO FONDO ESTILO TARJETA (IMAGE_95ABD9) --- */
+        /* --- NUEVO FONDO ESTILO TARJETA --- */
         .green-bg-curve {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 220px;
-            background-color: #2BD071;
+            background-color: #04B84D; /* Color actualizado */
             border-bottom-left-radius: 35px;
             border-bottom-right-radius: 35px;
             z-index: 1;
+            /* Añadido para centrar el logo superior */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-bottom: 20px;
+        }
+        
+        .top-logo {
+            width: 120px;
+            height: auto;
+            object-fit: contain;
+            z-index: 2;
         }
 
         .content-card {
@@ -68,6 +80,7 @@
             padding-bottom: 20px;
             min-height: calc(100vh - 260px);
             overflow: hidden;
+            margin-top: 100px
         }
 
         /* VISTAS */
@@ -174,7 +187,9 @@
 <body>
 
     <!-- FONDO VERDE SUPERIOR -->
-    <div class="green-bg-curve"></div>
+    <div class="green-bg-curve">
+        <img src="img/secondlogo.png" alt="Logo de la app" class="top-logo">
+    </div>
 
     <div class="mobile-wrapper">
 
@@ -194,7 +209,7 @@
                 <button class="back-btn" onclick="window.location.href='inicio.html'">
                     <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
                 </button>
-                <div class="title">Más opciones</div>
+                <!-- Texto removido según instrucción -->
                 <div class="right-space"></div>
             </header>
 
@@ -209,25 +224,19 @@
 
                 <div class="menu-list">
                     <div class="menu-item" onclick="window.location.href='sobre.html'">
-                        <svg class="menu-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                        <div class="menu-text">Mis cuentas</div>
+                        <svg class="menu-icon" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"></circle><path d="M5.5 21v-2a6.5 6.5 0 0 1 13 0v2"></path></svg>
+                        <div class="menu-text">Accesibilidad</div>
                         <div class="menu-arrow">›</div>
                     </div>
                     
                     <div class="menu-item" onclick="cambiarVista('view-contactos')">
-                        <svg class="menu-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        <svg class="menu-icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                         <div class="menu-text">Mis contactos</div>
                         <div class="menu-arrow">›</div>
                     </div>
 
                     <div class="menu-item" onclick="toggleIbkBot()">
-                        <svg class="menu-icon" viewBox="0 0 24 24">
-                            <rect x="3" y="11" width="18" height="10" rx="2" ry="2"></rect>
-                            <circle cx="12" cy="5" r="2"></circle>
-                            <path d="M12 7v4"></path>
-                            <line x1="8" y1="16" x2="8" y2="16"></line>
-                            <line x1="16" y1="16" x2="16" y2="16"></line>
-                        </svg>
+                        <svg class="menu-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="M12 11V7"></path><circle cx="12" cy="5" r="2"></circle><line x1="9" y1="15" x2="10" y2="15"></line><line x1="14" y1="15" x2="15" y2="15"></line></svg>
                         <div class="menu-text">Búsqueda Titulares</div>
                         <div class="bot-status-text" id="ibkBotStatusText">Desactivado</div>
                         <div class="toggle-switch" id="ibkBotToggleBtn">
@@ -242,7 +251,7 @@
                     </div>
 
                     <div class="menu-item">
-                        <svg class="menu-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        <svg class="menu-icon" viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                         <div class="menu-text">Borrar movimientos</div>
                     </div>
 
@@ -408,31 +417,6 @@
                 </div>
             </div>
         </div>
-
-        <nav class="bottom-nav">
-            <button class="nav-item" onclick="window.location.href='inicio.html'">
-                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                <span>Inicio</span>
-            </button>
-            
-            <button class="nav-item" onclick="irAOperaciones()">
-                <img src="img/transferencias.jpg" alt="Operaciones" class="nav-icon-op">
-                <span>Operaciones</span>
-            </button>
-            
-            <div class="qr-fab-container">
-                <div class="qr-fab">
-                    <img src="img/qr.png" alt="QR" style="width: 26px; height: 26px; object-fit: contain;">
-                </div>
-            </div>
-            <button class="nav-item active"> <svg class="nav-icon" style="stroke: #00b551;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                <span>Ajustes</span>
-            </button>
-            <button class="nav-item">
-                <img src="img/para_ti.webp" alt="Para ti" class="nav-icon-img">
-                <span>Para ti</span>
-            </button>
-        </nav>
 
     </div>
 

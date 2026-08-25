@@ -176,7 +176,7 @@ body {
 .nav-icon-op { width: 24px; height: 24px; margin-bottom: 4px; object-fit: contain; filter: grayscale(100%) opacity(0.6); }
 .nav-item.active .nav-icon-op { filter: none; }
 .qr-fab-container { position: relative; top: -20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.qr-fab { width: 60px; height: 60px; background-color: #2bd071; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(43, 208, 113, 0.4); cursor: pointer; border: 4px solid #ffffff; }
+.qr-fab { width: 60px; height: 60px; background-color: #0137AB; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(43, 208, 113, 0.4); cursor: pointer; border: 4px solid #ffffff; }
 * {
     /* Elimina el recuadro azul al hacer clic en celulares */
     -webkit-tap-highlight-color: transparent;
