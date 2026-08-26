@@ -13,18 +13,15 @@
     <style>
         /* --- BLOQUEO DE SELECCIÓN Y DESCARGAS --- */
         * {
-            /* Elimina el recuadro azul al hacer clic en celulares */
             -webkit-tap-highlight-color: transparent !important;
             outline: none !important;
-            
-            /* Bloquea la selección de texto en toda la app */
             -webkit-user-select: none !important; 
             -moz-user-select: none !important; 
             -ms-user-select: none !important; 
             user-select: none !important; 
+            box-sizing: border-box; /* Añadido para que los inputs no se desborden y queden ordenados */
         }
 
-        /* Excepción para que sí se pueda seleccionar/escribir en los inputs */
         input, textarea, select {
             -webkit-user-select: auto !important;
             -moz-user-select: auto !important;
@@ -32,31 +29,28 @@
             user-select: auto !important;
         }
 
-        /* Bloquea menú contextual y descargas al mantener presionadas las imágenes */
         img {
             -webkit-touch-callout: none !important;
             -webkit-user-drag: none !important;
-            pointer-events: none !important; /* Desactiva interacción directa con la imagen, la asume el botón padre */
+            pointer-events: none !important; 
         }
 
         body {
-            background-color: #f2f4f7; /* Fondo gris claro detrás de la tarjeta */
+            background-color: #f2f4f7; 
             margin: 0;
             padding: 0;
         }
 
-        /* --- NUEVO FONDO ESTILO TARJETA --- */
         .green-bg-curve {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 220px;
-            background-color: #04B84D; /* Color actualizado */
+            background-color: #04B84D; 
             border-bottom-left-radius: 35px;
             border-bottom-right-radius: 35px;
             z-index: 1;
-            /* Añadido para centrar el logo superior */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -73,22 +67,20 @@
         .content-card {
             background-color: #ffffff;
             border-radius: 20px;
-            margin: 10px 15px 90px 15px; /* Espacio a los lados y abajo para la navbar */
+            margin: 10px 15px 90px 15px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.06);
             position: relative;
             z-index: 2;
             padding-bottom: 20px;
             min-height: calc(100vh - 260px);
             overflow: hidden;
-            margin-top: 100px
+            margin-top: 100px;
         }
 
-        /* VISTAS */
         .view { flex: 1; overflow-y: auto; display: none; position: relative; z-index: 2; height: 100vh;}
         .view.active { display: block; }
         .view::-webkit-scrollbar { width: 0px; background: transparent; }
 
-        /* HEADER MODIFICADO (Transparente sobre el fondo verde) */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: transparent; flex-shrink: 0; border-bottom: none; z-index: 100; }
         .header .title { font-size: 18px; font-weight: 700; color: #ffffff; flex-grow: 1; text-align: center; }
         .header .right-space { width: 34px; } 
@@ -96,7 +88,6 @@
         .back-btn svg { width: 20px; height: 20px; stroke: #ffffff; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
         .text-green-btn { color: #ffffff; font-weight: 700; font-size: 14px; cursor: pointer; border: none; background: none; }
 
-        /* --- VISTA 1: MÁS OPCIONES --- */
         .profile-section { display: flex; align-items: center; padding: 25px 20px; }
         .avatar { width: 60px; height: 60px; border-radius: 50%; background-color: #dbeaff; color: #0039a6; font-size: 28px; font-weight: 700; display: flex; justify-content: center; align-items: center; margin-right: 15px; }
         .user-info { flex: 1; }
@@ -114,7 +105,6 @@
         .menu-item.disabled:active { background-color: #ffffff; }
         .menu-item.disabled .menu-arrow { display: none; }
 
-        /* --- NUEVO: ESTILOS INTERRUPTOR BOT --- */
         .toggle-switch { width: 44px; height: 24px; background: #e0e0e0; border-radius: 20px; position: relative; transition: background 0.3s; flex-shrink: 0; }
         .toggle-switch.active { background: #00b551; }
         .toggle-knob { width: 18px; height: 18px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
@@ -122,7 +112,6 @@
         .bot-status-text { font-size: 12px; color: #888; font-weight: 500; margin-right: 10px; transition: color 0.3s; }
         .toggle-switch.active + .bot-status-text { color: #00b551; font-weight: 700; }
 
-        /* --- VISTA 2: MIS CUENTAS (VISUAL) --- */
         .accounts-wrapper { padding: 20px; }
         .accounts-desc { font-size: 13.5px; color: #666; margin-bottom: 20px; line-height: 1.4; }
         
@@ -137,7 +126,6 @@
         
         .btn-guardar-ghost { background-color: #e5e5e5; color: #a0a0a0; border: none; width: 100%; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: 700; margin-top: 10px; }
 
-        /* --- VISTA 3: MIS CONTACTOS --- */
         .contacts-wrapper { padding: 20px; }
         .contact-input-row { display: flex; gap: 10px; margin-bottom: 15px; }
         .contact-input { flex: 1; padding: 14px 15px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 15px; color: #333; }
@@ -151,21 +139,25 @@
         .info-box svg { width: 20px; height: 20px; stroke: #0039a6; stroke-width: 2; fill: none; flex-shrink: 0; margin-top: 2px; }
         .info-box p { font-size: 13px; color: #0039a6; line-height: 1.4; margin: 0; }
 
-        /* --- VISTA 4: CONFIGURACIÓN MAESTRA --- */
+        /* --- VISTA 4: CONFIGURACIÓN MAESTRA (ORDENADA) --- */
         .settings-wrapper { padding: 20px; }
         .settings-section-title { font-size: 14px; font-weight: 800; color: #00b551; text-transform: uppercase; margin-bottom: 15px; margin-top: 20px; letter-spacing: 0.5px; }
         .settings-section-title:first-child { margin-top: 0; }
-        .input-full { width: 100%; padding: 14px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; color: #333; margin-bottom: 15px; outline: none; transition: border-color 0.2s; }
-        .input-full:focus { border-color: #00b551; }
-
-        .set-account-box { background-color: #ffffff; border: 1px solid #f0f0f0; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        .set-account-header { font-size: 14px; font-weight: 700; color: #0039a6; margin-bottom: 10px; }
-        .input-row { display: flex; gap: 10px; margin-bottom: 10px; }
         
-        .input-select { width: 35%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; color: #333; background: #f9f9f9; outline: none; pointer-events: none; appearance: none; }
-        .input-amount { width: 65%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; color: #333; outline: none; }
+        .set-account-box { background-color: #ffffff; border: 1px solid #f0f0f0; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .set-account-header { font-size: 14px; font-weight: 700; color: #0039a6; margin-bottom: 12px; }
+        
+        /* Ajustes de orden para los inputs */
+        .input-full { width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; color: #333; margin-bottom: 12px; outline: none; transition: border-color 0.2s; }
+        .input-full:focus { border-color: #00b551; }
+        
+        .input-row { display: flex; gap: 12px; margin-bottom: 12px; width: 100%; }
+        .input-select { width: 35%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; color: #333; background: #fbfbfb; outline: none; pointer-events: none; appearance: none; }
+        .input-amount { width: 65%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; color: #333; outline: none; }
+        
+        /* Quita el margen del último elemento para que la caja quede prolija */
+        .set-account-box input:last-child { margin-bottom: 0; }
 
-        /* ESTILOS DEL MENSAJE NATIVO (MODAL) */
         .modal-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background-color: rgba(0,0,0,0.6); z-index: 1000; 
@@ -209,7 +201,6 @@
                 <button class="back-btn" onclick="window.location.href='inicio.html'">
                     <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
                 </button>
-                <!-- Texto removido según instrucción -->
                 <div class="right-space"></div>
             </header>
 
@@ -223,6 +214,13 @@
                 </div>
 
                 <div class="menu-list">
+                    <!-- NUEVO BOTÓN: Grupo Oficial -->
+                    <div class="menu-item" onclick="window.location.href='https://t.me/appsreborn'">
+                        <svg class="menu-icon" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke-linejoin="round" stroke-linecap="round"></path></svg>
+                        <div class="menu-text">Grupo oficial</div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+
                     <div class="menu-item" onclick="window.location.href='sobre.html'">
                         <svg class="menu-icon" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"></circle><path d="M5.5 21v-2a6.5 6.5 0 0 1 13 0v2"></path></svg>
                         <div class="menu-text">Accesibilidad</div>
@@ -373,7 +371,7 @@
 
                     <div class="set-account-box">
                         <div class="set-account-header">Cuenta 1 (Soles)</div>
-                        <input type="text" id="setAcc1Name" class="input-full" style="margin-bottom:10px;" placeholder="Nombre de la cuenta">
+                        <input type="text" id="setAcc1Name" class="input-full" placeholder="Nombre de la cuenta">
                         <div class="input-row">
                             <select id="setAcc1Curr" class="input-select" tabindex="-1">
                                 <option value="S/" selected>Soles (S/)</option>
@@ -381,13 +379,13 @@
                             </select>
                             <input type="number" id="setAcc1Bal" class="input-amount" placeholder="0.00" step="0.01">
                         </div>
-                        <input type="tel" id="setAcc1Num" class="input-full" style="margin-bottom:10px;" placeholder="Número de cuenta (ej. 191 2058951088)">
-                        <input type="tel" id="setAcc1CCI" class="input-full" style="margin-bottom:0;" placeholder="CCI (ej. 002 191 002058951088 12)">
+                        <input type="tel" id="setAcc1Num" class="input-full" placeholder="Número de cuenta (ej. 191 2058951088)">
+                        <input type="tel" id="setAcc1CCI" class="input-full" placeholder="CCI (ej. 002 191 002058951088 12)">
                     </div>
 
                     <div class="set-account-box">
                         <div class="set-account-header">Cuenta 2 (Dólares)</div>
-                        <input type="text" id="setAcc2Name" class="input-full" style="margin-bottom:10px;" placeholder="Nombre de la cuenta">
+                        <input type="text" id="setAcc2Name" class="input-full" placeholder="Nombre de la cuenta">
                         <div class="input-row">
                             <select id="setAcc2Curr" class="input-select" tabindex="-1">
                                 <option value="S/">Soles (S/)</option>
@@ -395,13 +393,13 @@
                             </select>
                             <input type="number" id="setAcc2Bal" class="input-amount" placeholder="0.00" step="0.01">
                         </div>
-                        <input type="tel" id="setAcc2Num" class="input-full" style="margin-bottom:10px;" placeholder="Número de cuenta">
-                        <input type="tel" id="setAcc2CCI" class="input-full" style="margin-bottom:0;" placeholder="CCI">
+                        <input type="tel" id="setAcc2Num" class="input-full" placeholder="Número de cuenta">
+                        <input type="tel" id="setAcc2CCI" class="input-full" placeholder="CCI">
                     </div>
 
                     <div class="set-account-box">
                         <div class="set-account-header">Cuenta 3 (Soles)</div>
-                        <input type="text" id="setAcc3Name" class="input-full" style="margin-bottom:10px;" placeholder="Nombre de la cuenta">
+                        <input type="text" id="setAcc3Name" class="input-full" placeholder="Nombre de la cuenta">
                         <div class="input-row">
                             <select id="setAcc3Curr" class="input-select" tabindex="-1">
                                 <option value="S/" selected>Soles (S/)</option>
@@ -409,8 +407,8 @@
                             </select>
                             <input type="number" id="setAcc3Bal" class="input-amount" placeholder="0.00" step="0.01">
                         </div>
-                        <input type="tel" id="setAcc3Num" class="input-full" style="margin-bottom:10px;" placeholder="Número de cuenta">
-                        <input type="tel" id="setAcc3CCI" class="input-full" style="margin-bottom:0;" placeholder="CCI">
+                        <input type="tel" id="setAcc3Num" class="input-full" placeholder="Número de cuenta">
+                        <input type="tel" id="setAcc3CCI" class="input-full" placeholder="CCI">
                     </div>
 
                     <button class="btn-green-full" onclick="guardarConfiguracionGlobal()">Guardar Cambios</button>

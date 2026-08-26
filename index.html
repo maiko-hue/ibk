@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bienvenido a Interbank</title>
+    <title>Bienvenido</title>
     <link rel="icon" href="img/favicon.png" type="image/png">
     
     <script>
@@ -31,31 +31,29 @@
     
     <style>
         * {
-    /* Elimina el recuadro azul al hacer clic en celulares */
-    -webkit-tap-highlight-color: transparent;
-    outline: none !important;
-    
-    /* Bloquea la selección de texto en toda la app */
-    -webkit-user-select: none; 
-    -moz-user-select: none; 
-    -ms-user-select: none; 
-    user-select: none; 
-}
+            -webkit-tap-highlight-color: transparent;
+            outline: none !important;
+            -webkit-user-select: none; 
+            -moz-user-select: none; 
+            -ms-user-select: none; 
+            user-select: none; 
+            box-sizing: border-box;
+            font-family: 'Nunito', sans-serif;
+        }
 
-/* Excepción para que sí se pueda seleccionar/escribir en los inputs */
-input, textarea {
-    -webkit-user-select: auto;
-    -moz-user-select: auto;
-    -ms-user-select: auto;
-    user-select: auto;
-}
+        input, textarea {
+            -webkit-user-select: auto;
+            -moz-user-select: auto;
+            -ms-user-select: auto;
+            user-select: auto;
+        }
+
         :root {
             --brand-blue: #0039a6;
             --brand-dark: #001e60;
             --brand-green: #00b551;
-            --bg-light: #f8f9fa;
+            --bg-light: #f2f4f7; /* Fondo gris claro */
         }
-        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; font-family: 'Nunito', sans-serif; }
         
         body {
             margin: 0;
@@ -71,35 +69,118 @@ input, textarea {
             position: relative;
         }
 
-        .logo-container { margin-bottom: 35px; text-align: center; }
-        .logo-img { width: 110px; height: 110px; object-fit: contain; border-radius: 25px; box-shadow: 0 10px 25px rgba(0, 57, 166, 0.15); }
-        .welcome-text { font-size: 26px; font-weight: 800; margin-bottom: 10px; text-align: center; color: var(--brand-blue); letter-spacing: -0.5px; }
-        .sub-text { font-size: 15px; color: #666; margin-bottom: 45px; text-align: center; max-width: 300px; line-height: 1.4; font-weight: 500; }
+        /* --- FORMAS GEOMÉTRICAS DE FONDO --- */
+        .top-shape-left {
+            position: absolute;
+            top: -100px;
+            left: -100px;
+            width: 350px;
+            height: 350px;
+            background-color: var(--brand-green);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 0;
+        }
+        .top-shape-left img {
+            width: 140px;
+            margin-top: 80px;
+            margin-left: 80px;
+            object-fit: contain;
+        }
+
+        .top-shape-right {
+            position: absolute;
+            top: -80px;
+            right: -80px;
+            width: 200px;
+            height: 200px;
+            background-color: var(--brand-green);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 0;
+        }
+        .top-shape-right img {
+            width: 40px;
+            border-radius: 8px;
+            margin-top: 60px;
+            margin-right: 60px;
+            object-fit: contain;
+        }
+
+        /* --- TEXTOS PRINCIPALES --- */
+        .welcome-title, .install-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--brand-dark);
+            text-align: center;
+            line-height: 1.4;
+            z-index: 2;
+            position: relative;
+            margin-top: 80px; 
+            margin-bottom: 40px;
+        }
+
+        .install-title { font-size: 22px; margin-top: 40px; }
+
+        /* --- CAJA BLANCA CONTENEDORA DE BOTONES --- */
+        .action-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            width: 100%;
+            max-width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 2;
+            position: relative;
+        }
         
-        .btn-container { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 15px; max-width: 320px; }
-        
+        /* --- BOTONES DE BIENVENIDA --- */
         .btn-google {
-            background-color: white; color: #333; width: 100%; padding: 15px;
-            border-radius: 12px; border: 1px solid #e0e4e8; font-size: 16px; font-weight: 700;
+            background-color: white; color: #333; width: 100%; padding: 14px;
+            border-radius: 8px; border: 1px solid #e0e4e8; font-size: 15px; font-weight: 700;
             display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: transform 0.2s, background-color 0.2s; text-decoration: none;
+            transition: transform 0.2s, background-color 0.2s; text-decoration: none;
         }
         .btn-access {
-            background-color: var(--brand-green); color: white; width: 100%; padding: 15px;
-            border-radius: 12px; border: none; font-size: 16px; font-weight: 700;
-            display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 181, 81, 0.3); transition: background 0.2s, transform 0.2s; text-decoration: none;
+            background-color: var(--brand-green); color: white; width: 100%; padding: 14px;
+            border-radius: 8px; border: none; font-size: 15px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;
+            transition: background 0.2s, transform 0.2s; text-decoration: none;
         }
         
         .btn-google:active, .btn-access:active { transform: scale(0.97); }
         .btn-google:active { background-color: #f5f5f5; }
         .btn-access:active { background-color: #009e47; }
-        .google-icon { width: 24px; height: 24px; }
+        .google-icon { width: 20px; height: 20px; }
 
-        #pantallaInstalacion { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #ffffff; z-index: 999999; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: var(--brand-blue); }
-        .btn-omitir { background: transparent; color: #888; border: none; margin-top: 25px; font-size: 15px; font-weight: 700; cursor: pointer; text-decoration: underline; }
+        /* --- PANTALLA DE INSTALACIÓN --- */
+        #pantallaInstalacion { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            background-color: var(--bg-light); z-index: 999999; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+        }
 
-        .footer-links { position: absolute; bottom: 35px; font-size: 13.5px; font-weight: 600; text-align: center; width: 100%; display: flex; justify-content: center; gap: 20px; }
+        .btn-install {
+            background-color: var(--brand-green); color: white; width: 100%; padding: 14px;
+            border-radius: 30px; border: none; font-size: 15px; font-weight: 700;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+            cursor: pointer; box-shadow: 0 4px 15px rgba(0, 181, 81, 0.3);
+        }
+        .btn-omitir { 
+            background: transparent; color: #888; border: none; 
+            font-size: 13.5px; font-weight: 600; cursor: pointer; 
+            text-decoration: underline; margin-top: 5px; 
+        }
+
+        /* --- FOOTER Y MODAL --- */
+        .footer-links { position: absolute; bottom: 35px; font-size: 13.5px; font-weight: 600; text-align: center; width: 100%; display: flex; justify-content: center; gap: 20px; z-index: 2; }
         .footer-link { color: var(--brand-blue); text-decoration: none; cursor: pointer; opacity: 0.8; }
         .footer-link:active { opacity: 1; }
 
@@ -113,7 +194,7 @@ input, textarea {
         .btn-telegram { background-color: #229ED9; color: white; width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; margin-bottom: 10px; text-decoration: none; display: block; }
         .btn-close { background: #f0f4f8; color: var(--brand-blue); width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 800; font-size: 15px; cursor: pointer; }
 
-        /* --- PANTALLA DE ÉXITO / SOLICITUD ENVIADA --- */
+        /* --- PANTALLA DE ÉXITO --- */
         #successOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: var(--brand-green);
@@ -137,31 +218,49 @@ input, textarea {
         <div class="success-desc">Si ya adquiriste tu acceso, te aprobaremos pronto. Verificando...</div>
     </div>
 
+    <!-- PANTALLA DE INSTALACIÓN REDISEÑADA -->
     <div id="pantallaInstalacion">
-        <img src="img/icon.webp" alt="Logo" style="width: 110px; margin-bottom: 25px; border-radius: 25px; box-shadow: 0 10px 25px rgba(0, 57, 166, 0.15);">
-        <h2 style="font-size: 22px; margin-bottom: 10px; font-weight: 800;">Instala la App</h2>
-        <p style="font-size: 15px; color: #666; margin-bottom: 35px; max-width: 80%; font-weight: 500;">Para una experiencia segura y rápida, añade Interbank a tu pantalla de inicio.</p>
-        <button id="btnInstalarApp" style="background-color: #00b551; color: white; border: none; padding: 16px 35px; border-radius: 30px; font-weight: 800; font-size: 16px; cursor: pointer; display: none; box-shadow: 0 8px 20px rgba(0, 181, 81, 0.3);">
-            <i class="fa-solid fa-download" style="margin-right: 8px;"></i> Instalar ahora
-        </button>
-        <button id="btnOmitir" class="btn-omitir">Omitir por ahora</button>
+        <!-- Formas de fondo repetidas para que se superpongan correctamente -->
+        <div class="top-shape-left">
+            <img src="img/secondlogo.png" alt="AppsReborn">
+        </div>
+        <div class="top-shape-right">
+            <img src="img/icon.webp" alt="Logo">
+        </div>
+
+        <div class="install-title">
+            Antes de continuar;<br>instala la app en tu<br>dispositivo:
+        </div>
+
+        <div class="action-box">
+            <button id="btnInstalarApp" class="btn-install" style="display: none;">
+                <i class="fa-solid fa-download"></i> Instalar ahora
+            </button>
+            <button id="btnOmitir" class="btn-omitir">Omitir por ahora</button>
+        </div>
     </div>
 
-    <div class="logo-container">
-        <img src="img/icon.webp" alt="Interbank" class="logo-img">
+    <!-- FORMAS DE FONDO (PANTALLA DE BIENVENIDA) -->
+    <div class="top-shape-left">
+        <img src="img/secondlogo.png" alt="AppsReborn">
+    </div>
+    <div class="top-shape-right">
+        <img src="img/icon.webp" alt="Logo">
     </div>
 
-    <div class="welcome-text">Bienvenido</div>
-    <div class="sub-text">Realiza tus operaciones desde donde estés de forma rápida y segura.</div>
+    <!-- CONTENIDO PANTALLA DE BIENVENIDA -->
+    <div class="welcome-title">
+        ¡Bienvenido!<br>Tenemos funciones nuevas<br>y mejoradas para ti...
+    </div>
 
-    <div class="btn-container">
+    <div class="action-box">
         <button class="btn-google" id="btnGoogleAuth">
             <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G" class="google-icon">
             <span id="btnText">Continuar con Google</span>
         </button>
 
         <a href="https://t.me/vendedoresappsreborn" class="btn-access">
-            <i class="fa-brands fa-telegram" style="font-size: 20px;"></i>
+            <i class="fa-brands fa-telegram" style="font-size: 18px;"></i>
             Obtén acceso
         </a>
     </div>
@@ -201,7 +300,7 @@ input, textarea {
             pantallaInstalacion.style.display = 'none';
         } else {
             window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault(); promptDiferido = e; btnInstalar.style.display = 'block'; 
+                e.preventDefault(); promptDiferido = e; btnInstalar.style.display = 'flex'; 
             });
             btnInstalar.addEventListener('click', async () => {
                 if (promptDiferido) {
