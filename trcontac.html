@@ -23,6 +23,13 @@
             box-sizing: border-box;
         }
 
+        /* --- SOLUCIÓN: Bloqueo estricto solo para imágenes --- */
+        img {
+            -webkit-touch-callout: none !important;
+            -webkit-user-drag: none !important;
+            pointer-events: none !important; 
+        }
+
         /* Excepción para que sí se pueda seleccionar/escribir en los inputs */
         input, textarea {
             -webkit-user-select: auto !important;
