@@ -7,6 +7,7 @@
     <title>Mi Cuenta - Banca Móvil</title>
     <link rel="icon" href="img/favicon.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link rel="stylesheet" href="styles.css">
 
@@ -22,14 +23,12 @@
             box-sizing: border-box;
         }
 
-        /* --- SOLUCIÓN: Bloqueo estricto solo para imágenes --- */
         img {
             -webkit-touch-callout: none !important;
             -webkit-user-drag: none !important;
             pointer-events: none !important; 
         }
 
-        /* Excepción para que sí se pueda seleccionar/escribir en los inputs */
         input, textarea {
             -webkit-user-select: auto;
             -moz-user-select: auto;
@@ -38,7 +37,7 @@
         }
 
         /* HEADER */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: #ffffff; flex-shrink: 0; z-index: 10; border-bottom: 1px solid #f0f0f0; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: #ffffff; flex-shrink: 0; z-index: 20; border-bottom: 1px solid #f0f0f0; }
         .back-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; width: 30px; }
         .back-btn svg { width: 22px; height: 22px; stroke: #00b551; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; fill: none; }
         .header-title { font-size: 16px; font-weight: 800; color: #000; text-align: center; flex-grow: 1; margin-left: 15px; }
@@ -48,15 +47,27 @@
         .header-actions svg { width: 22px; height: 22px; fill: none; stroke: #00b551; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
         /* SCROLL VIEW */
-        .scroll-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+        .scroll-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; position: relative; }
         .scroll-content::-webkit-scrollbar { width: 0px; background: transparent; }
 
-        /* --- SECCIÓN SUPERIOR (Fondo Verde Claro) --- */
-        /* Sobrescribimos el fondo solo para esta sección interior para que combine con el diseño anterior */
-        .top-section { padding-bottom: 30px; background-color: #EAF7F3; } 
+        /* ==================================================
+           STICKY HEADER
+           ================================================== */
+        .sticky-top-section {
+            position: sticky;
+            top: 0;
+            z-index: 15;
+            background-color: #EAF7F3;
+            padding-bottom: 5px;
+        }
+
+        .hidable-top-section {
+            background-color: #EAF7F3;
+            padding-bottom: 30px;
+        }
 
         /* SELECTOR DE CUENTA */
-        .account-card-top { background-color: #ffffff; border-radius: 8px; margin: 15px 20px; padding: 12px 15px; display: flex; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .account-card-top { background-color: #ffffff; border-radius: 8px; margin: 15px 20px 10px 20px; padding: 12px 15px; display: flex; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .acc-icon { width: 45px; height: 35px; object-fit: cover; border-radius: 6px; margin-right: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .acc-details { flex: 1; }
         .acc-name { font-size: 14px; font-weight: 700; color: #000; line-height: 1.2; }
@@ -64,89 +75,163 @@
         .acc-actions { display: flex; align-items: center; gap: 10px; }
         .acc-actions svg { width: 18px; height: 18px; stroke: #00b551; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
-        /* SALDOS */
-        .balances-container { display: flex; justify-content: space-between; padding: 15px 25px; position: relative; margin-bottom: 10px; }
-        
-        .balance-block { display: flex; flex-direction: column; position: relative; }
+        /* SALDOS TOP */
+        .balances-container-top { display: flex; justify-content: space-between; padding: 5px 25px 10px 25px; }
+        .balance-block { display: flex; flex-direction: column; }
         .balance-block.right { align-items: flex-end; }
-        
         .bal-amount { font-size: 20px; font-weight: 700; color: #0039a6; letter-spacing: -0.5px; }
         .bal-label { font-size: 11px; color: #555; margin-top: 2px; }
-        
-        /* ICONOS AGRANDADOS (Circulos Verdes) */
-        .bal-icon { width: 42px; height: 42px; object-fit: contain; margin-top: 10px; }
 
-        /* SLIDER CENTRAL */
-        .transfer-slider { position: absolute; left: 50%; top: 67px; transform: translateX(-50%); width: 215px; height: 42px; background-color: #0039a6; border-radius: 25px; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; color: rgba(255,255,255,0.8); font-size: 15px; font-weight: 700; letter-spacing: 2px; }
+        /* ==================================================
+           CORRECCIÓN: ICONOS DEL MEDIO (SLIDER Y ALCANCÍAS)
+           ================================================== */
+        .middle-icons-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 25px;
+            margin-top: -5px;
+        }
+
+        .bal-icon { width: 42px; height: 42px; object-fit: contain; }
         
-        /* FONDO BLANCO DEL SLIDER (NUEVO) */
+        .transfer-slider {
+            position: relative; /* Ya no es absolute */
+            flex: 1; /* Toma el espacio disponible en el medio */
+            max-width: 215px;
+            height: 42px;
+            background-color: #0039a6;
+            border-radius: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            color: rgba(255,255,255,0.8);
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin: 0 15px; /* Espaciado lateral */
+        }
+        
         .slider-white-bg { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; background-color: #ffffff; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 1; }
-
-        /* AURA/DEGRADADO DEL SLIDER (Circulo Verde Modificado) */
         .slider-thumb { width: 46px; height: 46px; background-color: #00b551; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-weight: 800; font-size: 18px; z-index: 2; box-shadow: 0 0 15px 4px rgba(0, 181, 81, 0.4); }
-
-        /* ICONO ALCANCÍA AGRANDADO CON FONDO DEGRADADO */
-        .alcancia-icon-gradient { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(to bottom right, #85ACD3, #CAC9DA); margin-top: 10px; margin-right: 5px; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        
+        .alcancia-icon-gradient { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(to bottom right, #85ACD3, #CAC9DA); display: flex; justify-content: center; align-items: center; overflow: hidden; }
         .alcancia-icon-gradient img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; transform: scale(1.2); }
 
-        /* --- CATEGORÍAS MODIFICADAS: TAMAÑO Y ESPACIADO --- */
-        .categories-scroll { display: flex; justify-content: space-between; gap: 8px; padding: 10px 20px 10px; overflow-x: auto; }
+        /* CATEGORÍAS */
+        .categories-scroll { display: flex; justify-content: space-between; gap: 8px; padding: 15px 20px 10px; overflow-x: auto; }
         .categories-scroll::-webkit-scrollbar { display: none; }
-        
         .cat-item { display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1; min-width: 0; }
-        
-        /* MODIFICACIÓN: Base circular común */
         .cat-circle { width: 68px; height: 68px; border-radius: 50%; border: 2.5px solid #00b551; display: flex; justify-content: center; align-items: center; background-color: #ffffff; margin-bottom: 8px; position: relative; overflow: hidden; }
-        
-        /* MODIFICACIÓN: Pseudoelemento común para el círculo de fondo sólido */
         .cat-circle::before { content: ''; position: absolute; width: 50px; height: 50px; border-radius: 50%; z-index: 1; }
-
-        /* AURA/DEGRADADO DEL CERDITO CATEGORÍA (Circulo Amarillo) */
         .pig-glow { box-shadow: 0 0 15px 3px rgba(0, 181, 81, 0.35); }
-
-        /* MODIFICACIÓN: Estilo específico para el fondo de la alcancía */
         .pig-glow::before { background-color: #C6E3F7; }
-
-        /* MODIFICACIÓN: Imagen sobre el círculo de fondo */
         .cat-circle img { width: 36px; height: 36px; object-fit: cover; border-radius: 50%; position: relative; z-index: 2; }
-
-        /* MODIFICACIÓN: Estilo específico para el fondo de agregar categoría */
         .plus-bg::before { background-color: #E9FAF0; }
-
-        /* MODIFICACIÓN: SVG sobre el círculo de fondo */
         .plus-bg svg { width: 34px; height: 34px; stroke: #00b551; stroke-width: 2.5; stroke-linecap: round; position: relative; z-index: 2; }
-        
         .cat-text { font-size: 11.5px; line-height: 1.2; font-weight: 600; }
         .text-blue { color: #001e60; }
         .text-green { color: #00b551; }
 
-        /* SOMBRA SEPARADORA (Circulo Rojo) */
         .shadow-divider { height: 14px; background: radial-gradient(ellipse at center, rgba(0,0,0,0.12) 0%, transparent 75%); margin-bottom: 0px; }
-
         .btn-categorias { background-color: #00b551; color: white; border: none; display: flex; justify-content: center; align-items: center; height: 35px; width: calc(100% - 200px); margin: -10px auto 15px; padding: 0px 0px 0px 0px; border-top-left-radius: 0px; border-top-right-radius: 0px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(0, 181, 81, 0.2); }
 
-        /* ACCIONES RÁPIDAS */
         .quick-actions { display: flex; gap: 12px; padding: 10px 20px 0; align-items: flex-start; }
-        
         .qa-container { flex: 1; display: flex; flex-direction: column; align-items: center; }
-        
         .qa-card { width: 100%; background-color: #ffffff; border-radius: 10px; padding: 15px 0; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; margin-bottom: 8px; }
-        
         .qa-icon { width: 28px; height: 28px; object-fit: contain; margin-bottom: 0px; }
-        
         .qa-text { font-size: 11.5px; color: #000; text-align: center; line-height: 1.2; font-weight: 500; }
 
-        /* --- SECCIÓN INFERIOR (Movimientos) - MODIFICADO A FORMA DE TARJETA --- */
-        .movements-section { background-color: #ffffff; border-radius: 8px; margin: 15px 20px 30px 20px; flex: 1; display: flex; flex-direction: column; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border: 1px solid #f0f0f0; position: relative; z-index: 5; padding-bottom: 20px; min-height: 350px;}
-        
+        /* MOVIMIENTOS */
+        .movements-section { background-color: #ffffff; border-radius: 8px; margin: 15px 20px 30px 20px; flex: 1; display: flex; flex-direction: column; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border: 1px solid #f0f0f0; position: relative; z-index: 5; padding-bottom: 20px; min-height: 450px;}
         .mov-tabs { display: flex; border-bottom: 1px solid #f0f0f0; }
         .mov-tab { flex: 1; text-align: center; padding: 18px 0; font-size: 14px; font-weight: 700; color: #666; cursor: pointer; }
         .mov-tab.active { color: #00b551; border-bottom: 2.5px solid #00b551; }
 
-        .empty-state { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px 20px; }
+        .empty-state { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px 20px; display: none;} 
         .empty-icon { width: 140px; height: 140px; object-fit: contain; margin-bottom: 20px; }
         .empty-text { font-size: 15px; color: #000; font-weight: 700; text-align: center; }
 
+        #movimientosList { display: flex; flex-direction: column; padding: 5px 20px; }
+        .mov-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+        .mov-item-left { display: flex; flex-direction: column; gap: 5px; }
+        .mov-item-title { font-size: 14px; font-weight: 700; color: #111; }
+        .mov-item-date { font-size: 12px; color: #888; }
+        .mov-item-right { display: flex; align-items: center; gap: 10px; }
+        .mov-item-amount { font-size: 14px; font-weight: 600; color: #555; }
+        .mov-item-arrow { color: #00b551; font-weight: bold; font-size: 16px; }
+
+        .skeleton { background-color: #e2e5e9 !important; color: transparent !important; border-color: transparent !important; border-radius: 4px; position: relative; overflow: hidden; }
+        .skeleton::after { content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent); animation: skeleton-shimmer 1s infinite; }
+        @keyframes skeleton-shimmer { 100% { left: 100%; } }
+
+        /* ==================================================
+           CORRECCIÓN: MODAL DETALLE (Fondo Verde, Tarjeta Arriba)
+           ================================================== */
+        .detail-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #00b551; 
+            z-index: 99999;
+            display: none; 
+            flex-direction: column;
+            animation: slideUpDetail 0.3s ease-out;
+        }
+
+        @keyframes slideUpDetail {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .detail-card {
+            background-color: white;
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+            padding: 20px 20px 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin: 0 12px 0 12px;
+        }
+
+        .detail-header-inner {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .detail-back-btn {
+            background: none; border: none; cursor: pointer; color: #00b551; padding: 5px; margin-left: -5px;
+        }
+        .detail-back-btn svg {
+            width: 24px; height: 24px; stroke: #00b551; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round;
+        }
+
+        .detail-title-sm { font-size: 14.5px; color: #001e60; font-weight: 600; margin-bottom: 10px; text-align: center; width: 100%; margin-top: -30px;}
+        
+        .detail-amount-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 5px; width: 100%;}
+        .detail-amount { font-size: 38px; font-weight: 800; color: #001e60; letter-spacing: -1px;}
+        .detail-check { width: 22px; height: 22px; background-color: #00b551; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-size: 12px; }
+        
+        .detail-date { font-size: 12px; color: #888; margin-bottom: 30px; text-align: center;}
+
+        .detail-info-row { width: 100%; margin-bottom: 15px; }
+        .detail-info-label { font-size: 13px; color: #888; margin-bottom: 2px; }
+        .detail-info-value { font-size: 14px; color: #333; font-weight: 600; }
+
+        .detail-buttons {
+            margin-top: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn-d-share { background-color: white; color: #00b551; border: none; width: 100%; padding: 16px; border-radius: 8px; font-size: 15px; font-weight: 700; display: flex; justify-content: center; align-items: center; gap: 8px; cursor: pointer; }
+        .btn-d-download { background-color: transparent; color: white; border: 1.5px solid white; width: 100%; padding: 16px; border-radius: 8px; font-size: 15px; font-weight: 700; display: flex; justify-content: center; align-items: center; gap: 8px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -166,8 +251,8 @@
 
         <div class="scroll-content">
             
-            <div class="top-section">
-                
+            <!-- STICKY SECTION: SE QUEDA PEGADA AL BAJAR -->
+            <div class="sticky-top-section">
                 <div class="account-card-top">
                     <img src="img/target.jpg" alt="Icono Cuenta" class="acc-icon">
                     <div class="acc-details">
@@ -180,13 +265,24 @@
                     </div>
                 </div>
 
-                <div class="balances-container">
-                    
+                <div class="balances-container-top">
                     <div class="balance-block">
                         <div class="bal-amount" id="displayAccBal">S/ 0.00</div>
                         <div class="bal-label">Saldo disponible</div>
-                        <img src="img/cards.png" alt="Cards" class="bal-icon" style="margin-left: 5px;">
                     </div>
+                    <div class="balance-block right">
+                        <div class="bal-amount" id="displayPigBalTop">S/ 0.00</div>
+                        <div class="bal-label" id="pigLabelTop">Mi alcancía</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HIDABLE SECTION: SE ESCONDE HACIA ARRIBA AL BAJAR -->
+            <div class="hidable-top-section">
+                
+                <!-- CORRECCIÓN: Fila de Iconos Acomodada -->
+                <div class="middle-icons-row">
+                    <img src="img/cards.png" alt="Cards" class="bal-icon">
 
                     <div class="transfer-slider">
                         <span>&lt; &lt; &lt;</span>
@@ -196,14 +292,9 @@
                         <span>&gt; &gt; &gt;</span>
                     </div>
 
-                    <div class="balance-block right">
-                        <div class="bal-amount" id="displayPigBal">S/ 0.00</div>
-                        <div class="bal-label">Mi alcancía</div>
-                        <div class="alcancia-icon-gradient">
-                            <img src="img/pig-bg.png" alt="Pig">
-                        </div>
+                    <div class="alcancia-icon-gradient">
+                        <img src="img/pig-bg.png" alt="Pig">
                     </div>
-
                 </div>
 
                 <div class="categories-scroll">
@@ -268,12 +359,61 @@
                     <div class="mov-tab">Movimientos alcancía</div>
                 </div>
                 
-                <div class="empty-state">
+                <div class="empty-state" id="emptyStateBox">
                     <img src="img/box-movements.webp" alt="Sin movimientos" class="empty-icon">
                     <div class="empty-text">No tienes ningún movimiento<br>registrado</div>
                 </div>
+
+                <!-- CONTENEDOR DE LA LISTA DE MOVIMIENTOS -->
+                <div id="movimientosList">
+                    <!-- JS inyecta la lista aquí -->
+                </div>
             </div>
 
+        </div>
+    </div>
+
+    <!-- ==============================================
+         CORRECCIÓN: VISTA DE DETALLE (Tarjeta arriba)
+         ============================================== -->
+    <div class="detail-modal" id="modalDetalleMov">
+        
+        <div class="detail-card">
+            
+            <div class="detail-header-inner">
+                <button class="detail-back-btn" onclick="cerrarDetalle()">
+                    <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </button>
+            </div>
+
+            <div class="detail-title-sm">Detalle de movimiento</div>
+            
+            <div class="detail-amount-row">
+                <div class="detail-amount" id="detMonto">S/ -1.00</div>
+                <div class="detail-check"><i class="fa-solid fa-check"></i></div>
+            </div>
+
+            <div class="detail-date" id="detFechaHeader">05 Sept 2026 | 9:54 PM</div>
+
+            <div class="detail-info-row">
+                <div class="detail-info-label">Tipo de operación</div>
+                <div class="detail-info-value" id="detTipo">Yape-Maikol</div>
+            </div>
+
+            <div class="detail-info-row">
+                <div class="detail-info-label">Fecha del proceso</div>
+                <div class="detail-info-value" id="detFechaProceso">07 Sept 2026</div>
+            </div>
+
+            <div class="detail-info-row">
+                <div class="detail-info-label">Origen</div>
+                <div class="detail-info-value">Gest De Procesos Tc</div>
+            </div>
+        </div>
+
+        <div class="detail-buttons">
+            <button class="btn-d-share"><i class="fa-solid fa-share-nodes"></i> Compartir</button>
+            <button class="btn-d-download"><i class="fa-solid fa-download"></i> Descargar</button>
         </div>
     </div>
 
@@ -284,35 +424,116 @@
             acc3: { name: "Cuenta de Ahorros", curr: "S/", bal: "1000.00", num: "1911111111111" }
         };
 
+        let monedaGlobal = "S/";
+
         document.addEventListener('DOMContentLoaded', () => {
             
-            // 1. Obtener ID de la URL (ej: mi_cuenta.html?id=2). Si no hay, por defecto es la 1.
+            // 1. Cargar Datos Básicos de la Cuenta
             const urlParams = new URLSearchParams(window.location.search);
             let accountId = urlParams.get('id') || '1';
             
-            // 2. Definir la base de datos a usar (si pones un id que no existe, regresa al acc1)
             let accKey = `acc${accountId}`;
             let defaultData = DEFAULTS[accKey] ? DEFAULTS[accKey] : DEFAULTS.acc1;
 
-            // 3. Extraer datos de la memoria para esa cuenta específica o usar default
             let name = localStorage.getItem(`ibk_acc${accountId}_name`) || defaultData.name;
             let curr = localStorage.getItem(`ibk_acc${accountId}_curr`) || defaultData.curr;
             let bal = localStorage.getItem(`ibk_acc${accountId}_bal`) || defaultData.bal;
             let num = localStorage.getItem(`ibk_acc${accountId}_num`) || defaultData.num;
+            
+            monedaGlobal = curr;
 
-            // 4. Formatear y pintar en la UI
             let formattedBal = parseFloat(bal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
             document.getElementById('displayAccName').innerText = name;
-            document.getElementById('displayAccNum').innerText = num.replace(/\s/g, ''); // Sin espacios
+            document.getElementById('displayAccNum').innerText = num.replace(/\s/g, ''); 
 
             document.getElementById('displayAccBal').innerText = `${curr} ${formattedBal}`;
             document.getElementById('sliderCurrency').innerText = curr;
 
-            // La alcancía siempre empieza en 0.00 de la moneda actual
-            document.getElementById('displayPigBal').innerText = `${curr} 0.00`;
+            document.getElementById('displayPigBalTop').innerText = `${curr} 0.00`;
             document.getElementById('catPigBal').innerHTML = `${curr} 0<br>Mi alcancía`;
+
+            // 2. Cargar Lista de Movimientos
+            cargarMovimientos();
         });
+
+        function cargarMovimientos() {
+            const listContainer = document.getElementById('movimientosList');
+            const emptyState = document.getElementById('emptyStateBox');
+            
+            let historial = JSON.parse(localStorage.getItem('ibk_global_movements') || '[]');
+
+            if (historial.length === 0) {
+                emptyState.style.display = 'flex';
+                listContainer.style.display = 'none';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            listContainer.style.display = 'flex';
+            listContainer.innerHTML = '';
+
+            // Pintar Skeletons (Animación temporal)
+            historial.forEach((mov, index) => {
+                let skeletonHTML = `
+                    <div class="mov-item temp-skeleton">
+                        <div class="mov-item-left">
+                            <div class="mov-item-title skeleton" style="width: 120px; height: 16px;"></div>
+                            <div class="mov-item-date skeleton" style="width: 160px; height: 12px; margin-top: 5px;"></div>
+                        </div>
+                        <div class="mov-item-right">
+                            <div class="mov-item-amount skeleton" style="width: 70px; height: 16px;"></div>
+                            <div class="mov-item-arrow">›</div>
+                        </div>
+                    </div>
+                `;
+                listContainer.insertAdjacentHTML('beforeend', skeletonHTML);
+            });
+
+            // Reemplazar Skeletons por datos reales tras 2 segundos
+            setTimeout(() => {
+                listContainer.innerHTML = ''; // Limpiar skeletons
+                
+                historial.forEach((mov) => {
+                    const safeMovData = encodeURIComponent(JSON.stringify(mov));
+
+                    let realHTML = `
+                        <div class="mov-item" onclick="abrirDetalle('${safeMovData}')">
+                            <div class="mov-item-left">
+                                <div class="mov-item-title">${mov.tipo}</div>
+                                <div class="mov-item-date">${mov.fechaCorta} | ${mov.horaCorta}</div>
+                            </div>
+                            <div class="mov-item-right">
+                                <div class="mov-item-amount" style="color: #000;">${monedaGlobal} -${mov.monto}</div>
+                                <div class="mov-item-arrow">›</div>
+                            </div>
+                        </div>
+                    `;
+                    listContainer.insertAdjacentHTML('beforeend', realHTML);
+                });
+            }, 2000);
+        }
+
+        // --- SISTEMA DEL MODAL DE DETALLE VERDE ---
+        function abrirDetalle(encodedData) {
+            const mov = JSON.parse(decodeURIComponent(encodedData));
+            
+            document.getElementById('detMonto').innerText = `${monedaGlobal} -${mov.monto}`;
+            
+            // Reutiliza la misma hora del comprobante, pero le cambiamos el año a 2026
+            let mFechaArr = mov.fechaCorta.split(' ');
+            let mes = mFechaArr[2] ? mFechaArr[2] : "Sept";
+            
+            document.getElementById('detFechaHeader').innerText = `${mFechaArr[1]} ${mes} 2026 | ${mov.horaCorta}`;
+            document.getElementById('detTipo').innerText = mov.tipo;
+            document.getElementById('detFechaProceso').innerText = mov.fechaCompleta;
+
+            document.getElementById('modalDetalleMov').style.display = 'flex';
+        }
+
+        function cerrarDetalle() {
+            document.getElementById('modalDetalleMov').style.display = 'none';
+        }
     </script>
 </body>
 </html>

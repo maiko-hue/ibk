@@ -19,7 +19,7 @@
             -moz-user-select: none !important; 
             -ms-user-select: none !important; 
             user-select: none !important; 
-            box-sizing: border-box; /* Añadido para que los inputs no se desborden y queden ordenados */
+            box-sizing: border-box; 
         }
 
         input, textarea, select {
@@ -101,10 +101,6 @@
         .menu-text { flex: 1; font-size: 16px; color: #000; font-weight: 600; }
         .menu-arrow { color: #00b551; font-size: 20px; font-weight: bold; }
 
-        .menu-item.disabled { cursor: default; opacity: 0.5; }
-        .menu-item.disabled:active { background-color: #ffffff; }
-        .menu-item.disabled .menu-arrow { display: none; }
-
         .toggle-switch { width: 44px; height: 24px; background: #e0e0e0; border-radius: 20px; position: relative; transition: background 0.3s; flex-shrink: 0; }
         .toggle-switch.active { background: #00b551; }
         .toggle-knob { width: 18px; height: 18px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
@@ -132,32 +128,38 @@
         .contact-input::placeholder { color: #aaa; }
         .cam-btn { width: 48px; height: 48px; background-color: #f5f6f8; border: 1px solid #e0e0e0; border-radius: 8px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; cursor: pointer; }
         .cam-btn svg { width: 20px; height: 20px; stroke: #666; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-        .btn-green-full { background-color: #00b551; color: white; border: none; width: 100%; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; margin-bottom: 20px; }
+        .btn-green-full { background-color: #00b551; color: white; border: none; width: 100%; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; margin-bottom: 20px; transition: background 0.2s; }
         .btn-green-full:active { background-color: #009e47; }
         .btn-green-full:disabled { background-color: #8ce1b2; cursor: not-allowed; }
         .info-box { background-color: #f0f7ff; border-radius: 8px; padding: 15px; display: flex; align-items: flex-start; gap: 12px; }
         .info-box svg { width: 20px; height: 20px; stroke: #0039a6; stroke-width: 2; fill: none; flex-shrink: 0; margin-top: 2px; }
         .info-box p { font-size: 13px; color: #0039a6; line-height: 1.4; margin: 0; }
 
-        /* --- VISTA 4: CONFIGURACIÓN MAESTRA (ORDENADA) --- */
-        .settings-wrapper { padding: 20px; }
-        .settings-section-title { font-size: 14px; font-weight: 800; color: #00b551; text-transform: uppercase; margin-bottom: 15px; margin-top: 20px; letter-spacing: 0.5px; }
+        /* --- CONFIGURACIÓN MAESTRA --- */
+        .settings-wrapper { padding: 25px 20px; }
+        .settings-section-title { font-size: 13.5px; font-weight: 800; color: #00b551; text-transform: uppercase; margin-bottom: 15px; margin-top: 25px; letter-spacing: 0.5px; }
         .settings-section-title:first-child { margin-top: 0; }
         
-        .set-account-box { background-color: #ffffff; border: 1px solid #f0f0f0; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        .set-account-header { font-size: 14px; font-weight: 700; color: #0039a6; margin-bottom: 12px; }
+        .set-account-box { background-color: #ffffff; border: 1px solid #eef0f5; border-radius: 12px; padding: 20px 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .set-account-header { font-size: 14.5px; font-weight: 800; color: #0039a6; margin-bottom: 15px; }
         
-        /* Ajustes de orden para los inputs */
-        .input-full { width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; color: #333; margin-bottom: 12px; outline: none; transition: border-color 0.2s; }
-        .input-full:focus { border-color: #00b551; }
+        .input-full, .input-amount, .input-select { 
+            width: 100%; padding: 14px 16px; border: 1.5px solid #eef0f5; border-radius: 10px; 
+            font-size: 15px; color: #333; font-weight: 500; outline: none; transition: all 0.2s ease; 
+            background-color: #fafbfc; font-family: 'Nunito', sans-serif;
+        }
+        .input-full { margin-bottom: 15px; }
+        .input-full:focus, .input-amount:focus, .input-select:focus { 
+            border-color: #00b551; background-color: #fff; box-shadow: 0 0 0 3px rgba(0, 181, 81, 0.1); 
+        }
         
-        .input-row { display: flex; gap: 12px; margin-bottom: 12px; width: 100%; }
-        .input-select { width: 35%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; color: #333; background: #fbfbfb; outline: none; pointer-events: none; appearance: none; }
-        .input-amount { width: 65%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; color: #333; outline: none; }
+        .input-row { display: flex; gap: 15px; margin-bottom: 15px; width: 100%; }
+        .input-select { width: 40%; pointer-events: none; appearance: none; color: #666; font-weight: 700; background-color: #f5f6f8; }
+        .input-amount { width: 60%; font-weight: 700; color: #0039a6; }
         
-        /* Quita el margen del último elemento para que la caja quede prolija */
         .set-account-box input:last-child { margin-bottom: 0; }
 
+        /* MODALES GLOBALES */
         .modal-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background-color: rgba(0,0,0,0.6); z-index: 1000; 
@@ -165,34 +167,62 @@
             padding: 30px; backdrop-filter: blur(2px);
         }
         .modal-card { 
-            background-color: #ffffff; border-radius: 12px; padding: 25px; 
+            background-color: #ffffff; border-radius: 16px; padding: 25px; 
             width: 100%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        @keyframes popIn { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
         .modal-title { color: #0039a6; font-size: 18px; font-weight: 800; margin-bottom: 10px; }
         .modal-text { color: #555; font-size: 15px; margin-bottom: 25px; line-height: 1.4; }
         .modal-btns { display: flex; gap: 12px; }
-        .btn-m { flex: 1; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; border: none; }
+        .btn-m { flex: 1; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; border: none; transition: background 0.2s; }
         .btn-no { background-color: #f2f2f2; color: #666; }
         .btn-si { background-color: #00b551; color: white; }
+
+        /* Loader de actualización */
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #00b551; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 0 auto 15px; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <!-- FONDO VERDE SUPERIOR -->
     <div class="green-bg-curve">
         <img src="img/secondlogo.png" alt="Logo de la app" class="top-logo">
     </div>
 
     <div class="mobile-wrapper">
 
+        <!-- MODAL CERRAR SESIÓN -->
         <div class="modal-overlay" id="modalLogout">
             <div class="modal-card">
                 <div class="modal-title">Cerrar Sesión</div>
                 <div class="modal-text">¿En verdad quieres cerrar sesión?</div>
                 <div class="modal-btns">
-                    <button class="btn-m btn-no" onclick="cerrarMensaje()">No</button>
+                    <button class="btn-m btn-no" onclick="cerrarModal('modalLogout')">No</button>
                     <button class="btn-m btn-si" onclick="window.location.href='index.html'">Sí</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- MODAL BORRAR MOVIMIENTOS -->
+        <div class="modal-overlay" id="modalBorrar">
+            <div class="modal-card">
+                <div class="modal-title" style="color: #d32f2f;">Borrar Movimientos</div>
+                <div class="modal-text">¿Estás seguro que deseas eliminar todo el historial de movimientos de la cuenta? Esta acción no se puede deshacer.</div>
+                <div class="modal-btns">
+                    <button class="btn-m btn-no" onclick="cerrarModal('modalBorrar')">Cancelar</button>
+                    <button class="btn-m btn-si" style="background-color: #d32f2f;" id="btnEjecutarBorrado" onclick="ejecutarBorrado()">Sí, borrar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL ACTUALIZANDO -->
+        <div class="modal-overlay" id="modalActualizando">
+            <div class="modal-card">
+                <div class="loader" id="spinner" style="display: block;"></div>
+                <div class="modal-title" style="margin-bottom: 5px;">Actualizando...</div>
+                <div class="modal-text" style="margin-bottom: 0; font-size: 13px;">Obteniendo los últimos datos de la app.</div>
             </div>
         </div>
 
@@ -206,15 +236,14 @@
 
             <div class="content-card">
                 <div class="profile-section">
-                    <div class="avatar" id="avatarInitial">G</div>
+                    <div class="avatar" id="avatarInitial">U</div>
                     <div class="user-info">
-                        <div class="user-name" id="userNameDisplay">Gabriel</div>
+                        <div class="user-name" id="userNameDisplay">Usuario</div>
                         <div class="user-edit">Editar tus datos <span>&rarr;</span></div>
                     </div>
                 </div>
 
                 <div class="menu-list">
-                    <!-- NUEVO BOTÓN: Grupo Oficial -->
                     <div class="menu-item" onclick="window.location.href='https://t.me/appsreborn'">
                         <svg class="menu-icon" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke-linejoin="round" stroke-linecap="round"></path></svg>
                         <div class="menu-text">Grupo oficial</div>
@@ -224,6 +253,12 @@
                     <div class="menu-item" onclick="window.location.href='sobre.html'">
                         <svg class="menu-icon" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"></circle><path d="M5.5 21v-2a6.5 6.5 0 0 1 13 0v2"></path></svg>
                         <div class="menu-text">Accesibilidad</div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+
+                    <div class="menu-item" onclick="forzarActualizacion()">
+                        <svg class="menu-icon" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.21l-3.23 3.06"></path></svg>
+                        <div class="menu-text">Actualizar APP</div>
                         <div class="menu-arrow">›</div>
                     </div>
                     
@@ -248,74 +283,15 @@
                         <div class="menu-arrow">›</div>
                     </div>
 
-                    <div class="menu-item">
+                    <div class="menu-item" onclick="abrirModal('modalBorrar')">
                         <svg class="menu-icon" viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                         <div class="menu-text">Borrar movimientos</div>
                     </div>
 
-                    <div class="menu-item" onclick="confirmarCierre()">
+                    <div class="menu-item" onclick="abrirModal('modalLogout')">
                         <svg class="menu-icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                         <div class="menu-text">Cerrar Sesión</div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="view-cuentas" class="view">
-            <header class="header">
-                <button class="back-btn" onclick="cambiarVista('view-config')">
-                    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                </button>
-                <div class="title">Mis cuentas</div>
-                <button class="text-green-btn">Agregar</button>
-            </header>
-
-            <div class="content-card">
-                <div class="accounts-wrapper">
-                    <div class="accounts-desc">
-                        Selecciona hasta 3 productos que se mostrarán en tu pantalla de inicio.
-                    </div>
-
-                    <div class="account-card">
-                        <div class="acc-badge">1</div>
-                        <div class="acc-info">
-                            <div class="acc-name" id="dispName1">Cuenta Simple Soles</div>
-                            <div class="acc-balance" id="dispBal1">S/ 2.22</div>
-                            <div class="acc-sub">Saldo Disponible</div>
-                        </div>
-                        <div class="acc-actions">
-                            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                            <svg onclick="abrirConfiguracionMaestra()" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                        </div>
-                    </div>
-
-                    <div class="account-card">
-                        <div class="acc-badge">2</div>
-                        <div class="acc-info">
-                            <div class="acc-name" id="dispName2">Cuenta Simple Dolares</div>
-                            <div class="acc-balance" id="dispBal2">US$ 871.78</div>
-                            <div class="acc-sub">Saldo Disponible</div>
-                        </div>
-                        <div class="acc-actions">
-                            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                            <svg onclick="abrirConfiguracionMaestra()" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                        </div>
-                    </div>
-
-                    <div class="account-card">
-                        <div class="acc-badge">3</div>
-                        <div class="acc-info">
-                            <div class="acc-name" id="dispName3">Ola</div>
-                            <div class="acc-balance" id="dispBal3">S/ 111,111.00</div>
-                            <div class="acc-sub">Saldo Disponible</div>
-                        </div>
-                        <div class="acc-actions">
-                            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                            <svg onclick="abrirConfiguracionMaestra()" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                        </div>
-                    </div>
-
-                    <button class="btn-guardar-ghost">Guardar</button>
                 </div>
             </div>
         </div>
@@ -369,6 +345,7 @@
 
                     <div class="settings-section-title">Edición de Cuentas</div>
 
+                    <!-- CUENTA 1 -->
                     <div class="set-account-box">
                         <div class="set-account-header">Cuenta 1 (Soles)</div>
                         <input type="text" id="setAcc1Name" class="input-full" placeholder="Nombre de la cuenta">
@@ -377,12 +354,13 @@
                                 <option value="S/" selected>Soles (S/)</option>
                                 <option value="US$">Dólares (US$)</option>
                             </select>
-                            <input type="number" id="setAcc1Bal" class="input-amount" placeholder="0.00" step="0.01">
+                            <input type="tel" inputmode="numeric" id="setAcc1Bal" class="input-amount format-atm" placeholder="0.00">
                         </div>
-                        <input type="tel" id="setAcc1Num" class="input-full" placeholder="Número de cuenta (ej. 191 2058951088)">
-                        <input type="tel" id="setAcc1CCI" class="input-full" placeholder="CCI (ej. 002 191 002058951088 12)">
+                        <input type="tel" inputmode="numeric" id="setAcc1Num" class="input-full format-account" placeholder="Número de cuenta">
+                        <input type="tel" inputmode="numeric" id="setAcc1CCI" class="input-full format-account" placeholder="CCI">
                     </div>
 
+                    <!-- CUENTA 2 -->
                     <div class="set-account-box">
                         <div class="set-account-header">Cuenta 2 (Dólares)</div>
                         <input type="text" id="setAcc2Name" class="input-full" placeholder="Nombre de la cuenta">
@@ -391,12 +369,13 @@
                                 <option value="S/">Soles (S/)</option>
                                 <option value="US$" selected>Dólares (US$)</option>
                             </select>
-                            <input type="number" id="setAcc2Bal" class="input-amount" placeholder="0.00" step="0.01">
+                            <input type="tel" inputmode="numeric" id="setAcc2Bal" class="input-amount format-atm" placeholder="0.00">
                         </div>
-                        <input type="tel" id="setAcc2Num" class="input-full" placeholder="Número de cuenta">
-                        <input type="tel" id="setAcc2CCI" class="input-full" placeholder="CCI">
+                        <input type="tel" inputmode="numeric" id="setAcc2Num" class="input-full format-account" placeholder="Número de cuenta">
+                        <input type="tel" inputmode="numeric" id="setAcc2CCI" class="input-full format-account" placeholder="CCI">
                     </div>
 
+                    <!-- CUENTA 3 -->
                     <div class="set-account-box">
                         <div class="set-account-header">Cuenta 3 (Soles)</div>
                         <input type="text" id="setAcc3Name" class="input-full" placeholder="Nombre de la cuenta">
@@ -405,10 +384,10 @@
                                 <option value="S/" selected>Soles (S/)</option>
                                 <option value="US$">Dólares (US$)</option>
                             </select>
-                            <input type="number" id="setAcc3Bal" class="input-amount" placeholder="0.00" step="0.01">
+                            <input type="tel" inputmode="numeric" id="setAcc3Bal" class="input-amount format-atm" placeholder="0.00">
                         </div>
-                        <input type="tel" id="setAcc3Num" class="input-full" placeholder="Número de cuenta">
-                        <input type="tel" id="setAcc3CCI" class="input-full" placeholder="CCI">
+                        <input type="tel" inputmode="numeric" id="setAcc3Num" class="input-full format-account" placeholder="Número de cuenta">
+                        <input type="tel" inputmode="numeric" id="setAcc3CCI" class="input-full format-account" placeholder="CCI">
                     </div>
 
                     <button class="btn-green-full" onclick="guardarConfiguracionGlobal()">Guardar Cambios</button>
@@ -418,8 +397,8 @@
 
     </div>
 
+    <!-- Script de Firebase exclusivo para Guardar Contactos -->
     <script type="module" src="seguridad.js"></script>
-
     <script type="module">
         import { db, doc, setDoc } from "./firebase.js";
 
@@ -440,13 +419,9 @@
             btnSaveContact.innerText = "Guardando...";
 
             try {
-                // Guarda en la colección de usuarios de yape usando el número como ID de documento
                 const docRef = doc(db, "usuarios_yape", celular);
-                await setDoc(docRef, {
-                    nombre: nombre
-                });
+                await setDoc(docRef, { nombre: nombre });
 
-                // Efecto de éxito
                 btnSaveContact.style.backgroundColor = "#2bd071";
                 btnSaveContact.innerText = "¡Guardado con éxito!";
                 
@@ -467,6 +442,7 @@
         });
     </script>
 
+    <!-- LÓGICA PRINCIPAL DEL CONFIG -->
     <script>
         const DEFAULTS = {
             name: "Usuario",
@@ -475,44 +451,105 @@
             acc3: { name: "Cuenta de Ahorros", curr: "S/", bal: "1000.00", num: "191 1111111111", cci: "002 191 1111111111 00" }
         };
 
-        // ESTADO DEL BOT
         let isIbkBotActive = false;
 
-        // CARGA INICIAL
         document.addEventListener('DOMContentLoaded', () => {
             cargarDatosUI();
 
-            // Cargar estado del bot
             const savedBotStatus = localStorage.getItem("ibk_bot_telegram_activo");
-            if (savedBotStatus === "true") {
-                isIbkBotActive = true;
-            }
+            if (savedBotStatus === "true") { isIbkBotActive = true; }
             actualizarInterfazBot();
+
+            // ==========================================
+            // FORMATEADORES: 4 en 4 (Cuentas y CCI)
+            // ==========================================
+            const accountInputs = document.querySelectorAll('.format-account');
+            accountInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    let val = this.value.replace(/\D/g, ''); // Quita todo lo que no sea número
+                    if (val.length > 0) {
+                        val = val.match(/.{1,4}/g).join(' '); // Agrupa de 4 en 4 con espacios
+                    }
+                    this.value = val;
+                });
+            });
+
+            // ==========================================
+            // FORMATEADORES: Tipo Cajero (Saldos)
+            // ==========================================
+            const atmInputs = document.querySelectorAll('.format-atm');
+            atmInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    let val = this.value.replace(/\D/g, '');
+                    if (val === '') { this.value = ''; return; }
+                    let num = parseInt(val, 10);
+                    this.value = (num / 100).toFixed(2);
+                });
+
+                // Si al tocar está en 0.00, lo borra visualmente para que sea más fácil escribir
+                input.addEventListener('focus', function() {
+                    if (this.value === '0.00') this.value = '';
+                });
+
+                // Si al salir lo dejó vacío, vuelve a poner 0.00
+                input.addEventListener('blur', function() {
+                    if (this.value === '') this.value = '0.00';
+                });
+            });
         });
 
+        // Utilidades para formatear datos guardados al abrir la sección
+        function formatAccountValue(val) {
+            let numeric = String(val).replace(/\D/g, '');
+            if (!numeric) return "";
+            return numeric.match(/.{1,4}/g).join(' ');
+        }
+
         function cargarDatosUI() {
-            // Nombre Perfil
             let savedName = localStorage.getItem('ibk_user_name') || DEFAULTS.name;
             document.getElementById('userNameDisplay').innerText = savedName;
             document.getElementById('avatarInitial').innerText = savedName.charAt(0).toUpperCase();
-
-            // Vista Mis Cuentas
-            for(let i=1; i<=3; i++) {
-                let name = localStorage.getItem(`ibk_acc${i}_name`) || DEFAULTS[`acc${i}`].name;
-                let curr = localStorage.getItem(`ibk_acc${i}_curr`) || DEFAULTS[`acc${i}`].curr;
-                let bal = localStorage.getItem(`ibk_acc${i}_bal`) || DEFAULTS[`acc${i}`].bal;
-
-                let dispName = document.getElementById(`dispName${i}`);
-                let dispBal = document.getElementById(`dispBal${i}`);
-                
-                if (dispName && dispBal) {
-                    dispName.innerText = name;
-                    dispBal.innerText = `${curr} ${parseFloat(bal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-                }
-            }
         }
 
-        // LÓGICA DEL INTERRUPTOR DEL BOT
+        // --- SISTEMA DE MODALES GLOBALES ---
+        function abrirModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function cerrarModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // --- LÓGICA DE ACTUALIZAR APP PWA ---
+        function forzarActualizacion() {
+            abrirModal('modalActualizando');
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for (let registration of registrations) { registration.unregister(); }
+                });
+            }
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
+                    for (let name of names) { caches.delete(name); }
+                });
+            }
+            setTimeout(() => { window.location.reload(true); }, 1500);
+        }
+
+        // --- LÓGICA BORRAR MOVIMIENTOS NATIVA ---
+        function ejecutarBorrado() {
+            // Vaciar memoria local
+            localStorage.removeItem('ibk_global_movements');
+            
+            // Retroalimentación visual en el mismo botón
+            const btnEjecutar = document.getElementById('btnEjecutarBorrado');
+            const textoOriginal = btnEjecutar.innerText;
+            
+            btnEjecutar.innerText = "¡Borrados!";
+            btnEjecutar.style.backgroundColor = "#2bd071"; // Verde éxito
+
+            setTimeout(() => {
+                btnEjecutar.innerText = textoOriginal;
+                btnEjecutar.style.backgroundColor = "#d32f2f"; // Volver a rojo
+                cerrarModal('modalBorrar');
+            }, 1500);
+        }
+
         function toggleIbkBot() {
             isIbkBotActive = !isIbkBotActive;
             localStorage.setItem("ibk_bot_telegram_activo", isIbkBotActive);
@@ -522,66 +559,44 @@
         function actualizarInterfazBot() {
             const toggleBtn = document.getElementById('ibkBotToggleBtn');
             const statusText = document.getElementById('ibkBotStatusText');
-            
-            if (isIbkBotActive) {
-                toggleBtn.classList.add('active');
-                statusText.innerText = "Activado";
-            } else {
-                toggleBtn.classList.remove('active');
-                statusText.innerText = "Desactivado";
-            }
+            if (isIbkBotActive) { toggleBtn.classList.add('active'); statusText.innerText = "Activado"; } 
+            else { toggleBtn.classList.remove('active'); statusText.innerText = "Desactivado"; }
         }
 
-        // NAVEGACIÓN VISTAS
         function cambiarVista(idVista) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(idVista).classList.add('active');
         }
 
-        // REDIRECCIÓN A OPERACIONES
-        function irAOperaciones() {
-            localStorage.setItem('ibk_open_operations', 'true');
-            window.location.href = 'inicio.html';
-        }
-
-        // --- FUNCIONES DEL MENSAJE NATIVO (MODAL) ---
-        function confirmarCierre() {
-            document.getElementById('modalLogout').style.display = 'flex';
-        }
-
-        function cerrarMensaje() {
-            document.getElementById('modalLogout').style.display = 'none';
-        }
-
-        // --- LÓGICA DE LA VISTA CONFIGURACIÓN MAESTRA ---
         function abrirConfiguracionMaestra() {
-            // 1. Cargar nombre
             document.getElementById('setUserName').value = localStorage.getItem('ibk_user_name') || DEFAULTS.name;
-
-            // 2. Cargar inputs de cuentas
+            
             for(let i=1; i<=3; i++) {
                 document.getElementById(`setAcc${i}Name`).value = localStorage.getItem(`ibk_acc${i}_name`) || DEFAULTS[`acc${i}`].name;
                 document.getElementById(`setAcc${i}Curr`).value = localStorage.getItem(`ibk_acc${i}_curr`) || DEFAULTS[`acc${i}`].curr;
-                document.getElementById(`setAcc${i}Bal`).value = parseFloat(localStorage.getItem(`ibk_acc${i}_bal`) || DEFAULTS[`acc${i}`].bal).toFixed(2);
                 
-                document.getElementById(`setAcc${i}Num`).value = localStorage.getItem(`ibk_acc${i}_num`) || DEFAULTS[`acc${i}`].num;
-                document.getElementById(`setAcc${i}CCI`).value = localStorage.getItem(`ibk_acc${i}_cci`) || DEFAULTS[`acc${i}`].cci;
+                // El saldo se carga y se le da formato. El input-atm se encarga de mostrarlo bien.
+                let rawBal = localStorage.getItem(`ibk_acc${i}_bal`) || DEFAULTS[`acc${i}`].bal;
+                document.getElementById(`setAcc${i}Bal`).value = parseFloat(rawBal).toFixed(2);
+                
+                // Cuentas y CCI se cargan con espacios forzados
+                let rawNum = localStorage.getItem(`ibk_acc${i}_num`) || DEFAULTS[`acc${i}`].num;
+                document.getElementById(`setAcc${i}Num`).value = formatAccountValue(rawNum);
+                
+                let rawCCI = localStorage.getItem(`ibk_acc${i}_cci`) || DEFAULTS[`acc${i}`].cci;
+                document.getElementById(`setAcc${i}CCI`).value = formatAccountValue(rawCCI);
             }
-
             cambiarVista('view-settings');
         }
 
         function guardarConfiguracionGlobal() {
-            // Guardar Nombre
             let newName = document.getElementById('setUserName').value.trim() || "Gabriel";
             localStorage.setItem('ibk_user_name', newName);
 
-            // Guardar Cuentas
             for(let i=1; i<=3; i++) {
                 let accName = document.getElementById(`setAcc${i}Name`).value.trim();
                 let accCurr = document.getElementById(`setAcc${i}Curr`).value;
                 let accBal = document.getElementById(`setAcc${i}Bal`).value || "0.00";
-                
                 let accNum = document.getElementById(`setAcc${i}Num`).value.trim();
                 let accCCI = document.getElementById(`setAcc${i}CCI`).value.trim();
 
@@ -592,20 +607,9 @@
                 localStorage.setItem(`ibk_acc${i}_num`, accNum);
                 localStorage.setItem(`ibk_acc${i}_cci`, accCCI);
             }
-
             cargarDatosUI();
             cambiarVista('view-config');
         }
-
-        // Forzar decimales
-        ['setAcc1Bal', 'setAcc2Bal', 'setAcc3Bal'].forEach(id => {
-            document.getElementById(id).addEventListener('blur', function() {
-                if(this.value && !isNaN(this.value)) {
-                    this.value = parseFloat(this.value).toFixed(2);
-                }
-            });
-        });
-
     </script>
 </body>
 </html>

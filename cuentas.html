@@ -170,15 +170,12 @@
             acc3: { name: "Cuenta de Ahorros", curr: "S/", bal: "1000.00" }
         };
 
-        // Variable para recordar qué cuenta eligió el usuario
         let cuentaSeleccionadaID = 1; 
 
-        // CARGAR DATOS DINÁMICOS AL INICIAR
         document.addEventListener('DOMContentLoaded', () => {
             cargarCuentasCargo();
         });
 
-        // --- GENERADOR DINÁMICO DE CUENTAS ---
         function cargarCuentasCargo() {
             const listContainer = document.getElementById('accountsListContainer');
             listContainer.innerHTML = ''; 
@@ -187,11 +184,10 @@
                 let savedName = localStorage.getItem(`ibk_acc${i}_name`) || DEFAULTS[`acc${i}`].name;
                 let savedCurr = localStorage.getItem(`ibk_acc${i}_curr`) || DEFAULTS[`acc${i}`].curr;
                 let savedBal = localStorage.getItem(`ibk_acc${i}_bal`) || DEFAULTS[`acc${i}`].bal;
-                let savedNum = localStorage.getItem(`ibk_acc${i}_num`) || "191 2058951088"; // Fallback por seguridad
+                let savedNum = localStorage.getItem(`ibk_acc${i}_num`) || "191 2058951088"; 
 
                 let formattedBal = parseFloat(savedBal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
-                // Pasamos el ID, Nombre y Número directamente a la función
                 let cardHTML = `
                     <div class="account-card" onclick="seleccionarCuentaCargo(${i}, '${savedName}', '${savedNum}')">
                         <img src="img/target.jpg" alt="Icono Cuenta" class="acc-icon">
@@ -206,33 +202,69 @@
             }
         }
 
-        // NAVEGACIÓN HACIA ATRÁS
         function goBack() {
             window.history.back();
         }
 
-        // ACCIÓN AL SELECCIONAR UNA CUENTA
         function seleccionarCuentaCargo(accId, accName, accNum) {
-            cuentaSeleccionadaID = accId; // Memorizamos la cuenta elegida
+            cuentaSeleccionadaID = accId; 
             
-            // Guardamos temporalmente el nombre y número de cuenta origen para que el voucher (exito.html) pueda leerlos
             localStorage.setItem('ibk_trans_cargo_name', accName);
             localStorage.setItem('ibk_trans_cargo_num', accNum);
 
-            // Al hacer clic, disparamos directamente el pago
             procesarPago();
         }
 
-        // PROCESAR PAGO CON CÁLCULO DE SALDO
+        // --- SISTEMA DE GUARDADO DE MOVIMIENTOS ---
+        function registrarMovimiento(monto, destino, nombre) {
+            const now = new Date();
+            const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+            const months = ['Sept', 'Oct', 'Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago'];
+            
+            // Construir Fecha: "Sáb 05 Sept"
+            const dayName = days[now.getDay()];
+            const dayNum = now.getDate().toString().padStart(2, '0');
+            const monthName = months[now.getMonth()]; // Ajuste simple
+            const fechaStr = `${dayName} ${dayNum} ${monthName}`;
+            
+            // Construir Hora: "9:54 pm"
+            let hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'pm' : 'am';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            const horaStr = `${hours}:${minutes} ${ampm}`;
+
+            // Crear el objeto del movimiento
+            // Nota: Tomamos solo el primer nombre del destinatario para que quede como "Yape-Maikol"
+            let primerNombre = nombre.split(' ')[0] || "Usuario";
+            if (primerNombre.length > 10) primerNombre = primerNombre.substring(0, 10); // Limitar largo
+
+            const nuevoMovimiento = {
+                id: Date.now(), // ID único basado en el tiempo
+                tipo: `${destino}-${primerNombre}`, // Ej: Yape-Maikol o Plin-Juan
+                fechaCorta: fechaStr,
+                horaCorta: horaStr,
+                fechaCompleta: `${now.getDate().toString().padStart(2, '0')} ${monthName} ${now.getFullYear()}`, // Para el Detalle
+                monto: parseFloat(monto).toFixed(2),
+                estado: "Exitoso" // Para la palomita verde del detalle
+            };
+
+            // Extraer la lista actual, agregar el nuevo y volver a guardar
+            let historialGlobal = JSON.parse(localStorage.getItem('ibk_global_movements') || '[]');
+            historialGlobal.unshift(nuevoMovimiento); // Lo agrega al principio (arriba)
+            localStorage.setItem('ibk_global_movements', JSON.stringify(historialGlobal));
+        }
+
         function procesarPago() {
-            // Mostrar la pantalla de carga
             document.getElementById('loading-overlay').style.display = 'flex';
 
-            // --- INICIO DE LA LÓGICA DE RESTA ---
-            // 1. Obtenemos el monto que se está enviando
+            // 1. Obtenemos datos de la operación
             const montoEnvio = parseFloat(localStorage.getItem('ibk_plin_monto') || 0);
+            const destinoBanco = localStorage.getItem('ibk_plin_destino') || 'Plin';
+            const nombreDestino = localStorage.getItem('ibk_plin_nombre') || 'Destinatario';
 
-            // 2. Obtenemos el saldo actual de la cuenta elegida (o el default si no hay nada guardado)
+            // 2. Resta matemática
             let saldoActual = localStorage.getItem(`ibk_acc${cuentaSeleccionadaID}_bal`);
             if (saldoActual === null || saldoActual === "") {
                 saldoActual = parseFloat(DEFAULTS[`acc${cuentaSeleccionadaID}`].bal);
@@ -240,17 +272,14 @@
                 saldoActual = parseFloat(saldoActual);
             }
 
-            // 3. Hacemos la resta matemática
             let nuevoSaldo = saldoActual - montoEnvio;
-
-            // Evitar que el saldo quede en números negativos (opcional, por estética)
             if (nuevoSaldo < 0) nuevoSaldo = 0; 
-
-            // 4. Guardamos el nuevo saldo en la memoria de esa cuenta específica
             localStorage.setItem(`ibk_acc${cuentaSeleccionadaID}_bal`, nuevoSaldo.toFixed(2));
-            // --- FIN DE LA LÓGICA DE RESTA ---
 
-            // Esperar 2 segundos y redirigir al voucher
+            // 3. REGISTRAR MOVIMIENTO GLOBAL
+            registrarMovimiento(montoEnvio, destinoBanco, nombreDestino);
+
+            // 4. Redirigir
             setTimeout(() => {
                 window.location.href = 'exito.html';
             }, 2000);
