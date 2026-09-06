@@ -21,13 +21,22 @@
             outline: none !important;
             box-sizing: border-box;
         }
-/* Excepción para que sí se pueda seleccionar/escribir en los inputs */
-input, textarea {
-    -webkit-user-select: auto;
-    -moz-user-select: auto;
-    -ms-user-select: auto;
-    user-select: auto;
-}
+
+        /* --- SOLUCIÓN: Bloqueo estricto solo para imágenes --- */
+        img {
+            -webkit-touch-callout: none !important;
+            -webkit-user-drag: none !important;
+            pointer-events: none !important; 
+        }
+
+        /* Excepción para que sí se pueda seleccionar/escribir en los inputs */
+        input, textarea {
+            -webkit-user-select: auto;
+            -moz-user-select: auto;
+            -ms-user-select: auto;
+            user-select: auto;
+        }
+
         /* HEADER */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: #ffffff; flex-shrink: 0; z-index: 10; border-bottom: 1px solid #f0f0f0; }
         .back-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; width: 30px; }
