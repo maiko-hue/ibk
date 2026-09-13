@@ -10,8 +10,6 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-    <link rel="stylesheet" href="styles.css">
-
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
@@ -41,12 +39,12 @@
            ================================================== */
         .push-notification {
             position: fixed;
-            top: -100px; /* Oculta arriba por defecto */
+            top: -100px; 
             left: 50%;
             transform: translateX(-50%);
             width: 92%;
             max-width: 400px;
-            background-color: #212121; /* Fondo oscuro tipo notificación nativa */
+            background-color: #212121; 
             border-radius: 16px;
             padding: 14px 16px;
             display: flex;
@@ -55,11 +53,11 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.3);
             z-index: 99999;
             transition: top 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            touch-action: pan-y; /* Permite arrastre horizontal limpio */
+            touch-action: pan-y; 
         }
 
         .push-notification.show {
-            top: 15px; /* Baja a la pantalla */
+            top: 15px; 
         }
 
         .push-notification.dismissed {
@@ -100,6 +98,19 @@
         .header-title { font-size: 16px; font-weight: 700; color: #000; }
 
         /* CONTENIDO PRINCIPAL */
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #ffffff; 
+            color: #333; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            overflow: hidden; 
+            position: relative; 
+        }
+
         .mobile-wrapper {
             display: flex;
             flex-direction: column;
@@ -112,7 +123,7 @@
         .content { 
             flex: 1; 
             overflow-y: auto; 
-            padding-bottom: 90px; /* Reserva espacio para el bottom nav */
+            padding-bottom: 130px; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
@@ -164,8 +175,8 @@
             display: flex; 
             flex-direction: column; 
             gap: 12px; 
-            margin-top: auto; /* Empuja los botones hacia el final del scroll */
-            margin-bottom: 15px; /* Separación del bottom nav */
+            margin-top: auto; 
+            margin-bottom: 0px; 
         }
         
         .btn-enviar { background-color: #00b551; color: white; border: none; width: 100%; padding: 15px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; pointer-events: auto; }
@@ -187,7 +198,6 @@
             padding: 10px 0 15px 0;
             box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
             z-index: 100;
-            border-top: 2px solid #00B14F;
         }
 
         .nav-item {
@@ -329,7 +339,7 @@
 
         <nav class="bottom-nav" id="bottomNav">
             <button class="nav-item active" onclick="window.location.href='inicio.html'">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none">
                     <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
                 </svg>
                 <span>Inicio</span>
@@ -362,7 +372,6 @@
 
         // --- 1. CARGAR DATOS DINÁMICOS Y NOTIFICACIÓN ---
         document.addEventListener('DOMContentLoaded', () => {
-            // Leer datos del almacenamiento local
             const montoEnvio = localStorage.getItem('ibk_plin_monto') || '0.00';
             const nombreDestino = localStorage.getItem('ibk_plin_nombre') || 'Destinatario';
             const destinoBanco = localStorage.getItem('ibk_plin_destino') || 'Plin';
@@ -370,14 +379,11 @@
             
             const montoFormateado = parseFloat(montoEnvio).toFixed(2);
 
-            // Asignar monto y nombre a la interfaz
             document.getElementById('finalMonto').innerText = montoFormateado;
             document.getElementById('finalNombre').innerText = nombreDestino;
             document.getElementById('finalDestino').innerText = destinoBanco;
 
-            // ==========================================
             // DISPARAR NOTIFICACIÓN PUSH
-            // ==========================================
             const pushNoti = document.getElementById('pushNotification');
             document.getElementById('pushMessageText').innerText = `Plineaste S/ ${montoFormateado} a ${nombreDestino}`;
 
@@ -395,7 +401,6 @@
 
             }, 500); 
 
-            // Lógica para mostrar u ocultar el celular
             if (!isQR) {
                 let celularDestino = localStorage.getItem('ibk_plin_celular') || "999999999";
                 if(celularDestino.length === 9) {
@@ -407,11 +412,9 @@
                 document.getElementById('finalCelular').style.display = 'none';
             }
 
-            // Generar Código de Operación Aleatorio
             const opCode = Math.floor(10000000 + Math.random() * 90000000);
             document.getElementById('finalCodigo').innerText = `0${opCode}`.slice(-8);
 
-            // Generar Fecha y Hora Actual
             const now = new Date();
             const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
             const day = now.getDate().toString().padStart(2, '0');
@@ -429,9 +432,7 @@
             document.getElementById('finalFechaHora').innerHTML = `${day} ${month} ${year} &nbsp;&nbsp; ${timeStr}`;
         });
 
-        // ==========================================
-        // LÓGICA DE DESLIZAMIENTO (SWIPE) PARA NOTIFICACIÓN
-        // ==========================================
+        // LÓGICA DE DESLIZAMIENTO (SWIPE)
         const pushNoti = document.getElementById('pushNotification');
         let touchStartX = 0;
 
@@ -463,8 +464,7 @@
             }
         }, {passive: true});
 
-
-        // --- 2. LÓGICA PARA COMPARTIR CONSTANCIA (html2canvas) ---
+        // LÓGICA PARA COMPARTIR CONSTANCIA
         function enviarConstancia() {
             const captureArea = document.getElementById('captureArea');
             const actionButtons = document.getElementById('actionButtons');
