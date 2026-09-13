@@ -152,6 +152,31 @@
         }
 
         /* ==================================================
+           ANIMACIÓN SKELETON (EFECTO REFLEJO)
+           ================================================== */
+        @keyframes shimmer-reflejo {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-box, .skeleton-text {
+            background: linear-gradient(90deg, #e8e8e8 25%, #ffffff 50%, #e8e8e8 75%) !important;
+            background-size: 200% 100% !important;
+            animation: shimmer-reflejo 1.5s infinite linear !important;
+            border-color: transparent !important;
+            color: transparent !important;
+        }
+        
+        .skeleton-text {
+            border-radius: 4px !important;
+            display: inline-block;
+        }
+
+        .skeleton-box > * {
+            opacity: 0 !important;
+        }
+
+        /* ==================================================
            VISTA 1: MIS OPERACIONES
            ================================================== */
         .exchange-rate {
@@ -190,7 +215,6 @@
             position: relative;
         }
 
-        /* Caja Agregar Producto: Fondo Verde Claro y borde verde oscuro */
         .op-icon-box.bg-green {
             background-color: #00D13D;
             border: 1px solid #025D24;
@@ -343,15 +367,15 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
-            padding: 10px 5px;
+            padding: 12px 8px;
             border-radius: 30px;
-            font-size: clamp(9.5px, 2.5vw, 11px);
+            font-size: clamp(11.5px, 3.2vw, 13px);
             font-weight: 700;
         }
         
         .pill-btn img { 
-            width: clamp(18px, 5vw, 24px); 
-            height: clamp(18px, 5vw, 24px); 
+            width: clamp(22px, 6vw, 28px); 
+            height: clamp(22px, 6vw, 28px); 
             object-fit: contain; 
         }
 
@@ -390,14 +414,27 @@
             align-items: center;
             background: none;
             border: none;
-            color: #A0A0A0;
+            color: #434446;
             font-size: clamp(9px, 2.5vw, 10px);
             font-weight: 700;
             font-family: inherit;
         }
         
         .nav-item.active {
-            color: var(--ibk-green);
+            color: #015A1A;
+            position: relative;
+        }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 35px;
+            height: 4px;
+            background-color: #015A1A;
+            border-radius: 2px;
         }
 
         .nav-icon, .nav-icon-img {
@@ -407,7 +444,12 @@
         }
 
         .nav-icon { fill: currentColor; }
-        .nav-icon-img { object-fit: contain; opacity: 0.5; }
+        
+        .nav-icon-img { 
+            object-fit: contain; 
+            mix-blend-mode: multiply; 
+            filter: grayscale(100%) opacity(0.6) contrast(1.2); 
+        }
 
         .qr-fab-container {
             position: relative;
@@ -435,9 +477,8 @@
 
     <div class="mobile-wrapper">
 
-        <!-- HEADER VERDE -->
         <header class="header-inicio">
-            <button class="menu-btn" style="background:none; border:none; padding:0; pointer-events:auto;" onclick="window.location.href='config.html'">
+            <button class="menu-btn" style="background-color:#038A36; border-radius:50%; width: 38px; height: 38px; display:flex; justify-content:center; align-items:center; border:none; padding:0; pointer-events:auto;" onclick="window.location.href='config.html'">
                 <svg viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
             </button>
             <img src="img/logo.svg" alt="Interbank" class="logo" draggable="false" oncontextmenu="return false;">
@@ -446,71 +487,62 @@
             </button>
         </header>
 
-        <!-- TABS SUPERIORES -->
         <div class="tabs-container">
             <div class="tab-btn active" id="btnTabOperaciones" onclick="switchTab('operaciones')">Mis operaciones</div>
             <div class="tab-btn" id="btnTabProductos" onclick="switchTab('productos')">Mis productos</div>
         </div>
 
-        <!-- CONTENEDOR DESLIZABLE -->
         <div class="scrollable-content">
 
-            <!-- ==============================================
-                 VISTA 1: MIS OPERACIONES
-                 ============================================== -->
             <div id="viewOperaciones" class="tab-view active">
                 
                 <div class="exchange-rate">T.C. referencial: Compra: 3.323 | Venta: 3.474</div>
 
                 <div class="op-grid">
-                    <!-- Fila 1 -->
                     <div class="op-item" onclick="window.location.href='trcontac.html'">
-                        <div class="op-icon-box"><img src="img/plin.png" alt="Plin" draggable="false" oncontextmenu="return false;"></div>
-                        <div class="op-text">Plinear</div>
+                        <div class="op-icon-box skeleton-box"><img src="img/plin.png" alt="Plin" draggable="false" oncontextmenu="return false;"></div>
+                        <div class="op-text skeleton-text">Plinear</div>
                     </div>
                     <div class="op-item" onclick="window.location.href='trans.html'">
-                        <div class="op-icon-box"><img src="img/transferencias.png" alt="Transferir" draggable="false" oncontextmenu="return false;"></div>
-                        <div class="op-text">Transferir dinero</div>
+                        <div class="op-icon-box skeleton-box"><img src="img/transferencias.png" alt="Transferir" draggable="false" oncontextmenu="return false;"></div>
+                        <div class="op-text skeleton-text">Transferir dinero</div>
                     </div>
                     <div class="op-item" onclick="window.location.href='serv.html'">
-                        <div class="op-icon-box"><img src="img/servicios.png" alt="Servicios" draggable="false" oncontextmenu="return false;"></div>
-                        <div class="op-text">Pagar servicios</div>
+                        <div class="op-icon-box skeleton-box"><img src="img/servicios.png" alt="Servicios" draggable="false" oncontextmenu="return false;"></div>
+                        <div class="op-text skeleton-text">Pagar servicios</div>
                     </div>
                     <div class="op-item">
-                        <div class="op-icon-box">
+                        <div class="op-icon-box skeleton-box">
                             <img src="img/ver_datos.png" alt="Ver datos" draggable="false" oncontextmenu="return false;">
                             <div class="badge-nuevo">Nuevo</div>
                         </div>
-                        <div class="op-text">Ver datos de tarjeta</div>
+                        <div class="op-text skeleton-text">Ver datos de tarjeta</div>
                     </div>
 
-                    <!-- Fila 2 -->
                     <div class="op-item" onclick="window.location.href='recel.html'">
-                        <div class="op-icon-box"><img src="img/recargas.png" alt="Recargas" draggable="false" oncontextmenu="return false;"></div>
-                        <div class="op-text">Recargar celular</div>
+                        <div class="op-icon-box skeleton-box"><img src="img/recargas.png" alt="Recargas" draggable="false" oncontextmenu="return false;"></div>
+                        <div class="op-text skeleton-text">Recargar celular</div>
                     </div>
                     <div class="op-item">
-                        <div class="op-icon-box">
+                        <div class="op-icon-box skeleton-box">
                             <img src="img/retiros.jpg" alt="Transporte" draggable="false" oncontextmenu="return false;">
-                            <div class="badge-plin">Plin</div>
                         </div>
-                        <div class="op-text">Recargar transporte</div>
+                        <div class="op-text skeleton-text">Recargar transporte</div>
                     </div>
                     <div class="op-item">
-                        <div class="op-icon-box bg-green">
+                        <div class="op-icon-box bg-green skeleton-box">
                             <i class="fa-solid fa-credit-card" style="color: #025D24; font-size: 18px; position:relative;">
                                 <i class="fa-solid fa-plus" style="position:absolute; bottom:-4px; right:-6px; background:#025D24; color: white; border-radius:50%; font-size:11px; padding:2px;"></i>
                             </i>
                         </div>
-                        <div class="op-text">Agregar producto</div>
+                        <div class="op-text skeleton-text">Agregar producto</div>
                     </div>
                     <div class="op-item">
-                        <div class="op-icon-box"><img src="img/ver_mas.png" alt="Ver más" draggable="false" oncontextmenu="return false;"></div>
-                        <div class="op-text">Ver más opciones</div>
+                        <div class="op-icon-box skeleton-box"><img src="img/ver_mas.png" alt="Ver más" draggable="false" oncontextmenu="return false;"></div>
+                        <div class="op-text skeleton-text">Ver más opciones</div>
                     </div>
                 </div>
 
-                <!-- Elementos Inferiores (Píldoras y Banner Finanzas) -->
                 <div class="shared-bottom-content">
                     <div class="pills-container">
                         <div class="pill-btn">
@@ -526,24 +558,18 @@
                 </div>
             </div>
 
-            <!-- ==============================================
-                 VISTA 2: MIS PRODUCTOS
-                 ============================================== -->
             <div id="viewProductos" class="tab-view">
                 
-                <!-- Cabecera Tarjeta -->
                 <div class="card-header-bar">
                     <div class="ch-left">
                         <img src="img/ver_datos_2.png" alt="Card" draggable="false" oncontextmenu="return false;"> Ver datos de tarjeta
                     </div>
                     <div class="ch-right">
-                        <!-- Iconos de Acción SVG Grandes y sin borde -->
                         <img src="img/lapiz2.svg" alt="Edit" class="action-icon" draggable="false" oncontextmenu="return false;">
                         <img src="img/ojocerrado.svg" alt="Eye" class="action-icon" id="eye-toggle" onclick="toggleBalances()" draggable="false" oncontextmenu="return false;">
                     </div>
                 </div>
 
-                <!-- Lista Cuentas -->
                 <div class="accounts-list">
                     <div class="account-item" onclick="window.location.href='infoc.html?id=1'">
                         <img src="img/cuenta_ahorro.png" class="acc-icon" alt="Soles" draggable="false" oncontextmenu="return false;">
@@ -575,7 +601,6 @@
                     </div>
                 </div>
 
-                <!-- Botón Agregar Producto Punteado -->
                 <div class="add-product-dashed">
                     <div class="plus-icon">+</div>
                     <div>
@@ -584,7 +609,6 @@
                     </div>
                 </div>
 
-                <!-- Elementos Inferiores (Iguales) -->
                 <div class="shared-bottom-content">
                     <div class="pills-container">
                         <div class="pill-btn">
@@ -602,16 +626,15 @@
 
         </div>
 
-        <!-- ==============================================
-             BOTTOM NAVIGATION
-             ============================================== -->
         <nav class="bottom-nav">
             <button class="nav-item active">
-                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
                 <span>Inicio</span>
             </button>
             <button class="nav-item">
-                <svg class="nav-icon" style="opacity:0.5;" viewBox="0 0 24 24"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m4 6H4m0 0l4 4m-4-4l4-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m4 6H4m0 0l4 4m-4-4l4-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span>Movimientos</span>
             </button>
             
@@ -633,17 +656,20 @@
 
     </div>
 
-    <!-- ==============================================
-         LÓGICA JAVASCRIPT ORIGINAL
-         ============================================== -->
     <script>
         const DEFAULTS = {
             acc1: { name: "Cuenta Simple Soles", curr: "S/", bal: "1000.00" },
             acc2: { name: "Cuenta Simple Dolares", curr: "$", bal: "1000.00" }
         };
 
-        // --- CARGAR SALDOS DINÁMICOS ---
         document.addEventListener('DOMContentLoaded', () => {
+            // --- ELIMINAR SKELETON A LOS 2 SEGUNDOS ---
+            setTimeout(() => {
+                document.querySelectorAll('.skeleton-box').forEach(el => el.classList.remove('skeleton-box'));
+                document.querySelectorAll('.skeleton-text').forEach(el => el.classList.remove('skeleton-text'));
+            }, 2000);
+
+            // --- CARGAR SALDOS DINÁMICOS ---
             for(let i=1; i<=2; i++) {
                 let name = localStorage.getItem(`ibk_acc${i}_name`) || DEFAULTS[`acc${i}`].name;
                 let curr = localStorage.getItem(`ibk_acc${i}_curr`) || DEFAULTS[`acc${i}`].curr;
@@ -651,30 +677,24 @@
                 
                 let formattedBal = parseFloat(bal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
-                // Establece el nombre
                 document.getElementById(`nameAcc${i}`).innerText = name;
                 
-                // Prepara la info en atributos para la función del Ojito
                 let balanceElement = document.getElementById(`balAcc${i}`);
                 balanceElement.setAttribute('data-currency', curr + ' ');
                 balanceElement.setAttribute('data-amount', `${curr} ${formattedBal}`);
                 
-                // Iniciar oculto por defecto
                 balanceElement.innerText = `${curr} ••••••••`;
             }
         });
 
         // --- SISTEMA DE PESTAÑAS (TABS) ---
         function switchTab(tabName) {
-            // Quitar activos de los botones
             document.getElementById('btnTabOperaciones').classList.remove('active');
             document.getElementById('btnTabProductos').classList.remove('active');
             
-            // Ocultar vistas
             document.getElementById('viewOperaciones').classList.remove('active');
             document.getElementById('viewProductos').classList.remove('active');
 
-            // Mostrar el solicitado
             if(tabName === 'operaciones') {
                 document.getElementById('btnTabOperaciones').classList.add('active');
                 document.getElementById('viewOperaciones').classList.add('active');
@@ -692,13 +712,11 @@
             const isClosed = eyeIcon.src.includes('ojocerrado.svg');
 
             if (isClosed) {
-                // Abrir ojo -> Mostrar saldos
                 eyeIcon.src = 'img/ojoabierto.svg';
                 balances.forEach(b => {
                     b.innerText = b.getAttribute('data-amount');
                 });
             } else {
-                // Cerrar ojo -> Ocultar saldos
                 eyeIcon.src = 'img/ojocerrado.svg';
                 balances.forEach(b => {
                     const currency = b.getAttribute('data-currency');
