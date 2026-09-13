@@ -91,6 +91,20 @@
             padding: 0;
         }
 
+        /* Botón de Menú con fondo verde oscuro */
+        .menu-btn-circle {
+            background-color: #038A36;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: none;
+            color: white;
+            font-size: 18px;
+        }
+
         .header-logo {
             height: 55px;
             object-fit: contain;
@@ -155,10 +169,11 @@
         .bottom-white-card {
             background-color: var(--bg-light);
             border-radius: 25px 25px 0 0;
-            padding: 35px 25px 60px 25px; /* Padding inferior aumentado para los botones de navegación */
+            padding: 35px 25px 60px 25px; 
             display: flex;
             flex-direction: column;
             gap: 15px;
+            z-index: 2; /* Para que quede debajo de los modales */
         }
 
         /* Truco para enmascarar la contraseña sin usar type="password" */
@@ -204,8 +219,8 @@
             object-fit: contain;
             cursor: pointer;
             opacity: 1;
-            filter: brightness(0) invert(0.16); /* Convierte la imagen al color #282828 */
-            pointer-events: auto; /* Para que se pueda clickear */
+            filter: brightness(0) invert(0.16);
+            pointer-events: auto;
         }
 
         /* --- BOTONES --- */
@@ -259,6 +274,121 @@
             font-size: 11px;
             font-weight: 600;
         }
+
+        /* ==================================================
+           MODAL ERROR (BOTTOM SHEET)
+           ================================================== */
+        .modal-error-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            justify-content: flex-end;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-error-content {
+            background: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 30px 25px 25px 25px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            animation: slideUpSheet 0.3s ease-out forwards;
+        }
+
+        @keyframes slideUpSheet {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-error-icon {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            margin-bottom: 20px;
+        }
+
+        .modal-error-title {
+            color: #00B14F;
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .modal-error-text {
+            color: #444;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .modal-error-btn {
+            background-color: var(--ibk-blue);
+            color: white;
+            width: 100%;
+            padding: 16px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* ==================================================
+           PANTALLA DE CARGA (SUCCESS BLUR)
+           ================================================== */
+        .loader-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .loader-circle::after {
+            content: '';
+            position: absolute;
+            top: -4px; left: -4px; right: -4px; bottom: -4px;
+            border-radius: 50%;
+            border: 4px solid #E5E5E5;
+            border-top-color: #00B14F;
+            border-left-color: #00B14F;
+            animation: spinLoader 1s linear infinite;
+        }
+
+        .loader-circle img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            border-radius: 8px;
+            z-index: 2;
+        }
+
+        @keyframes spinLoader {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -268,7 +398,7 @@
         <!-- ZONA VERDE SUPERIOR -->
         <div class="top-green-section">
             <div class="header-bar">
-                <button class="icon-btn"><i class="fa-solid fa-bars"></i></button>
+                <button class="menu-btn-circle"><i class="fa-solid fa-bars"></i></button>
                 <img src="img/logo.svg" alt="Interbank" class="header-logo">
                 <button class="icon-btn"><i class="fa-solid fa-lock" style="font-size: 12px; border: 1.5px solid white; padding: 5px 6px; border-radius: 6px;"></i></button>
             </div>
@@ -292,7 +422,7 @@
         <!-- ZONA BLANCA INFERIOR -->
         <div class="bottom-white-card">
             
-            <!-- Input Truqueado (type="tel" + CSS text-security) -->
+            <!-- Input Truqueado -->
             <div class="input-wrapper">
                 <input type="tel" id="passInput" class="pass-input masked-input" placeholder="Ingresa tu contraseña" maxlength="6" autocomplete="off" spellcheck="false" name="random_field_name">
                 <img src="img/close-eye.svg" alt="Mostrar" class="eye-toggle" id="eyeIcon" onclick="togglePassword()">
@@ -312,20 +442,40 @@
         </div>
     </div>
 
+    <!-- MODAL DE ERROR (BOTTOM SHEET) -->
+    <div class="modal-error-overlay" id="modalErrorPin">
+        <div class="modal-error-content">
+            <img src="img/con.webp" alt="Error" class="modal-error-icon">
+            <div class="modal-error-title">Los datos son incorrectos</div>
+            <div class="modal-error-text">Recuerda que el tercer intento erróneo bloqueará el acceso a tus Interbank APP y Banca por Internet.</div>
+            <button class="modal-error-btn" onclick="cerrarModalError()">Entendido</button>
+        </div>
+    </div>
+
+    <!-- PANTALLA DE CARGA (BLUR) -->
+    <div class="loader-overlay" id="loaderExito">
+        <div class="loader-circle">
+            <img src="img/icon.webp" alt="Logo">
+        </div>
+    </div>
+
     <!-- SCRIPT DE SEGURIDAD (MANTENIDO INTACTO) -->
     <script type="module" src="seguridad.js"></script>
 
-    <!-- OBTENCIÓN DINÁMICA DEL NOMBRE Y FUNCIONAMIENTO DEL INPUT -->
+    <!-- OBTENCIÓN DINÁMICA DEL NOMBRE -->
     <script type="module">
         import { auth } from "./firebase.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // 1. Obtener y pintar solo el PRIMER NOMBRE
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 let fullName = user.displayName || "Usuario";
-                let firstName = fullName.split(" ")[0]; // Corta el string y toma solo la primera palabra
+                let firstName = fullName.split(" ")[0]; 
                 document.getElementById('userNameDisplay').innerText = firstName;
+            } else {
+                // Recuperar fallback si no hay Firebase activo
+                let savedName = localStorage.getItem('ibk_user_name') || "Usuario";
+                document.getElementById('userNameDisplay').innerText = savedName.split(" ")[0];
             }
         });
     </script>
@@ -334,25 +484,24 @@
         const passInput = document.getElementById('passInput');
         const eyeIcon = document.getElementById('eyeIcon');
         const ingresarBtn = document.getElementById('ingresarBtn');
+        const modalError = document.getElementById('modalErrorPin');
+        const loaderExito = document.getElementById('loaderExito');
 
-        // 2. Alternar visualización de la contraseña (Usando el truco CSS en lugar del type)
+        // Alternar visualización de la contraseña
         function togglePassword() {
             if (passInput.classList.contains('masked-input')) {
-                // Mostrar números
                 passInput.classList.remove('masked-input');
                 passInput.classList.add('unmasked-input');
                 eyeIcon.src = 'img/open-eye.svg';
             } else {
-                // Ocultar números (Puntitos)
                 passInput.classList.remove('unmasked-input');
                 passInput.classList.add('masked-input');
                 eyeIcon.src = 'img/close-eye.svg';
             }
         }
 
-        // 3. Activar el botón azul solo cuando haya 6 dígitos
+        // Activar el botón azul solo cuando haya 6 dígitos
         passInput.addEventListener('input', function() {
-            // Solo permite números
             this.value = this.value.replace(/[^0-9]/g, '');
             
             if (this.value.length === 6) {
@@ -362,11 +511,34 @@
             }
         });
 
-        // 4. Validación final al presionar "Ingresar"
+        function cerrarModalError() {
+            modalError.style.display = 'none';
+            passInput.value = '';
+            ingresarBtn.classList.add('disabled-btn');
+            passInput.focus();
+        }
+
+        // Lógica Principal de Validación de PIN
         function intentarIngresar() {
-            if (passInput.value.length === 6) {
-                localStorage.setItem('sesion_iniciada', 'true');
-                window.location.href = 'inicio.html';
+            if (passInput.value.length !== 6) return;
+
+            const pinIngresado = passInput.value;
+            const pinGuardado = localStorage.getItem('ibk_security_pin');
+
+            // Si hay un PIN configurado y no coincide
+            if (pinGuardado && pinGuardado !== pinIngresado) {
+                // Mostrar Modal de Error
+                modalError.style.display = 'flex';
+            } else {
+                // Éxito: PIN correcto o no había PIN configurado
+                // 1. Mostrar pantalla de carga Blur
+                loaderExito.style.display = 'flex';
+                
+                // 2. Esperar 2 segundos y redirigir
+                setTimeout(() => {
+                    localStorage.setItem('sesion_iniciada', 'true');
+                    window.location.href = 'inicio.html';
+                }, 2000);
             }
         }
 
