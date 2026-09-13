@@ -20,6 +20,7 @@
             -moz-user-select: none; 
             -ms-user-select: none; 
             user-select: none; 
+            box-sizing: border-box;
         }
 
         img {
@@ -99,7 +100,23 @@
         .header-title { font-size: 16px; font-weight: 700; color: #000; }
 
         /* CONTENIDO PRINCIPAL */
-        .content { flex: 1; overflow-y: auto; padding-bottom: 120px; display: flex; flex-direction: column; align-items: center; }
+        .mobile-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+            background-color: white;
+            position: relative;
+        }
+
+        .content { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding-bottom: 90px; /* Reserva espacio para el bottom nav */
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
         .content::-webkit-scrollbar { width: 0px; background: transparent; }
 
         /* SECCIÓN SUPERIOR DE ÉXITO */
@@ -141,15 +158,105 @@
 
         .text-group { display: flex; flex-direction: column; gap: 2px; }
 
-        /* BOTONES */
-        .actions-container { width: 85%; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        /* BOTONES (PEGADOS ABAJO) */
+        .actions-container { 
+            width: 85%; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            margin-top: auto; /* Empuja los botones hacia el final del scroll */
+            margin-bottom: 15px; /* Separación del bottom nav */
+        }
         
-        .btn-enviar { background-color: #00b551; color: white; border: none; width: 100%; padding: 15px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-enviar { background-color: #00b551; color: white; border: none; width: 100%; padding: 15px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; pointer-events: auto; }
         .btn-enviar:active { background-color: #009e47; }
         
-        .btn-volver { background-color: white; color: #00b551; border: 1.5px solid #00b551; width: 100%; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; text-decoration: none; display: flex; justify-content: center; align-items: center;}
+        .btn-volver { background-color: white; color: #00b551; border: 1.5px solid #00b551; width: 100%; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; text-decoration: none; display: flex; justify-content: center; align-items: center; pointer-events: auto;}
         .btn-volver:active { background-color: #f0fdf4; }
 
+        /* ==================================================
+           BOTTOM NAV & FAB QR (ALINEADO CON INICIO.HTML)
+           ================================================== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 15px 0;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+            z-index: 100;
+            border-top: 2px solid #00B14F;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: none;
+            border: none;
+            color: #434446;
+            font-size: clamp(9px, 2.5vw, 10px);
+            font-weight: 700;
+            font-family: inherit;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+        
+        .nav-item.active {
+            color: #015A1A;
+            position: relative;
+        }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 35px;
+            height: 4px;
+            background-color: #015A1A;
+            border-radius: 2px;
+        }
+
+        .nav-icon, .nav-icon-img {
+            width: clamp(18px, 5vw, 22px);
+            height: clamp(18px, 5vw, 22px);
+            margin-bottom: 4px;
+        }
+
+        .nav-icon { fill: currentColor; }
+        
+        .nav-icon-img { 
+            object-fit: contain; 
+            mix-blend-mode: multiply; 
+            filter: grayscale(100%) opacity(0.6) contrast(1.2); 
+        }
+
+        .qr-fab-container {
+            position: relative;
+            width: 60px;
+            display: flex;
+            justify-content: center;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        .qr-fab {
+            position: absolute;
+            top: -35px;
+            width: 55px;
+            height: 55px;
+            background-color: #0137AB !important;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(1, 55, 171, 0.4);
+            border: 4px solid white;
+        }
     </style>
 </head>
 <body>
@@ -222,24 +329,28 @@
 
         <nav class="bottom-nav" id="bottomNav">
             <button class="nav-item active" onclick="window.location.href='inicio.html'">
-                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
                 <span>Inicio</span>
             </button>
             <button class="nav-item">
-                <img src="img/transferencias.jpg" alt="Operaciones" class="nav-icon-op">
-                <span>Operaciones</span>
+                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m4 6H4m0 0l4 4m-4-4l4-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Movimientos</span>
             </button>
+            
             <div class="qr-fab-container">
                 <div class="qr-fab">
-                    <img src="img/qr.png" alt="QR" style="width: 26px; height: 26px; object-fit: contain;">
+                    <img src="img/qr.png" alt="QR" style="width: 26px; height: 26px; object-fit: contain;" draggable="false" oncontextmenu="return false;">
                 </div>
             </div>
+
             <button class="nav-item">
-                <img src="img/beneficios.webp" alt="Beneficios" class="nav-icon-img">
+                <img src="img/beneficios.webp" alt="Beneficios" class="nav-icon-img" draggable="false" oncontextmenu="return false;">
                 <span>Beneficios</span>
             </button>
             <button class="nav-item">
-                <img src="img/para_ti.webp" alt="Para ti" class="nav-icon-img">
+                <img src="img/para_ti.webp" alt="Para ti" class="nav-icon-img" draggable="false" oncontextmenu="return false;">
                 <span>Para ti</span>
             </button>
         </nav>
@@ -271,21 +382,18 @@
             document.getElementById('pushMessageText').innerText = `Plineaste S/ ${montoFormateado} a ${nombreDestino}`;
 
             setTimeout(() => {
-                pushNoti.classList.add('show'); // Baja la notificación
+                pushNoti.classList.add('show'); 
                 
-                // Reproducir el sonido nativo de notificación
                 try {
                     let audio = new Audio('img/noti.mp3');
                     audio.play().catch(e => console.log("El navegador requiere interacción previa para reproducir audio."));
                 } catch(e){}
 
-                // Ocultar automáticamente a los 3 segundos exactos
                 pushTimeout = setTimeout(() => {
                     pushNoti.classList.remove('show');
                 }, 3000);
 
-            }, 500); // Pequeño retraso al cargar la página para que la animación se vea fluida
-
+            }, 500); 
 
             // Lógica para mostrar u ocultar el celular
             if (!isQR) {
@@ -299,7 +407,7 @@
                 document.getElementById('finalCelular').style.display = 'none';
             }
 
-            // Generar Código de Operación Aleatorio (8 dígitos)
+            // Generar Código de Operación Aleatorio
             const opCode = Math.floor(10000000 + Math.random() * 90000000);
             document.getElementById('finalCodigo').innerText = `0${opCode}`.slice(-8);
 
@@ -335,7 +443,6 @@
             let currentX = e.changedTouches[0].screenX;
             let deltaX = currentX - touchStartX;
             
-            // Solo permitir arrastrar hacia la derecha
             if (deltaX > 0) {
                 pushNoti.style.transition = 'none'; 
                 pushNoti.style.transform = `translateX(calc(-50% + ${deltaX}px))`;
@@ -349,11 +456,9 @@
             pushNoti.style.transition = 'transform 0.3s ease-in, opacity 0.3s ease-in';
             
             if (deltaX > 80) { 
-                // Si el usuario deslizó suficiente, la notificación desaparece
                 clearTimeout(pushTimeout);
                 pushNoti.classList.add('dismissed');
             } else {
-                // Si deslizó poco, regresa al centro
                 pushNoti.style.transform = `translateX(-50%)`; 
             }
         }, {passive: true});
@@ -365,7 +470,6 @@
             const actionButtons = document.getElementById('actionButtons');
             const bottomNav = document.getElementById('bottomNav');
             
-            // Ocultar botones, menú inferior y la notificación Push (para que no salga en la captura)
             actionButtons.style.display = 'none';
             bottomNav.style.display = 'none';
             pushNoti.style.display = 'none';
