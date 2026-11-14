@@ -1,0 +1,9 @@
+<resources>
+    <color name="ibk_green">#00B14F</color>
+    <color name="ibk_green_dark">#038A36</color>
+    <color name="ibk_dark_blue">#002D72</color>
+    <color name="ibk_qr_blue">#0137AB</color>
+    <color name="ibk_bg_light">#F7F9FA</color>
+    <color name="ibk_text_dark">#333333</color>
+    <color name="ibk_text_muted">#666666</color>
+</resources>
