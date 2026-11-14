@@ -1,6 +1,0 @@
-<resources>
-    <string name="app_name">Interbank Móvil</string>
-    <string name="title_operations">Mis operaciones</string>
-    <string name="title_products">Mis productos</string>
-    <string name="exchange_rate">T.C. referencial: Compra: 3.323 | Venta: 3.474</string>
-</resources>
