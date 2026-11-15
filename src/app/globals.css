@@ -16,12 +16,62 @@
   box-sizing: border-box;
 }
 
-html, body {
+:root {
+  --app-zoom: 1;
+  --app-zoom-percent: 100%;
+}
+
+/* ==================================================
+   REGLAS CRÍTICAS DE ZOOM: 100% DE PANTALLA SIN BORDES
+   Garantiza que a cualquier zoom (80% - 120%), TODAS las
+   pantallas llenen el 100% del alto y ancho del dispositivo
+   sin dejar jamás bordes blancos, verdes o sin pintar abajo.
+   ================================================== */
+html {
   font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   overscroll-behavior: none !important;
   overscroll-behavior-y: none !important;
   overscroll-behavior-x: none !important;
   -webkit-overflow-scrolling: touch;
+  width: 100% !important;
+  min-height: calc(100dvh / var(--app-zoom, 1)) !important;
+  height: calc(100dvh / var(--app-zoom, 1)) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+}
+
+body {
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  overscroll-behavior: none !important;
+  overscroll-behavior-y: none !important;
+  overscroll-behavior-x: none !important;
+  -webkit-overflow-scrolling: touch;
+  width: 100% !important;
+  min-height: calc(100dvh / var(--app-zoom, 1)) !important;
+  height: calc(100dvh / var(--app-zoom, 1)) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+  background-color: #f8fafc;
+}
+
+/* Compensación de todos los contenedores de página a cualquier nivel de zoom */
+.h-\[100dvh\],
+.h-screen {
+  height: calc(100dvh / var(--app-zoom, 1)) !important;
+  min-height: calc(100dvh / var(--app-zoom, 1)) !important;
+}
+
+.min-h-screen,
+.min-h-\[100dvh\] {
+  min-height: calc(100dvh / var(--app-zoom, 1)) !important;
+}
+
+/* Capas fijas e insets */
+.fixed.inset-0 {
+  min-height: calc(100dvh / var(--app-zoom, 1)) !important;
+  height: calc(100dvh / var(--app-zoom, 1)) !important;
 }
 
 input, textarea, select {
@@ -198,5 +248,36 @@ button, a, [role="button"], .clickable {
   display: block !important;
   margin: 0 !important;
   padding: 0 !important;
+}
+
+/* ==================================================
+   ANIMACIONES FLUIDAS (MODALES Y NOTIFICACIONES)
+   ================================================== */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out forwards;
 }
 

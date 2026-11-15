@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
+import { executeFakePlinDeposit, BALANCE_UPDATED_EVENT } from "@/lib/fakeNotification";
 
 interface AccountData {
   id: string;
@@ -17,6 +18,7 @@ interface AccountData {
 const DEFAULTS = {
   acc1: { name: "Cuenta Simple Soles", curr: "S/", bal: "1000.00" },
   acc2: { name: "Cuenta Simple Dolares", curr: "$", bal: "1000.00" },
+  acc3: { name: "Cuenta de Ahorros", curr: "S/", bal: "1000.00" },
 };
 
 export default function InicioPage() {
@@ -53,6 +55,14 @@ export default function InicioPage() {
       icon: "/img/cuenta_ahorro.png",
       subtitle: "Saldo disponible",
     },
+    {
+      id: "3",
+      name: DEFAULTS.acc3.name,
+      curr: DEFAULTS.acc3.curr,
+      bal: DEFAULTS.acc3.bal,
+      icon: "/img/cuenta_ahorro.png",
+      subtitle: "Saldo disponible",
+    },
   ]);
 
   useEffect(() => {
@@ -64,6 +74,10 @@ export default function InicioPage() {
       const acc2Name = localStorage.getItem("ibk_acc2_name") || DEFAULTS.acc2.name;
       const acc2Curr = localStorage.getItem("ibk_acc2_curr") || DEFAULTS.acc2.curr;
       const acc2Bal = localStorage.getItem("ibk_acc2_bal") || DEFAULTS.acc2.bal;
+
+      const acc3Name = localStorage.getItem("ibk_acc3_name") || DEFAULTS.acc3.name;
+      const acc3Curr = localStorage.getItem("ibk_acc3_curr") || DEFAULTS.acc3.curr;
+      const acc3Bal = localStorage.getItem("ibk_acc3_bal") || DEFAULTS.acc3.bal;
 
       setAccounts([
         {
@@ -82,7 +96,33 @@ export default function InicioPage() {
           icon: "/img/cuenta_ahorro.png",
           subtitle: "Saldo disponible",
         },
+        {
+          id: "3",
+          name: acc3Name,
+          curr: acc3Curr,
+          bal: acc3Bal,
+          icon: "/img/cuenta_ahorro.png",
+          subtitle: "Saldo disponible",
+        },
       ]);
+
+      const handleBalanceUpdated = (e: Event) => {
+        const custom = e as CustomEvent<{ newBalance: string }>;
+        if (custom.detail && custom.detail.newBalance) {
+          setAccounts((prev) => [
+            {
+              ...prev[0],
+              bal: custom.detail.newBalance,
+            },
+            prev[1],
+          ]);
+        }
+      };
+
+      window.addEventListener(BALANCE_UPDATED_EVENT, handleBalanceUpdated);
+      return () => {
+        window.removeEventListener(BALANCE_UPDATED_EVENT, handleBalanceUpdated);
+      };
     }
   }, []);
 
@@ -165,13 +205,14 @@ export default function InicioPage() {
   };
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-[#00B14F] text-[#333333] select-none relative overflow-hidden">
+    <div className="flex flex-col h-[100dvh] bg-white text-[#333333] select-none relative overflow-hidden">
       {/* ==================================================
           HEADER VERDE INICIO
           ================================================== */}
       <header className="bg-[#00B14F] px-4 pt-3 pb-7 flex justify-between items-center text-white z-10 flex-shrink-0">
         <button
           type="button"
+          data-tour="inicio-menu-btn"
           onClick={() => router.push("/config")}
           className="bg-[#038A36] rounded-full w-[38px] h-[38px] flex items-center justify-center text-white border-none active:scale-95 transition cursor-pointer pointer-events-auto"
         >
@@ -191,7 +232,9 @@ export default function InicioPage() {
 
         <button
           type="button"
-          className="bg-transparent border-none p-1 flex items-center justify-center active:scale-95 transition"
+          onClick={() => executeFakePlinDeposit()}
+          className="bg-transparent border-none p-1 flex items-center justify-center active:scale-95 transition cursor-pointer"
+          title="Simular notificación de Plin"
         >
           <svg className="w-6 h-6 stroke-white fill-none stroke-[2.5]" viewBox="0 0 24 24">
             <path

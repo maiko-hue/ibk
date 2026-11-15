@@ -303,9 +303,8 @@ export default function RecelFlow({ initialView = "form" }: RecelFlowProps) {
   const effValues = getEffectiveData();
 
   return (
-    <div className="min-h-screen bg-[#F4F6F9] flex justify-center text-[#333333] font-sans select-none">
-      <div className="w-full max-w-[480px] bg-white h-[100dvh] flex flex-col relative overflow-hidden shadow-2xl">
-        {/* ========================================================
+    <div className="w-full bg-white h-[100dvh] flex flex-col relative overflow-hidden text-[#333333] font-sans select-none">
+      {/* ========================================================
             LOADING SPINNER OVERLAY
         ======================================================== */}
         {isLoading && (
@@ -685,6 +684,5 @@ export default function RecelFlow({ initialView = "form" }: RecelFlowProps) {
           <BottomNav activeTab="inicio" />
         )}
       </div>
-    </div>
   );
 }

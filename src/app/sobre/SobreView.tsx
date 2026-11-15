@@ -2,13 +2,38 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import {
+  getAppZoom,
+  setAppZoom,
+  MIN_ZOOM,
+  MAX_ZOOM,
+  STEP_ZOOM,
+  DEFAULT_ZOOM,
+  ZOOM_EVENT_NAME,
+} from "@/lib/zoom";
+import {
+  getFakeNotiConfig,
+  saveFakeNotiConfig,
+  FakeNotiConfig,
+  DEFAULT_NOTI_CONFIG,
+  DEFAULT_RANDOM_NAMES,
+} from "@/lib/fakeNotification";
+import { startTutorial } from "@/lib/tutorial";
 
 export default function SobreView() {
   const router = useRouter();
 
-  // Vista: "menu" | "cuenta"
-  const [currentView, setCurrentView] = useState<"menu" | "cuenta">("menu");
+  // Vista: "menu" | "cuenta" | "noti"
+  const [currentView, setCurrentView] = useState<"menu" | "cuenta" | "noti">("menu");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Configuración de Notificación Falsa
+  const [notiConfig, setNotiConfig] = useState<FakeNotiConfig>(DEFAULT_NOTI_CONFIG);
+  const [newSenderInput, setNewSenderInput] = useState("");
+
+  // Zoom de la app
+  const [zoomLevel, setZoomLevel] = useState<number>(DEFAULT_ZOOM);
+  const [showZoomModal, setShowZoomModal] = useState<boolean>(false);
 
   // Variables extraídas en el index (sin consultas repetitivas a Firebase para evitar bloqueos)
   const [email, setEmail] = useState("maikolecrisanto@gmail.com");
@@ -19,6 +44,19 @@ export default function SobreView() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
+      setZoomLevel(getAppZoom());
+
+      const handleZoomChange = (e: Event) => {
+        const custom = e as CustomEvent<{ zoom: number }>;
+        if (custom.detail && typeof custom.detail.zoom === "number") {
+          setZoomLevel(custom.detail.zoom);
+        } else {
+          setZoomLevel(getAppZoom());
+        }
+      };
+
+      window.addEventListener(ZOOM_EVENT_NAME, handleZoomChange);
+
       const savedEmail = localStorage.getItem("ibk_user_email") || localStorage.getItem("user_email");
       const savedEstado = localStorage.getItem("ibk_user_estado") || localStorage.getItem("user_estado");
       const savedRegPor = localStorage.getItem("ibk_user_registrado_por") || localStorage.getItem("user_registrado_por");
@@ -30,8 +68,113 @@ export default function SobreView() {
       if (savedRegPor) setRegistradoPor(savedRegPor);
       if (savedFecha) setFecha(savedFecha);
       if (savedToken) setToken(savedToken);
+
+      setNotiConfig(getFakeNotiConfig());
+
+      return () => {
+        window.removeEventListener(ZOOM_EVENT_NAME, handleZoomChange);
+      };
     }
   }, []);
+
+  const handleToggleRandomData = () => {
+    setNotiConfig((prev) => {
+      const next = { ...prev, randomDataEnabled: !prev.randomDataEnabled };
+      saveFakeNotiConfig(next);
+      return next;
+    });
+  };
+
+  const handleToggleDarkMode = () => {
+    setNotiConfig((prev) => {
+      const next = { ...prev, darkModeEnabled: !prev.darkModeEnabled };
+      saveFakeNotiConfig(next);
+      return next;
+    });
+  };
+
+  const handleAddSender = () => {
+    const clean = newSenderInput.trim();
+    if (!clean) return;
+    if (notiConfig.customSenders.length >= 10) {
+      showToast("Máximo 10 remitentes permitidos");
+      return;
+    }
+    if (notiConfig.customSenders.some((n) => n.toLowerCase() === clean.toLowerCase())) {
+      showToast("Ese remitente ya existe");
+      return;
+    }
+    setNotiConfig((prev) => {
+      const next = { ...prev, customSenders: [...prev.customSenders, clean] };
+      saveFakeNotiConfig(next);
+      return next;
+    });
+    setNewSenderInput("");
+  };
+
+  const handleRemoveSender = (nameToRemove: string) => {
+    setNotiConfig((prev) => {
+      const next = {
+        ...prev,
+        customSenders: prev.customSenders.filter((n) => n !== nameToRemove),
+      };
+      saveFakeNotiConfig(next);
+      return next;
+    });
+  };
+
+  const handleAmountTypeChange = (type: "range" | "fixed") => {
+    setNotiConfig((prev) => {
+      const next = { ...prev, amountType: type };
+      saveFakeNotiConfig(next);
+      return next;
+    });
+  };
+
+  const handleMinChange = (val: string) => {
+    const num = parseFloat(val) || 0;
+    setNotiConfig((prev) => {
+      const next = { ...prev, amountMin: num };
+      saveFakeNotiConfig(next);
+      return next;
+    });
+  };
+
+  const handleMaxChange = (val: string) => {
+    const num = parseFloat(val) || 0;
+    setNotiConfig((prev) => {
+      const next = { ...prev, amountMax: num };
+      saveFakeNotiConfig(next);
+      return next;
+    });
+  };
+
+  const handleFixedAmountChange = (val: string) => {
+    const num = parseFloat(val) || 0;
+    setNotiConfig((prev) => {
+      const next = { ...prev, fixedAmount: num };
+      saveFakeNotiConfig(next);
+      return next;
+    });
+  };
+
+  const handleAumentarZoom = () => {
+    const next = Math.min(MAX_ZOOM, zoomLevel + STEP_ZOOM);
+    const applied = setAppZoom(next);
+    setZoomLevel(applied);
+  };
+
+  const handleDisminuirZoom = () => {
+    const next = Math.max(MIN_ZOOM, zoomLevel - STEP_ZOOM);
+    const applied = setAppZoom(next);
+    setZoomLevel(applied);
+  };
+
+  const handleRestablecerZoom = () => {
+    const applied = setAppZoom(DEFAULT_ZOOM);
+    setZoomLevel(applied);
+    showToast("Zoom restablecido al 100%");
+  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -71,10 +214,10 @@ export default function SobreView() {
   return (
     <div className="flex flex-col h-[100dvh] bg-[#f8fafc] text-[#333333] select-none relative overflow-hidden font-sans">
       {/* ==================================================
-          TOAST DE NOTIFICACIÓN
+          TOAST DE NOTIFICACIÓN (EN LA PARTE INFERIOR)
           ================================================== */}
       {toastMessage && (
-        <div className="fixed top-5 left-1/2 -translate-x-1/2 bg-[#111111]/90 text-white text-[13px] px-4 py-2.5 rounded-full shadow-lg z-[9999] transition-all animate-fadeIn">
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-[#111111]/90 text-white text-[13px] px-5 py-2.5 rounded-full shadow-2xl z-[99999] transition-all animate-fadeIn pointer-events-none whitespace-nowrap">
           {toastMessage}
         </div>
       )}
@@ -86,7 +229,7 @@ export default function SobreView() {
         <button
           type="button"
           onClick={() => {
-            if (currentView === "cuenta") {
+            if (currentView === "cuenta" || currentView === "noti") {
               setCurrentView("menu");
             } else {
               router.push("/config");
@@ -99,7 +242,11 @@ export default function SobreView() {
           </svg>
         </button>
         <div className="text-[17px] font-bold text-[#111111] flex-grow text-center">
-          {currentView === "cuenta" ? "Mi cuenta" : "Información de App"}
+          {currentView === "cuenta"
+            ? "Mi cuenta"
+            : currentView === "noti"
+            ? "Configurar notificación"
+            : "Información de App"}
         </div>
         <div className="w-8"></div>
       </header>
@@ -116,6 +263,7 @@ export default function SobreView() {
 
             {/* BOTÓN 1: Mi cuenta */}
             <div
+              data-tour="sobre-micuenta-btn"
               onClick={() => setCurrentView("cuenta")}
               className="bg-white rounded-[14px] p-4 flex items-center shadow-[0_2px_8px_rgba(0,0,0,0.03)] border border-[#f0f0f0] cursor-pointer active:bg-[#f5f7f9] transition"
             >
@@ -134,7 +282,8 @@ export default function SobreView() {
 
             {/* BOTÓN 2: Zoom de la App */}
             <div
-              onClick={() => showToast("Zoom de la App: Próximamente")}
+              data-tour="sobre-zoom-btn"
+              onClick={() => setShowZoomModal(true)}
               className="bg-white rounded-[14px] p-4 flex items-center shadow-[0_2px_8px_rgba(0,0,0,0.03)] border border-[#f0f0f0] cursor-pointer active:bg-[#f5f7f9] transition"
             >
               <div className="w-10 h-10 rounded-full bg-[#E8F8EE] flex items-center justify-center mr-3.5 flex-shrink-0">
@@ -146,15 +295,21 @@ export default function SobreView() {
                 </svg>
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-[15px] font-bold text-[#111111]">Zoom de la App</div>
-                <div className="text-[12px] text-[#777777] truncate">Ajustar tamaño de la interfaz (Próximamente)</div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[15px] font-bold text-[#111111]">Zoom de la App</span>
+                  <span className="text-[11px] font-extrabold text-[#00B14F] bg-[#E8F8EE] px-2 py-0.5 rounded-full">
+                    {zoomLevel}%
+                  </span>
+                </div>
+                <div className="text-[12px] text-[#777777] truncate">Ajustar tamaño visual de toda la app</div>
               </div>
               <div className="text-[#00B14F] text-[22px] font-extrabold ml-2 scale-y-125">›</div>
             </div>
 
             {/* BOTÓN 3: Administrar noti falsa */}
             <div
-              onClick={() => showToast("Administrar noti falsa: Próximamente")}
+              data-tour="sobre-noti-btn"
+              onClick={() => setCurrentView("noti")}
               className="bg-white rounded-[14px] p-4 flex items-center shadow-[0_2px_8px_rgba(0,0,0,0.03)] border border-[#f0f0f0] cursor-pointer active:bg-[#f5f7f9] transition"
             >
               <div className="w-10 h-10 rounded-full bg-[#E8F8EE] flex items-center justify-center mr-3.5 flex-shrink-0">
@@ -165,7 +320,32 @@ export default function SobreView() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-[15px] font-bold text-[#111111]">Administrar noti falsa</div>
-                <div className="text-[12px] text-[#777777] truncate">Configurar notificaciones de prueba (Próximamente)</div>
+                <div className="text-[12px] text-[#777777] truncate">
+                  {notiConfig.randomDataEnabled
+                    ? "Datos aleatorios activos"
+                    : `Personalizado (${notiConfig.customSenders.length} remitentes)`}
+                </div>
+              </div>
+              <div className="text-[#00B14F] text-[22px] font-extrabold ml-2 scale-y-125">›</div>
+            </div>
+
+            {/* BOTÓN 4: Tutorial (Reanudar o Iniciar Tutorial) */}
+            <div
+              data-tour="sobre-tutorial-btn"
+              onClick={() => {
+                startTutorial();
+                router.push("/inicio");
+              }}
+              className="bg-white rounded-[14px] p-4 flex items-center shadow-[0_2px_8px_rgba(0,0,0,0.03)] border border-[#f0f0f0] cursor-pointer active:bg-[#f5f7f9] transition"
+            >
+              <div className="w-10 h-10 rounded-full bg-[#E8F8EE] flex items-center justify-center mr-3.5 flex-shrink-0">
+                <svg className="w-5 h-5 stroke-[#00B14F] stroke-2 fill-none stroke-linecap-round stroke-linejoin-round" viewBox="0 0 24 24">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[15px] font-bold text-[#111111]">Tutorial</div>
+                <div className="text-[12px] text-[#777777] truncate">Aprende a usar todas las funciones</div>
               </div>
               <div className="text-[#00B14F] text-[22px] font-extrabold ml-2 scale-y-125">›</div>
             </div>
@@ -233,6 +413,318 @@ export default function SobreView() {
           >
             Volver
           </button>
+        </div>
+      )}
+
+      {/* ==================================================
+          CONTENIDO: VISTA CONFIGURAR NOTIFICACIÓN
+          ================================================== */}
+      {currentView === "noti" && (
+        <div className="flex-1 overflow-y-auto no-scrollbar p-5 flex flex-col justify-between">
+          <div className="flex flex-col gap-4">
+            {/* Switch 1: Notificaciones con datos randoms */}
+            <div className="bg-white rounded-[16px] p-4 flex items-center justify-between shadow-[0_2px_10px_rgba(0,0,0,0.03)] border border-[#f0f0f0]">
+              <div className="pr-3">
+                <div className="text-[14.5px] font-bold text-[#111111]">
+                  Notificaciones con datos randoms
+                </div>
+                <div className="text-[11.5px] text-[#777777] mt-0.5">
+                  Nombres aleatorios y monto entre S/ 10 y S/ 500
+                </div>
+              </div>
+              <div
+                onClick={handleToggleRandomData}
+                className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-200 ease-in-out flex-shrink-0 ${
+                  notiConfig.randomDataEnabled ? "bg-[#00B14F]" : "bg-[#D1D5DB]"
+                }`}
+              >
+                <div
+                  className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${
+                    notiConfig.randomDataEnabled ? "translate-x-6" : "translate-x-0"
+                  }`}
+                />
+              </div>
+            </div>
+
+            {/* Switch 2: Modo Oscuro (#202020) */}
+            <div className="bg-white rounded-[16px] p-4 flex items-center justify-between shadow-[0_2px_10px_rgba(0,0,0,0.03)] border border-[#f0f0f0]">
+              <div className="pr-3">
+                <div className="text-[14.5px] font-bold text-[#111111]">
+                  Modo Oscuro (#202020)
+                </div>
+                <div className="text-[11.5px] text-[#777777] mt-0.5">
+                  Estilo oscuro para la notificación push simulada
+                </div>
+              </div>
+              <div
+                onClick={handleToggleDarkMode}
+                className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-200 ease-in-out flex-shrink-0 ${
+                  notiConfig.darkModeEnabled ? "bg-[#00B14F]" : "bg-[#D1D5DB]"
+                }`}
+              >
+                <div
+                  className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${
+                    notiConfig.darkModeEnabled ? "translate-x-6" : "translate-x-0"
+                  }`}
+                />
+              </div>
+            </div>
+
+            {/* SI ESTÁ DESACTIVADO MODO RANDOM: Mostrar configuración personalizada */}
+            {!notiConfig.randomDataEnabled && (
+              <div className="bg-white rounded-[16px] p-4 shadow-[0_2px_10px_rgba(0,0,0,0.03)] border border-[#f0f0f0] flex flex-col gap-4">
+                {/* 1. Remitentes Personalizados */}
+                <div>
+                  <div className="text-[14.5px] font-bold text-[#111111] mb-0.5">
+                    Remitentes Personalizados
+                  </div>
+                  <div className="text-[11.5px] text-[#777777] mb-2.5">
+                    Máximo 10 nombres. Solo 1 o 2 palabras (Ej: Juan Perez).
+                  </div>
+
+                  {/* Input + Añadir (Botón Verde perfectamente contenido) */}
+                  <div className="flex items-center gap-2 mb-3 w-full">
+                    <input
+                      type="text"
+                      value={newSenderInput}
+                      onChange={(e) => setNewSenderInput(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleAddSender()}
+                      placeholder="Ingresa un nombre"
+                      maxLength={30}
+                      className="flex-1 min-w-0 bg-[#FBFBFB] border border-[#E0E4E8] rounded-[10px] px-3.5 py-2.5 text-[14px] text-[#222222] focus:border-[#00B14F] focus:bg-white transition box-border"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddSender}
+                      className="bg-[#00B14F] hover:bg-[#009E43] text-white px-4 py-2.5 rounded-[10px] font-bold text-[13.5px] active:scale-95 transition cursor-pointer border-none shadow-xs flex-shrink-0 whitespace-nowrap"
+                    >
+                      Añadir
+                    </button>
+                  </div>
+
+                  {/* Lista de Remitentes */}
+                  {notiConfig.customSenders.length === 0 ? (
+                    <div className="text-[12px] text-[#888888] italic py-1">
+                      Sin remitentes registrados aún. Escribe un nombre y pulsa Añadir.
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-1.5">
+                      {notiConfig.customSenders.map((s, idx) => (
+                        <span
+                          key={idx}
+                          className="bg-[#F1F3F5] text-[#222222] text-[12px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-[#E5E7EB]"
+                        >
+                          <span>{s}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSender(s)}
+                            className="w-4 h-4 rounded-full bg-[#D1D5DB] text-[#444] hover:bg-[#EF4444] hover:text-white flex items-center justify-center text-[10px] font-bold transition border-none cursor-pointer"
+                          >
+                            ✕
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <div className="text-[11px] text-[#888888] font-medium mt-1.5">
+                    {notiConfig.customSenders.length}/10 remitentes registrados
+                  </div>
+                </div>
+
+                <div className="w-full h-[1px] bg-[#F0F0F0]" />
+
+                {/* 2. Configuración de Monto */}
+                <div>
+                  <div className="text-[14.5px] font-bold text-[#111111] mb-2">
+                    Configuración de Monto
+                  </div>
+
+                  {/* Selector: Rango aleatorio vs Monto fijo */}
+                  <select
+                    value={notiConfig.amountType}
+                    onChange={(e) => handleAmountTypeChange(e.target.value as "range" | "fixed")}
+                    className="w-full bg-[#FBFBFB] border border-[#E0E4E8] rounded-[10px] p-3 text-[14px] text-[#222222] font-semibold mb-3 cursor-pointer focus:border-[#00B14F] focus:bg-white"
+                  >
+                    <option value="range">Rango de monto aleatorio</option>
+                    <option value="fixed">Monto fijo</option>
+                  </select>
+
+                  {/* Inputs según el tipo seleccionado */}
+                  {notiConfig.amountType === "range" ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[11.5px] font-bold text-[#666666] block mb-1">
+                          Mínimo (S/)
+                        </label>
+                        <input
+                          type="number"
+                          value={notiConfig.amountMin}
+                          onChange={(e) => handleMinChange(e.target.value)}
+                          className="w-full bg-[#FBFBFB] border border-[#E0E4E8] rounded-[10px] p-2.5 text-[14px] text-[#222222] font-semibold focus:border-[#00B14F] focus:bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11.5px] font-bold text-[#666666] block mb-1">
+                          Máximo (S/)
+                        </label>
+                        <input
+                          type="number"
+                          value={notiConfig.amountMax}
+                          onChange={(e) => handleMaxChange(e.target.value)}
+                          className="w-full bg-[#FBFBFB] border border-[#E0E4E8] rounded-[10px] p-2.5 text-[14px] text-[#222222] font-semibold focus:border-[#00B14F] focus:bg-white"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="text-[11.5px] font-bold text-[#666666] block mb-1">
+                        Monto fijo (S/)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.5"
+                        value={notiConfig.fixedAmount}
+                        onChange={(e) => handleFixedAmountChange(e.target.value)}
+                        className="w-full bg-[#FBFBFB] border border-[#E0E4E8] rounded-[10px] p-2.5 text-[14px] text-[#222222] font-semibold focus:border-[#00B14F] focus:bg-white"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Botón Listo */}
+          <button
+            type="button"
+            onClick={() => {
+              setCurrentView("menu");
+              showToast("Configuración de notificación guardada");
+            }}
+            className="w-full py-4 rounded-[12px] text-[16px] font-bold bg-[#00B14F] text-white active:bg-[#009e43] transition cursor-pointer border-none shadow-sm mt-5 mb-2"
+          >
+            Listo
+          </button>
+        </div>
+      )}
+
+      {/* ==================================================
+          MODAL DE CONTROL DE ZOOM (MINIMALISTA Y PROFESIONAL)
+          ================================================== */}
+      {showZoomModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[24px] w-full max-w-[340px] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.12)] border border-[#EAEAEA] flex flex-col items-center animate-slideUp">
+            {/* Header del Modal */}
+            <div className="w-full flex justify-between items-center mb-1">
+              <span className="text-[17px] font-bold text-[#0F172A] tracking-tight">
+                Zoom de la interfaz
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowZoomModal(false)}
+                className="w-7 h-7 rounded-full bg-[#F1F5F9] text-[#64748B] hover:text-[#0F172A] flex items-center justify-center text-[12px] font-bold active:scale-95 transition border-none cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-[12.5px] text-[#64748B] text-center mb-5 leading-relaxed">
+              Ajusta la escala visual para toda la app
+            </p>
+
+            {/* Selector Central Minimalista con (-) y (+) */}
+            <div className="flex items-center justify-between w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-[20px] p-2 mb-4">
+              <button
+                type="button"
+                onClick={handleDisminuirZoom}
+                disabled={zoomLevel <= MIN_ZOOM}
+                className={`w-12 h-12 rounded-full flex items-center justify-center transition cursor-pointer border ${
+                  zoomLevel <= MIN_ZOOM
+                    ? "bg-transparent border-transparent text-[#CBD5E1] cursor-not-allowed"
+                    : "bg-white border-[#E2E8F0] text-[#0F172A] shadow-xs hover:border-[#CBD5E1] active:scale-90"
+                }`}
+                title="Reducir zoom"
+              >
+                <svg className="w-5 h-5 stroke-current stroke-2 fill-none" viewBox="0 0 24 24">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+
+              <div className="flex flex-col items-center px-4">
+                <span className="text-[32px] font-black text-[#0F172A] tracking-tight leading-none font-sans">
+                  {zoomLevel}%
+                </span>
+                <span className="text-[10.5px] font-bold text-[#00B14F] tracking-wide mt-1">
+                  {zoomLevel === DEFAULT_ZOOM
+                    ? "100% Estándar"
+                    : zoomLevel < DEFAULT_ZOOM
+                    ? `Reducido (${zoomLevel}%)`
+                    : `Ampliado (${zoomLevel}%)`}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleAumentarZoom}
+                disabled={zoomLevel >= MAX_ZOOM}
+                className={`w-12 h-12 rounded-full flex items-center justify-center transition cursor-pointer border ${
+                  zoomLevel >= MAX_ZOOM
+                    ? "bg-transparent border-transparent text-[#CBD5E1] cursor-not-allowed"
+                    : "bg-white border-[#E2E8F0] text-[#0F172A] shadow-xs hover:border-[#CBD5E1] active:scale-90"
+                }`}
+                title="Aumentar zoom"
+              >
+                <svg className="w-5 h-5 stroke-current stroke-2 fill-none" viewBox="0 0 24 24">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+            </div>
+
+            {/* Pills de Acceso Rápido Minimalistas */}
+            <div className="flex justify-center items-center gap-1.5 mb-5 w-full">
+              {[80, 90, 100, 110, 120].map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => {
+                    const applied = setAppZoom(preset);
+                    setZoomLevel(applied);
+                  }}
+                  className={`flex-1 py-1.5 rounded-[8px] text-[11px] font-bold transition cursor-pointer border ${
+                    zoomLevel === preset
+                      ? "bg-[#00B14F] text-white border-[#00B14F] shadow-xs"
+                      : "bg-white text-[#64748B] border-[#E2E8F0] hover:bg-[#F8FAFC]"
+                  }`}
+                >
+                  {preset}%
+                </button>
+              ))}
+            </div>
+
+            {/* Botón Aplicar */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowZoomModal(false);
+                showToast(`Zoom fijado al ${zoomLevel}%`);
+              }}
+              className="w-full py-3.5 rounded-[14px] text-[15px] font-bold bg-[#00B14F] text-white hover:bg-[#009E43] active:scale-[0.99] transition cursor-pointer border-none shadow-sm"
+            >
+              Aplicar
+            </button>
+
+            {/* Botón Restablecer */}
+            {zoomLevel !== DEFAULT_ZOOM && (
+              <button
+                type="button"
+                onClick={handleRestablecerZoom}
+                className="text-[12px] font-semibold text-[#64748B] hover:text-[#00B14F] transition mt-3 cursor-pointer bg-transparent border-none p-1"
+              >
+                Restablecer al 100%
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>

@@ -3,6 +3,9 @@ import "./globals.css";
 import ClientProtections from "@/components/ClientProtections";
 import SeguridadWatcher from "@/components/SeguridadWatcher";
 import RegisterServiceWorker from "@/components/RegisterServiceWorker";
+import ZoomManager from "@/components/ZoomManager";
+import FakeNotificationBanner from "@/components/FakeNotificationBanner";
+import TutorialTour from "@/components/TutorialTour";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -43,12 +46,38 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var z = localStorage.getItem('ibk_app_zoom');
+                  if (z) {
+                    var val = parseInt(z, 10);
+                    if (!isNaN(val) && val >= 80 && val <= 120) {
+                      var f = val / 100;
+                      document.documentElement.style.setProperty('--app-zoom', String(f));
+                      document.documentElement.style.setProperty('--app-zoom-percent', val + '%');
+                      document.documentElement.style.zoom = String(f);
+                      var comp = 'calc(100dvh / ' + f + ')';
+                      document.documentElement.style.minHeight = comp;
+                      document.documentElement.style.height = comp;
+                    }
+                  }
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
       </head>
-      <body className="font-sans antialiased bg-[#00B14F] text-[#333333] selection:bg-transparent overflow-x-hidden min-h-screen">
+      <body className="font-sans antialiased bg-[#f8fafc] text-[#333333] selection:bg-transparent overflow-x-hidden">
+        <ZoomManager />
+        <FakeNotificationBanner />
+        <TutorialTour />
         <ClientProtections />
         <SeguridadWatcher />
         <RegisterServiceWorker />
-        <div className="mx-auto max-w-[480px] min-h-screen bg-[#00B14F] relative shadow-2xl flex flex-col">
+        <div className="w-full sm:max-w-[480px] mx-auto min-h-screen min-h-[100dvh] relative shadow-2xl flex flex-col flex-1">
           {children}
         </div>
       </body>

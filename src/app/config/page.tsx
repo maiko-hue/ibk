@@ -117,6 +117,91 @@ export default function ConfigPage() {
 
       setIsBotActive(localStorage.getItem("ibk_bot_telegram_activo") === "true");
       setHasCustomPin(!!(localStorage.getItem("ibk_security_pin") || localStorage.getItem("ibk_custom_pin")));
+
+      // ==================================================
+      // LISTENERS DEL TUTORIAL INTERACTIVO
+      // ==================================================
+      const handleSetSubview = (e: Event) => {
+        const custom = e as CustomEvent<{ view: "config" | "contactos" | "settings" | "pin" }>;
+        if (custom.detail && custom.detail.view) {
+          setCurrentView(custom.detail.view);
+        }
+      };
+
+      const handleTypeCuentas = async () => {
+        const sampleNum = "1912 " + Math.floor(1000 + Math.random() * 9000) + " " + Math.floor(1000 + Math.random() * 9000) + " " + Math.floor(10 + Math.random() * 90);
+        const sampleCci = "0021 9100 2058 " + Math.floor(1000 + Math.random() * 9000) + " " + Math.floor(1000 + Math.random() * 9000);
+        
+        let typedNum = "";
+        for (let i = 0; i < sampleNum.length; i++) {
+          typedNum += sampleNum[i];
+          setAcc1((prev) => ({ ...prev, num: typedNum }));
+          await new Promise((r) => setTimeout(r, 65));
+        }
+        await new Promise((r) => setTimeout(r, 300));
+        let typedCci = "";
+        for (let i = 0; i < sampleCci.length; i++) {
+          typedCci += sampleCci[i];
+          setAcc1((prev) => ({ ...prev, cci: typedCci }));
+          await new Promise((r) => setTimeout(r, 55));
+        }
+      };
+
+      const handleTypeContactos = async () => {
+        const targetName = "Maikol Torres Vargas";
+        const targetPhone = "999999999";
+
+        let typedN = "";
+        for (let i = 0; i < targetName.length; i++) {
+          typedN += targetName[i];
+          setContactName(typedN);
+          await new Promise((r) => setTimeout(r, 70));
+        }
+
+        await new Promise((r) => setTimeout(r, 350));
+
+        let typedP = "";
+        for (let i = 0; i < targetPhone.length; i++) {
+          typedP += targetPhone[i];
+          setContactPhone(typedP);
+          await new Promise((r) => setTimeout(r, 85));
+        }
+
+        // Guardar contacto automáticamente en Firebase y localStorage (sin alert invasivo)
+        await new Promise((r) => setTimeout(r, 400));
+        const cleanPhone = targetPhone.replace(/\D/g, "");
+        const saved = JSON.parse(localStorage.getItem("ibk_contactos") || "[]");
+        if (!saved.some((c: any) => c.phone === cleanPhone)) {
+          saved.push({ name: targetName, phone: cleanPhone });
+          localStorage.setItem("ibk_contactos", JSON.stringify(saved));
+        }
+        try {
+          await setDoc(doc(db, "usuarios_yape", cleanPhone), {
+            nombre: targetName,
+          });
+        } catch (err) {
+          console.error("Error guardando contacto tutorial en Firestore:", err);
+        }
+        // Cerrar cualquier modal residual para no interferir con el tutorial
+        setAlerta({ open: false, title: "", message: "", isError: false });
+      };
+
+      const handleToggleBotTutorial = () => {
+        setIsBotActive(true);
+        localStorage.setItem("ibk_bot_telegram_activo", "true");
+      };
+
+      window.addEventListener("ibk_tutorial_set_subview", handleSetSubview);
+      window.addEventListener("ibk_tutorial_type_cuentas", handleTypeCuentas);
+      window.addEventListener("ibk_tutorial_type_contactos", handleTypeContactos);
+      window.addEventListener("ibk_tutorial_toggle_bot", handleToggleBotTutorial);
+
+      return () => {
+        window.removeEventListener("ibk_tutorial_set_subview", handleSetSubview);
+        window.removeEventListener("ibk_tutorial_type_cuentas", handleTypeCuentas);
+        window.removeEventListener("ibk_tutorial_type_contactos", handleTypeContactos);
+        window.removeEventListener("ibk_tutorial_toggle_bot", handleToggleBotTutorial);
+      };
     }
   }, []);
 
@@ -274,7 +359,7 @@ export default function ConfigPage() {
           FONDO VERDE CURVO EXACTO (ibk/config.html)
           ================================================== */}
       <div
-        className="fixed top-0 left-0 right-0 max-w-[480px] mx-auto h-[210px] bg-[#04B84D] z-[1] pointer-events-none"
+        className="fixed top-0 left-0 right-0 w-full sm:max-w-[480px] mx-auto h-[210px] bg-[#04B84D] z-[1] pointer-events-none"
         style={{ borderBottomLeftRadius: "35px", borderBottomRightRadius: "35px" }}
       />
 
@@ -340,6 +425,7 @@ export default function ConfigPage() {
 
                 {/* 2. Actualizar APP */}
                 <div
+                  data-tour="config-actualizarapp-btn"
                   onClick={handleForzarActualizacion}
                   className="bg-white rounded-[10px] py-3 px-3.5 flex items-center shadow-[0_2px_8px_rgba(0,0,0,0.03)] border border-[#f0f0f0] cursor-pointer active:bg-[#f9f9f9]"
                 >
@@ -352,6 +438,7 @@ export default function ConfigPage() {
 
                 {/* 3. Mis Contactos */}
                 <div
+                  data-tour="config-contactos-btn"
                   onClick={() => setCurrentView("contactos")}
                   className="bg-white rounded-[10px] py-3 px-3.5 flex items-center shadow-[0_2px_8px_rgba(0,0,0,0.03)] border border-[#f0f0f0] cursor-pointer active:bg-[#f9f9f9]"
                 >
@@ -367,6 +454,7 @@ export default function ConfigPage() {
 
                 {/* 4. Definir PIN */}
                 <div
+                  data-tour="config-definirpin-btn"
                   onClick={() => setCurrentView("pin")}
                   className="bg-white rounded-[10px] py-3 px-3.5 flex items-center shadow-[0_2px_8px_rgba(0,0,0,0.03)] border border-[#f0f0f0] cursor-pointer active:bg-[#f9f9f9]"
                 >
@@ -380,6 +468,7 @@ export default function ConfigPage() {
 
                 {/* 5. Accesibilidad */}
                 <Link
+                  data-tour="config-accesibilidad-btn"
                   href="/sobre"
                   className="bg-white rounded-[10px] py-3 px-3.5 flex items-center shadow-[0_2px_8px_rgba(0,0,0,0.03)] border border-[#f0f0f0] cursor-pointer no-underline text-black active:bg-[#f9f9f9]"
                 >
@@ -387,12 +476,16 @@ export default function ConfigPage() {
                     <circle cx="12" cy="7" r="4"></circle>
                     <path d="M5.5 21v-2a6.5 6.5 0 0 1 13 0v2"></path>
                   </svg>
-                  <div className="flex-1 text-[13px] text-black font-semibold whitespace-nowrap overflow-hidden text-ellipsis">Accesibilidad</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] text-black font-semibold whitespace-nowrap overflow-hidden text-ellipsis">Accesibilidad</div>
+                    <div className="text-[11px] text-[#888888] font-normal truncate">Información de App, Zoom y Noti</div>
+                  </div>
                   <div className="text-[#00b551] text-[18px] font-bold ml-2">›</div>
                 </Link>
 
                 {/* 6. Auto Completado con Switch exacto */}
                 <div
+                  data-tour="config-autocompletado-switch"
                   onClick={handleToggleBot}
                   className="bg-white rounded-[10px] py-3 px-3.5 flex items-center shadow-[0_2px_8px_rgba(0,0,0,0.03)] border border-[#f0f0f0] cursor-pointer active:bg-[#f9f9f9]"
                 >
@@ -416,6 +509,7 @@ export default function ConfigPage() {
 
                 {/* 7. Configuración de Cuentas */}
                 <div
+                  data-tour="config-settings-btn"
                   onClick={() => setCurrentView("settings")}
                   className="bg-white rounded-[10px] py-3 px-3.5 flex items-center shadow-[0_2px_8px_rgba(0,0,0,0.03)] border border-[#f0f0f0] cursor-pointer active:bg-[#f9f9f9]"
                 >
@@ -527,7 +621,10 @@ export default function ConfigPage() {
               <div className="w-[34px]"></div>
             </header>
 
-            <div className="bg-white rounded-[20px] mx-[15px] mt-3.5 mb-[90px] shadow-[0_4px_15px_rgba(0,0,0,0.06)] p-5">
+            <div
+              data-tour="contactos-inputs-section"
+              className="bg-white rounded-[20px] mx-[15px] mt-3.5 mb-[90px] shadow-[0_4px_15px_rgba(0,0,0,0.06)] p-5"
+            >
               <div className="flex gap-2.5 mb-[15px]">
                 <input
                   type="text"
@@ -601,23 +698,32 @@ export default function ConfigPage() {
             </header>
 
             <div className="bg-white rounded-[20px] mx-[15px] mt-3.5 mb-[90px] shadow-[0_4px_15px_rgba(0,0,0,0.06)] p-4 sm:p-5">
-              <div className="text-[12px] font-extrabold text-[#00b551] uppercase mb-2 tracking-[0.5px]">
-                Perfil de Usuario
+              <div
+                data-tour="settings-perfil-input"
+                className="mb-3"
+              >
+                <div className="text-[12px] font-extrabold text-[#00b551] uppercase mb-2 tracking-[0.5px]">
+                  Perfil de Usuario
+                </div>
+                <input
+                  type="text"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  placeholder="Nombre completo"
+                  className="w-full py-2.5 px-3 border-[1.5px] border-[#eef0f5] rounded-[10px] text-[13px] text-[#333] font-medium outline-none bg-[#fafbfc] focus:border-[#00b551] focus:bg-white"
+                />
               </div>
-              <input
-                type="text"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                placeholder="Nombre completo"
-                className="w-full py-2.5 px-3 border-[1.5px] border-[#eef0f5] rounded-[10px] text-[13px] text-[#333] font-medium outline-none bg-[#fafbfc] mb-3 focus:border-[#00b551] focus:bg-white"
-              />
 
-              <div className="text-[12px] font-extrabold text-[#00b551] uppercase mb-2 mt-4 tracking-[0.5px]">
-                Edición de Cuentas
-              </div>
+              <div>
+                <div className="text-[12px] font-extrabold text-[#00b551] uppercase mb-2 mt-4 tracking-[0.5px]">
+                  Edición de Cuentas
+                </div>
 
-              {/* Cuenta 1 */}
-              <div className="bg-white border border-[#eef0f5] rounded-[12px] p-3.5 mb-4 shadow-[0_4px_10px_rgba(0,0,0,0.02)]">
+                {/* Cuenta 1 */}
+                <div
+                  data-tour="settings-cuentas-section"
+                  className="bg-white border border-[#eef0f5] rounded-[12px] p-3.5 mb-4 shadow-[0_4px_10px_rgba(0,0,0,0.02)]"
+                >
                 <div className="text-[13px] font-extrabold text-[#0039a6] mb-2.5">Cuenta 1 (Soles)</div>
                 <input
                   type="text"
@@ -738,8 +844,10 @@ export default function ConfigPage() {
                   className="w-full py-2.5 px-3 border-[1.5px] border-[#eef0f5] rounded-[10px] text-[13px] text-[#333] font-medium outline-none bg-[#fafbfc] focus:border-[#00b551] focus:bg-white"
                 />
               </div>
+              </div>
 
               <button
+                data-tour="settings-save-btn"
                 type="button"
                 onClick={handleGuardarConfiguracionGlobal}
                 className="w-full bg-[#00b551] text-white border-none py-3.5 rounded-[10px] text-[14px] font-bold cursor-pointer active:bg-[#009e47] transition mt-2"
