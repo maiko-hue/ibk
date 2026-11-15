@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import ClientProtections from "@/components/ClientProtections";
 import SeguridadWatcher from "@/components/SeguridadWatcher";
+import RegisterServiceWorker from "@/components/RegisterServiceWorker";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -46,6 +47,7 @@ export default function RootLayout({
       <body className="font-sans antialiased bg-[#00B14F] text-[#333333] selection:bg-transparent overflow-x-hidden min-h-screen">
         <ClientProtections />
         <SeguridadWatcher />
+        <RegisterServiceWorker />
         <div className="mx-auto max-w-[480px] min-h-screen bg-[#00B14F] relative shadow-2xl flex flex-col">
           {children}
         </div>
