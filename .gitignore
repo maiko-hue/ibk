@@ -1,0 +1,6 @@
+node_modules/
+.next/
+ibk-next/node_modules/
+ibk-next/.next/
+.env*.local
+.DS_Store
