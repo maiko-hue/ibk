@@ -12,8 +12,12 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Interbank - Banca Móvil",
+  title: {
+    default: "ibk -AppsReborn",
+    template: "%s",
+  },
   description: "Banca Móvil Interbank",
+  manifest: "/manifest.json",
   icons: {
     icon: "/img/favicon.png",
   },

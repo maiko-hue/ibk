@@ -336,6 +336,7 @@ export default function TrcontacView() {
           currency: "S/",
           date: dateStr,
           opCode: opCode,
+          accountId: String(selectedAccIndex + 1),
           accountName: currentSelectedAccount.name,
           phone: recipientPhone,
           message: mensajeOpcional,
@@ -671,14 +672,13 @@ export default function TrcontacView() {
             {/* Tarjeta del Destinatario (Icono idéntico con trazo y sin relleno) */}
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center min-w-0 mr-2">
-                <div className="w-[42px] h-[42px] rounded-full bg-[#80E8A8] flex items-center justify-center mr-3 flex-shrink-0">
-                  <svg className="w-5 h-5 stroke-[#005A28] stroke-[2.2] fill-none stroke-linecap-round stroke-linejoin-round" viewBox="0 0 24 24">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
+                <div className="w-[42px] h-[42px] rounded-full bg-[#52D285] flex items-center justify-center mr-3 flex-shrink-0">
+                  <svg className="w-5 h-5 fill-[#065F29]" viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                   </svg>
                 </div>
                 <div className="min-w-0">
-                  <div className="text-[14px] font-bold text-[#111] truncate">{recipientName}</div>
+                  <div className="text-[14.5px] font-bold text-[#111] truncate">{recipientName}</div>
                   <div className="text-[12px] text-[#666]">
                     {isQrMode
                       ? destinoActual
@@ -714,8 +714,8 @@ export default function TrcontacView() {
             className="flex-1 flex flex-col items-center justify-center my-auto cursor-text py-10"
           >
             <div className="flex items-baseline justify-center">
-              <span className="text-[34px] font-bold text-[#00B14F] mr-1.5">S/</span>
-              <span className={`text-[48px] font-extrabold tracking-tight ${monto ? "text-[#00B14F]" : "text-[#111]"}`}>
+              <span className="text-[34px] font-black text-[#00B14F] mr-1.5 leading-none">s/</span>
+              <span className={`text-[50px] font-black tracking-tight leading-none ${monto ? "text-[#00B14F]" : "text-[#111]"}`}>
                 {monto || "0"}
               </span>
             </div>
@@ -829,32 +829,29 @@ export default function TrcontacView() {
           VISTA 3: COMPROBANTE - PLINEO EXITOSO (Captura exacta 10)
           ================================================== */}
       {currentView === "exito" && (
-        <div className="min-h-screen flex flex-col bg-[#04BE4F]">
-          {/* Header verde con Insignia Plin geométrica exacta */}
-          <div className="pt-10 pb-6 flex justify-center items-center relative flex-shrink-0">
-            {/* Tarjeta verde menta inclinada con destellos */}
-            <div className="relative w-[70px] h-[74px] flex items-center justify-center">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#B5FCD4] to-[#8EF3BA] rounded-[20px] -rotate-[10deg] shadow-sm flex items-center justify-center">
-                <span className="absolute -top-1.5 -right-1 text-[#04BE4F] text-[12px] font-black select-none">✦</span>
-                <span className="absolute -bottom-1 -left-1.5 text-[#04BE4F] text-[10px] font-black select-none">✦</span>
-                <img
-                  src="/img/plin-voucher.webp"
-                  alt="Plin"
-                  className="w-11 h-11 object-contain pointer-events-none drop-shadow-sm"
-                />
-              </div>
+        <div className="min-h-screen flex flex-col bg-[#00B14F]">
+          {/* Header verde con Insignia Plin geométrica erguida exacta (Captura 3 y 4) */}
+          <div className="pt-8 pb-5 flex justify-center items-center relative flex-shrink-0">
+            <div className="relative w-[82px] h-[88px] rounded-[24px] bg-[#96F3C0] flex items-center justify-center shadow-sm">
+              <span className="absolute top-2 right-2 text-[#00702B] text-[11px] font-black select-none pointer-events-none">✦</span>
+              <span className="absolute bottom-2 left-2 text-[#00702B] text-[10px] font-black select-none pointer-events-none">✦</span>
+              <img
+                src="/img/plin-voucher.webp"
+                alt="Plin"
+                className="w-[52px] h-[52px] object-contain pointer-events-none drop-shadow-sm"
+              />
             </div>
           </div>
 
           {/* Contenedor blanco con bordes superiores redondeados (rounded-t-[28px]) */}
           <div className="flex-1 bg-white rounded-t-[28px] px-6 pt-7 pb-6 flex flex-col justify-between shadow-lg">
             <div>
-              <div className="text-[17px] font-bold text-[#04BE4F] mb-1.5">
+              <div className="text-[17px] font-bold text-[#00B14F] mb-1.5">
                 Plineo exitoso
               </div>
 
-              <div className="text-[#04BE4F] text-[34px] leading-tight mb-2.5 flex items-baseline gap-1">
-                <span className="text-[24px] font-semibold">S/</span>
+              <div className="text-[#00B14F] text-[34px] leading-tight mb-2.5 flex items-baseline gap-1">
+                <span className="text-[26px] font-bold">s/</span>
                 <span className="font-extrabold tracking-tight">{voucherData.montoFormatted}</span>
               </div>
 
@@ -873,7 +870,7 @@ export default function TrcontacView() {
                   <span className="text-[#71717A] font-normal">Enviado a</span>
                   <span className="text-[#1a1a1a] font-bold">
                     {voucherData.isQrMode
-                      ? `${recipientName} - ${voucherData.destino || destinoActual}`
+                      ? recipientName
                       : `${recipientPhone.slice(0, 3)} ${recipientPhone.slice(3, 6)} ${recipientPhone.slice(6)} – ${voucherData.destino || destinoActual}`}
                   </span>
                 </div>

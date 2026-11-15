@@ -12,6 +12,10 @@ const nextConfig = {
       { source: '/infoc.html', destination: '/infoc' },
       { source: '/serv.html', destination: '/serv' },
       { source: '/exitoserv.html', destination: '/exitoserv' },
+      { source: '/recel.html', destination: '/recel' },
+      { source: '/exitorecel.html', destination: '/exitorecel' },
+      { source: '/trans.html', destination: '/trans' },
+      { source: '/exitotrans.html', destination: '/exitotrans' },
     ];
   },
 };

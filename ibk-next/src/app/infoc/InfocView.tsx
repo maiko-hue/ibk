@@ -19,6 +19,7 @@ interface Movimiento {
   amount: string;
   currency: string;
   date: string;
+  accountId?: string;
   opCode?: string;
   accountName?: string;
   phone?: string;
@@ -43,27 +44,23 @@ const DEFAULTS = {
     curr: "US$",
     bal: "1000.00",
     num: "1912058956625",
-    cci: "00219100205895662515",
-  },
-  acc3: {
-    name: "Cuenta de Ahorros",
-    curr: "S/",
-    bal: "1000.00",
-    num: "1911111111111",
-    cci: "00219111111111000000",
+    cci: "00219100205895662512",
   },
 };
 
-const formatBalance = (val: string) => {
-  const num = parseFloat(val);
-  if (isNaN(num)) return val;
-  return num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-};
+function formatBalance(val: string) {
+  const num = parseFloat(val.replace(/,/g, ""));
+  if (isNaN(num)) return "0.00";
+  return num.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
 
 export default function InfocView() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const accountId = searchParams?.get("id") || "1";
+  const accountId = searchParams.get("id") || "1";
 
   const [account, setAccount] = useState<AccountDetail>({
     id: accountId,
@@ -93,14 +90,36 @@ export default function InfocView() {
         cci: savedCci,
       });
 
-      // Cargar historial de movimientos desde cualquiera de las dos claves utilizadas
+      // Cargar historial de movimientos de ESTA cuenta específica
       try {
         const rawMovs =
           localStorage.getItem("ibk_movimientos") ||
           localStorage.getItem("ibk_global_movements") ||
           "[]";
-        const parsed = JSON.parse(rawMovs);
-        setMovements(Array.isArray(parsed) ? parsed : []);
+        const parsed: Movimiento[] = JSON.parse(rawMovs);
+        const filtered = (Array.isArray(parsed) ? parsed : []).filter((m) => {
+          if (m.accountId) {
+            return String(m.accountId) === String(accountId);
+          }
+          if (m.accountName) {
+            const accLower = m.accountName.toLowerCase();
+            if (accountId === "1") {
+              return (
+                accLower.includes("soles") ||
+                (!accLower.includes("dolar") &&
+                  !accLower.includes("dólar") &&
+                  !accLower.includes("ahorro") &&
+                  !accLower.includes("invers"))
+              );
+            } else if (accountId === "2") {
+              return accLower.includes("dolar") || accLower.includes("dólar");
+            } else if (accountId === "3") {
+              return accLower.includes("ahorro") || accLower.includes("invers");
+            }
+          }
+          return accountId === "1";
+        });
+        setMovements(filtered);
       } catch (e) {
         console.error("Error al cargar movimientos:", e);
       }
@@ -116,21 +135,21 @@ export default function InfocView() {
           onClick={() => router.push("/inicio")}
           className="w-[30px] h-[30px] flex items-center justify-center bg-transparent border-none cursor-pointer active:scale-90 transition p-0"
         >
-          <svg className="w-[22px] h-[22px] stroke-[#00B14F] stroke-[3] fill-none stroke-linecap-round stroke-linejoin-round pointer-events-none" viewBox="0 0 24 24">
+          <svg className="w-[20px] h-[20px] stroke-[#00B14F] stroke-[2.5] fill-none stroke-linecap-round stroke-linejoin-round pointer-events-none" viewBox="0 0 24 24">
             <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
         </button>
-        <div className="text-[16px] font-extrabold text-black flex-grow text-center ml-4">
+        <div className="text-[15px] font-extrabold text-black flex-grow text-center ml-4">
           Mi Cuenta
         </div>
         <div className="flex items-center gap-[15px]">
-          {/* for_you.jpg SIN MARCO CIRCULAR (exacto a lo solicitado) */}
+          {/* for_you.jpg SIN MARCO CIRCULAR */}
           <img
             src="/img/for_you.jpg"
             alt="Para ti"
             className="w-[24px] h-[24px] object-contain pointer-events-none"
           />
-          <svg className="w-[22px] h-[22px] stroke-[#00B14F] stroke-2 fill-none stroke-linecap-round stroke-linejoin-round pointer-events-none" viewBox="0 0 24 24">
+          <svg className="w-[20px] h-[20px] stroke-[#00B14F] stroke-2 fill-none stroke-linecap-round stroke-linejoin-round pointer-events-none" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="1.5"></circle>
             <circle cx="12" cy="5" r="1.5"></circle>
             <circle cx="12" cy="19" r="1.5"></circle>
@@ -155,10 +174,10 @@ export default function InfocView() {
               className="w-[45px] h-[35px] object-cover rounded-[6px] mr-[15px] shadow-[0_2px_5px_rgba(0,0,0,0.1)] pointer-events-none"
             />
             <div className="flex-1 min-w-0">
-              <div className="text-[14px] font-bold text-black leading-[1.2] truncate">
+              <div className="text-[13px] font-bold text-black leading-[1.2] truncate">
                 {account.name}
               </div>
-              <div className="text-[12px] text-[#666] mt-[2px]">
+              <div className="text-[11.5px] text-[#666] mt-[2px]">
                 {account.num}
               </div>
             </div>
@@ -179,16 +198,16 @@ export default function InfocView() {
           {/* Saldos: Saldo Disponible y Mi Alcancía */}
           <div className="flex justify-between px-[25px] pt-[5px] pb-[10px]">
             <div className="flex flex-col">
-              <div className="text-[20px] font-bold text-[#0039A6] tracking-[-0.5px]">
+              <div className="text-[18px] font-bold text-[#0039A6] tracking-[-0.5px]">
                 {account.curr} {formatBalance(account.bal)}
               </div>
-              <div className="text-[11px] text-[#555] mt-[2px]">Saldo disponible</div>
+              <div className="text-[10.5px] text-[#555] mt-[2px] font-medium">Saldo disponible</div>
             </div>
             <div className="flex flex-col items-end">
-              <div className="text-[20px] font-bold text-[#0039A6] tracking-[-0.5px]">
+              <div className="text-[18px] font-bold text-[#0039A6] tracking-[-0.5px]">
                 {account.curr} 0.00
               </div>
-              <div className="text-[11px] text-[#555] mt-[2px]">Mi alcancía</div>
+              <div className="text-[10.5px] text-[#555] mt-[2px] font-medium">Mi alcancía</div>
             </div>
           </div>
         </div>
@@ -206,10 +225,10 @@ export default function InfocView() {
             />
 
             {/* Transfer Slider Exacto al Original */}
-            <div className="relative flex-1 max-w-[215px] h-[42px] bg-[#0039A6] rounded-[25px] flex justify-between items-center px-[15px] mx-[15px] text-white/80 text-[15px] font-bold tracking-[2px] shadow-inner">
+            <div className="relative flex-1 max-w-[215px] h-[40px] bg-[#0039A6] rounded-[25px] flex justify-between items-center px-[15px] mx-[15px] text-white/80 text-[13px] font-bold tracking-[2px] shadow-inner">
               <span>&lt; &lt; &lt;</span>
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[70px] h-[70px] bg-white rounded-full flex items-center justify-center z-[1]">
-                <div className="w-[46px] h-[46px] bg-[#00B14F] rounded-full flex items-center justify-center text-white font-extrabold text-[18px] z-[2] shadow-[0_0_15px_4px_rgba(0,181,81,0.4)]">
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[66px] h-[66px] bg-white rounded-full flex items-center justify-center z-[1]">
+                <div className="w-[44px] h-[44px] bg-[#00B14F] rounded-full flex items-center justify-center text-white font-extrabold text-[16px] z-[2] shadow-[0_0_15px_4px_rgba(0,181,81,0.4)]">
                   {account.curr}
                 </div>
               </div>
@@ -230,57 +249,57 @@ export default function InfocView() {
           <div className="flex justify-between gap-[8px] px-[20px] pt-[15px] pb-[10px] overflow-x-auto no-scrollbar">
             {/* 1. Mi alcancía */}
             <div className="flex flex-col items-center text-center flex-1 min-w-0 cursor-pointer active:scale-95 transition">
-              <div className="w-[68px] h-[68px] rounded-full border-[2.5px] border-[#50d28b] bg-white flex justify-center items-center mb-[8px] relative overflow-hidden shadow-[0_0_15px_3px_rgba(0,181,81,0.35)]">
-                <div className="absolute w-[50px] h-[50px] rounded-full bg-[#C6E3F7]" />
+              <div className="w-[64px] h-[64px] rounded-full border-[2px] border-[#50d28b] bg-white flex justify-center items-center mb-[8px] relative overflow-hidden shadow-[0_0_15px_3px_rgba(0,181,81,0.35)]">
+                <div className="absolute w-[48px] h-[48px] rounded-full bg-[#C6E3F7]" />
                 <img
                   src="/img/pig-bg.png"
                   alt="Pig"
-                  className="w-[36px] h-[36px] object-cover rounded-full relative z-[2] pointer-events-none"
+                  className="w-[34px] h-[34px] object-cover rounded-full relative z-[2] pointer-events-none"
                 />
               </div>
-              <div className="text-[11.5px] leading-[1.2] font-semibold text-[#001e60]">
+              <div className="text-[10.5px] leading-[1.2] font-semibold text-[#001e60]">
                 {account.curr} 0<br />Mi alcancía
               </div>
             </div>
 
             {/* 2. Agregar categoría */}
             <div className="flex flex-col items-center text-center flex-1 min-w-0 cursor-pointer active:scale-95 transition">
-              <div className="w-[68px] h-[68px] rounded-full border-[2.5px] border-[#50d28b] bg-white flex justify-center items-center mb-[8px] relative overflow-hidden">
-                <div className="absolute w-[50px] h-[50px] rounded-full bg-[#E9FAF0]" />
-                <svg className="w-[34px] h-[34px] stroke-[#00B14F] stroke-[2.5] stroke-linecap-round relative z-[2] pointer-events-none" viewBox="0 0 24 24">
+              <div className="w-[64px] h-[64px] rounded-full border-[2px] border-[#50d28b] bg-white flex justify-center items-center mb-[8px] relative overflow-hidden">
+                <div className="absolute w-[48px] h-[48px] rounded-full bg-[#E9FAF0]" />
+                <svg className="w-[30px] h-[30px] stroke-[#00B14F] stroke-[2.5] stroke-linecap-round relative z-[2] pointer-events-none" viewBox="0 0 24 24">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
               </div>
-              <div className="text-[11.5px] leading-[1.2] font-semibold text-[#00B14F]">
+              <div className="text-[10.5px] leading-[1.2] font-semibold text-[#00B14F]">
                 Agregar<br />categoría
               </div>
             </div>
 
             {/* 3. Agregar categoría */}
             <div className="flex flex-col items-center text-center flex-1 min-w-0 cursor-pointer active:scale-95 transition">
-              <div className="w-[68px] h-[68px] rounded-full border-[2.5px] border-[#50d28b] bg-white flex justify-center items-center mb-[8px] relative overflow-hidden">
-                <div className="absolute w-[50px] h-[50px] rounded-full bg-[#E9FAF0]" />
-                <svg className="w-[34px] h-[34px] stroke-[#00B14F] stroke-[2.5] stroke-linecap-round relative z-[2] pointer-events-none" viewBox="0 0 24 24">
+              <div className="w-[64px] h-[64px] rounded-full border-[2px] border-[#50d28b] bg-white flex justify-center items-center mb-[8px] relative overflow-hidden">
+                <div className="absolute w-[48px] h-[48px] rounded-full bg-[#E9FAF0]" />
+                <svg className="w-[30px] h-[30px] stroke-[#00B14F] stroke-[2.5] stroke-linecap-round relative z-[2] pointer-events-none" viewBox="0 0 24 24">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
               </div>
-              <div className="text-[11.5px] leading-[1.2] font-semibold text-[#00B14F]">
+              <div className="text-[10.5px] leading-[1.2] font-semibold text-[#00B14F]">
                 Agregar<br />categoría
               </div>
             </div>
 
             {/* 4. Agregar categoría */}
             <div className="flex flex-col items-center text-center flex-1 min-w-0 cursor-pointer active:scale-95 transition">
-              <div className="w-[68px] h-[68px] rounded-full border-[2.5px] border-[#50d28b] bg-white flex justify-center items-center mb-[8px] relative overflow-hidden">
-                <div className="absolute w-[50px] h-[50px] rounded-full bg-[#E9FAF0]" />
-                <svg className="w-[34px] h-[34px] stroke-[#00B14F] stroke-[2.5] stroke-linecap-round relative z-[2] pointer-events-none" viewBox="0 0 24 24">
+              <div className="w-[64px] h-[64px] rounded-full border-[2px] border-[#50d28b] bg-white flex justify-center items-center mb-[8px] relative overflow-hidden">
+                <div className="absolute w-[48px] h-[48px] rounded-full bg-[#E9FAF0]" />
+                <svg className="w-[30px] h-[30px] stroke-[#00B14F] stroke-[2.5] stroke-linecap-round relative z-[2] pointer-events-none" viewBox="0 0 24 24">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
               </div>
-              <div className="text-[11.5px] leading-[1.2] font-semibold text-[#00B14F]">
+              <div className="text-[10.5px] leading-[1.2] font-semibold text-[#00B14F]">
                 Agregar<br />categoría
               </div>
             </div>
@@ -292,7 +311,7 @@ export default function InfocView() {
           {/* Botón Revisar mis categorías */}
           <button
             type="button"
-            className="bg-[#00B14F] text-white border-none flex justify-center items-center h-[35px] w-[calc(100%-200px)] mx-auto -mt-[10px] mb-[15px] rounded-b-[8px] text-[14px] font-bold cursor-pointer shadow-[0_4px_10px_rgba(0,181,81,0.2)] active:scale-95 transition"
+            className="bg-[#00B14F] text-white border-none flex justify-center items-center h-[34px] w-[calc(100%-200px)] mx-auto -mt-[10px] mb-[15px] rounded-b-[8px] text-[13px] font-bold cursor-pointer shadow-[0_4px_10px_rgba(0,181,81,0.2)] active:scale-95 transition"
           >
             Revisar mis categorías
           </button>
@@ -300,28 +319,28 @@ export default function InfocView() {
           {/* Acciones Rápidas (Ver datos, Condiciones de mi cuenta, Google Play) */}
           <div className="flex gap-[12px] px-[20px] items-start">
             <div className="flex-1 flex flex-col items-center cursor-pointer active:scale-95 transition">
-              <div className="w-full bg-white rounded-[10px] py-[15px] flex justify-center items-center shadow-[0_2px_10px_rgba(0,0,0,0.03)] border border-[#f0f0f0] mb-[8px]">
-                <img src="/img/datos.webp" alt="Datos" className="w-[28px] h-[28px] object-contain pointer-events-none" />
+              <div className="w-full bg-white rounded-[10px] py-[13px] flex justify-center items-center shadow-[0_2px_10px_rgba(0,0,0,0.03)] border border-[#f0f0f0] mb-[6px]">
+                <img src="/img/datos.webp" alt="Datos" className="w-[26px] h-[26px] object-contain pointer-events-none" />
               </div>
-              <div className="text-[11.5px] text-black text-center leading-[1.2] font-medium">
+              <div className="text-[11px] text-black text-center leading-[1.2] font-medium">
                 Ver datos
               </div>
             </div>
 
             <div className="flex-1 flex flex-col items-center cursor-pointer active:scale-95 transition">
-              <div className="w-full bg-white rounded-[10px] py-[15px] flex justify-center items-center shadow-[0_2px_10px_rgba(0,0,0,0.03)] border border-[#f0f0f0] mb-[8px]">
-                <img src="/img/condiciones.webp" alt="Condiciones" className="w-[28px] h-[28px] object-contain pointer-events-none" />
+              <div className="w-full bg-white rounded-[10px] py-[13px] flex justify-center items-center shadow-[0_2px_10px_rgba(0,0,0,0.03)] border border-[#f0f0f0] mb-[6px]">
+                <img src="/img/condiciones.webp" alt="Condiciones" className="w-[26px] h-[26px] object-contain pointer-events-none" />
               </div>
-              <div className="text-[11.5px] text-black text-center leading-[1.2] font-medium">
+              <div className="text-[11px] text-black text-center leading-[1.2] font-medium">
                 Condiciones<br />de mi cuenta
               </div>
             </div>
 
             <div className="flex-1 flex flex-col items-center cursor-pointer active:scale-95 transition">
-              <div className="w-full bg-white rounded-[10px] py-[15px] flex justify-center items-center shadow-[0_2px_10px_rgba(0,0,0,0.03)] border border-[#f0f0f0] mb-[8px]">
-                <img src="/img/google.webp" alt="Google Play" className="w-[28px] h-[28px] object-contain pointer-events-none" />
+              <div className="w-full bg-white rounded-[10px] py-[13px] flex justify-center items-center shadow-[0_2px_10px_rgba(0,0,0,0.03)] border border-[#f0f0f0] mb-[6px]">
+                <img src="/img/google.webp" alt="Google Play" className="w-[26px] h-[26px] object-contain pointer-events-none" />
               </div>
-              <div className="text-[11.5px] text-black text-center leading-[1.2] font-medium">
+              <div className="text-[11px] text-black text-center leading-[1.2] font-medium">
                 Google Play
               </div>
             </div>
@@ -331,12 +350,12 @@ export default function InfocView() {
         {/* ==================================================
             SECCIÓN MOVIMIENTOS (Tarjetón Blanco sobre Fondo Verde Claro)
             ================================================== */}
-        <div className="bg-white rounded-[8px] mx-[20px] mb-[30px] shadow-[0_2px_12px_rgba(0,0,0,0.08)] border border-[#f0f0f0] min-h-[450px] pb-[20px] flex flex-col">
+        <div className="bg-white rounded-[8px] mx-[20px] mb-[30px] shadow-[0_2px_12px_rgba(0,0,0,0.08)] border border-[#f0f0f0] min-h-[420px] pb-[16px] flex flex-col">
           {/* Pestañas Movimientos */}
           <div className="flex border-b border-[#f0f0f0]">
             <div
               onClick={() => setActiveTab("movimientos")}
-              className={`flex-1 text-center py-[18px] text-[14px] font-bold cursor-pointer transition ${
+              className={`flex-1 text-center py-[13px] text-[13px] font-bold cursor-pointer transition ${
                 activeTab === "movimientos"
                   ? "text-[#00B14F] border-b-[2.5px] border-[#00B14F]"
                   : "text-[#666]"
@@ -346,7 +365,7 @@ export default function InfocView() {
             </div>
             <div
               onClick={() => setActiveTab("alcancia")}
-              className={`flex-1 text-center py-[18px] text-[14px] font-bold cursor-pointer transition ${
+              className={`flex-1 text-center py-[13px] text-[13px] font-bold cursor-pointer transition ${
                 activeTab === "alcancia"
                   ? "text-[#00B14F] border-b-[2.5px] border-[#00B14F]"
                   : "text-[#666]"
@@ -358,18 +377,18 @@ export default function InfocView() {
 
           {/* Estado Vacío / Lista de Movimientos Directa (Sin Skeleton) */}
           {movements.length === 0 ? (
-            <div className="flex-1 flex flex-col justify-center items-center py-[40px] px-[20px] my-auto">
+            <div className="flex-1 flex flex-col justify-center items-center py-[35px] px-[20px] my-auto">
               <img
                 src="/img/box-movements.webp"
                 alt="Sin movimientos"
-                className="w-[140px] h-[140px] object-contain mb-[20px] pointer-events-none"
+                className="w-[110px] h-[110px] object-contain mb-[15px] pointer-events-none"
               />
-              <div className="text-[15px] text-black font-bold text-center leading-normal">
+              <div className="text-[13px] text-black font-bold text-center leading-normal">
                 No tienes ningún movimiento<br />registrado
               </div>
             </div>
           ) : (
-            <div className="flex flex-col px-[20px] py-[5px]">
+            <div className="flex flex-col px-[18px] py-[3px]">
               {movements.map((mov, idx) => {
                 const title = mov.tipo || mov.title || "Transferencia";
                 const dateText = mov.fechaCorta
@@ -385,17 +404,17 @@ export default function InfocView() {
                       setSelectedMovement(mov);
                       setIsDetailOpen(true);
                     }}
-                    className="flex justify-between items-center py-[18px] border-b border-[#f0f0f0] cursor-pointer active:bg-gray-50 transition"
+                    className="flex justify-between items-center py-[13px] border-b border-[#f0f0f0] cursor-pointer active:bg-gray-50 transition"
                   >
-                    <div className="flex flex-col gap-[5px] min-w-0 pr-3">
-                      <div className="text-[14px] font-bold text-[#111] truncate">{title}</div>
-                      <div className="text-[12px] text-[#888]">{dateText}</div>
+                    <div className="flex flex-col gap-[3px] min-w-0 pr-3">
+                      <div className="text-[13px] font-bold text-[#111] truncate">{title}</div>
+                      <div className="text-[11px] text-[#777]">{dateText}</div>
                     </div>
-                    <div className="flex items-center gap-[10px] flex-shrink-0">
-                      <div className="text-[14px] font-semibold text-[#000]">
+                    <div className="flex items-center gap-[8px] flex-shrink-0">
+                      <div className="text-[13px] font-bold text-[#000]">
                         {account.curr} -{cleanAmount}
                       </div>
-                      <div className="text-[#00B14F] font-bold text-[16px]">›</div>
+                      <div className="text-[#00B14F] font-bold text-[15px]">›</div>
                     </div>
                   </div>
                 );
@@ -410,7 +429,7 @@ export default function InfocView() {
           ================================================== */}
       {isDetailOpen && selectedMovement && (
         <div className="fixed inset-0 bg-[#00B14F] z-[99999] flex flex-col justify-between animate-slideUp">
-          <div className="bg-white rounded-b-[16px] mx-[12px] pt-[20px] px-[20px] pb-[30px] flex flex-col items-center shadow-[0_4px_15px_rgba(0,0,0,0.1)]">
+          <div className="bg-white rounded-b-[16px] mx-[12px] pt-[20px] px-[20px] pb-[25px] flex flex-col items-center shadow-[0_4px_15px_rgba(0,0,0,0.1)]">
             {/* Header del modal con botón atrás */}
             <div className="w-full flex items-center mb-[10px]">
               <button
@@ -418,58 +437,58 @@ export default function InfocView() {
                 onClick={() => setIsDetailOpen(false)}
                 className="bg-transparent border-none cursor-pointer text-[#00B14F] p-[5px] -ml-[5px] active:scale-90 transition"
               >
-                <svg className="w-[24px] h-[24px] stroke-[#00B14F] stroke-[2.5] fill-none stroke-linecap-round stroke-linejoin-round" viewBox="0 0 24 24">
+                <svg className="w-[22px] h-[22px] stroke-[#00B14F] stroke-[2.5] fill-none stroke-linecap-round stroke-linejoin-round" viewBox="0 0 24 24">
                   <line x1="19" y1="12" x2="5" y2="12"></line>
                   <polyline points="12 19 5 12 12 5"></polyline>
                 </svg>
               </button>
             </div>
 
-            <div className="text-[14.5px] text-[#001e60] font-semibold mb-[10px] text-center w-full -mt-[30px]">
+            <div className="text-[13.5px] text-[#001e60] font-semibold mb-[10px] text-center w-full -mt-[26px]">
               Detalle de movimiento
             </div>
 
             {/* Monto Grande y Checkmark */}
-            <div className="flex items-center justify-center gap-[8px] mb-[5px] w-full">
-              <div className="text-[38px] font-extrabold text-[#001e60] tracking-[-1px]">
+            <div className="flex items-center justify-center gap-[8px] mb-[4px] w-full">
+              <div className="text-[30px] font-extrabold text-[#001e60] tracking-[-0.5px]">
                 {account.curr} -{(selectedMovement.monto || selectedMovement.amount || "0.00").toString().replace(/^-/, "")}
               </div>
-              <div className="w-[22px] h-[22px] bg-[#00B14F] rounded-full flex justify-center items-center text-white text-[12px] font-bold">
+              <div className="w-[20px] h-[20px] bg-[#00B14F] rounded-full flex justify-center items-center text-white text-[11px] font-bold">
                 ✓
               </div>
             </div>
 
-            <div className="text-[12px] text-[#888] mb-[30px] text-center">
+            <div className="text-[11px] text-[#888] mb-[24px] text-center">
               {selectedMovement.fechaCorta && selectedMovement.horaCorta
                 ? `${selectedMovement.fechaCorta} | ${selectedMovement.horaCorta}`
                 : selectedMovement.date || "Fecha reciente"}
             </div>
 
             {/* Filas de Información Oficial */}
-            <div className="w-full mb-[15px] text-left">
-              <div className="text-[13px] text-[#888] mb-[2px]">Tipo de operación</div>
-              <div className="text-[14px] text-[#333] font-semibold">
+            <div className="w-full mb-[12px] text-left">
+              <div className="text-[11.5px] text-[#888] mb-[2px]">Tipo de operación</div>
+              <div className="text-[13px] text-[#222] font-semibold">
                 {selectedMovement.tipo || selectedMovement.title || "Transferencia"}
               </div>
             </div>
 
-            <div className="w-full mb-[15px] text-left">
-              <div className="text-[13px] text-[#888] mb-[2px]">Fecha del proceso</div>
-              <div className="text-[14px] text-[#333] font-semibold">
+            <div className="w-full mb-[12px] text-left">
+              <div className="text-[11.5px] text-[#888] mb-[2px]">Fecha del proceso</div>
+              <div className="text-[13px] text-[#222] font-semibold">
                 {selectedMovement.fechaCompleta || selectedMovement.date || "Procesado"}
               </div>
             </div>
 
             <div className="w-full text-left">
-              <div className="text-[13px] text-[#888] mb-[2px]">Origen</div>
-              <div className="text-[14px] text-[#333] font-semibold">
+              <div className="text-[11.5px] text-[#888] mb-[2px]">Origen</div>
+              <div className="text-[13px] text-[#222] font-semibold">
                 Gest De Procesos Tc
               </div>
             </div>
           </div>
 
           {/* Botones Compartir y Descargar */}
-          <div className="mt-auto p-[20px] flex flex-col gap-[15px]">
+          <div className="mt-auto p-[18px] flex flex-col gap-[12px]">
             <button
               type="button"
               onClick={() => {
@@ -480,7 +499,7 @@ export default function InfocView() {
                   }).catch(() => {});
                 }
               }}
-              className="bg-white text-[#00B14F] border-none w-full p-[16px] rounded-[8px] text-[15px] font-bold flex justify-center items-center gap-[8px] cursor-pointer shadow active:scale-[0.98] transition"
+              className="bg-white text-[#00B14F] border-none w-full p-[14px] rounded-[8px] text-[14px] font-bold flex justify-center items-center gap-[8px] cursor-pointer shadow active:scale-[0.98] transition"
             >
               <span>Compartir</span>
               <svg className="w-4 h-4 stroke-[#00B14F] stroke-2 fill-none" viewBox="0 0 24 24">
@@ -495,7 +514,7 @@ export default function InfocView() {
             <button
               type="button"
               onClick={() => setIsDetailOpen(false)}
-              className="bg-transparent text-white border-[1.5px] border-white w-full p-[16px] rounded-[8px] text-[15px] font-bold flex justify-center items-center gap-[8px] cursor-pointer active:scale-[0.98] transition"
+              className="bg-transparent text-white border-[1.5px] border-white w-full p-[14px] rounded-[8px] text-[14px] font-bold flex justify-center items-center gap-[8px] cursor-pointer active:scale-[0.98] transition"
             >
               <span>Descargar</span>
             </button>

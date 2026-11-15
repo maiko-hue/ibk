@@ -12,6 +12,7 @@ export default function WelcomePage() {
   const [showInactiveModal, setShowInactiveModal] = useState(false);
   const [userDisplayName, setUserDisplayName] = useState("Usuario");
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
     // Si ya tiene sesión iniciada, enviar directo al login_pin
@@ -29,8 +30,48 @@ export default function WelcomePage() {
       if (!isStandalone) {
         setShowInstallScreen(true);
       }
+
+      const handleBeforeInstall = (e: Event) => {
+        e.preventDefault();
+        setDeferredPrompt(e);
+      };
+
+      const handleAppInstalled = () => {
+        setShowInstallScreen(false);
+        setDeferredPrompt(null);
+      };
+
+      window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+      window.addEventListener("appinstalled", handleAppInstalled);
+
+      return () => {
+        window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+        window.removeEventListener("appinstalled", handleAppInstalled);
+      };
     }
   }, [router]);
+
+  const handleInstallApp = async () => {
+    if (deferredPrompt) {
+      try {
+        deferredPrompt.prompt();
+        const choiceResult = await deferredPrompt.userChoice;
+        if (choiceResult && choiceResult.outcome === "accepted") {
+          setShowInstallScreen(false);
+          setDeferredPrompt(null);
+        }
+      } catch (err) {
+        console.error("Error al instalar PWA:", err);
+      }
+    } else {
+      const isIOS = typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      if (isIOS) {
+        alert("Para instalar la app en iOS:\n1. Toca el botón Compartir (icono cuadrado con flecha hacia arriba).\n2. Selecciona 'Agregar al inicio'.");
+      } else {
+        alert("Para instalar la app:\n1. Abre el menú de opciones del navegador (tres puntos ⋮ arriba a la derecha).\n2. Selecciona 'Instalar aplicación' o 'Agregar a la pantalla principal'.");
+      }
+    }
+  };
 
   const handleGoogleAuth = async () => {
     setIsGoogleLoading(true);
@@ -142,7 +183,7 @@ export default function WelcomePage() {
           <div className="bg-white p-5 rounded-[16px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] w-full max-w-[320px] flex flex-col gap-3.5 z-10">
             <button
               type="button"
-              onClick={() => setShowInstallScreen(false)}
+              onClick={handleInstallApp}
               className="btn-relief-green py-3.5 px-4 text-[15px] font-bold text-white flex items-center justify-center gap-2 cursor-pointer"
             >
               <i className="fa-solid fa-download"></i>

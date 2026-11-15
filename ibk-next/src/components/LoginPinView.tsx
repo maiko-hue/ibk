@@ -12,6 +12,8 @@ export default function LoginPinView() {
   const [showPassword, setShowPassword] = useState(false);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [isLoadingSuccess, setIsLoadingSuccess] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [savedPin, setSavedPin] = useState("123456");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -26,10 +28,22 @@ export default function LoginPinView() {
     setPin(cleanValue);
   };
 
+  const handleForgotPin = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (typeof window !== "undefined") {
+      const pinConfigurado =
+        localStorage.getItem("ibk_security_pin") ||
+        localStorage.getItem("ibk_custom_pin") ||
+        "123456";
+      setSavedPin(pinConfigurado);
+      setShowForgotModal(true);
+    }
+  };
+
   const handleIngresar = () => {
     if (pin.length !== 6) return;
 
-    const pinGuardado = localStorage.getItem("ibk_security_pin");
+    const pinGuardado = localStorage.getItem("ibk_security_pin") || localStorage.getItem("ibk_custom_pin");
 
     if (pinGuardado && pinGuardado !== pin) {
       setIsErrorModalOpen(true);
@@ -93,23 +107,23 @@ export default function LoginPinView() {
         {/* QR Grande */}
         <div className="bg-white p-[10px] rounded-[14px] w-[180px] h-[180px] flex items-center justify-center mt-5 shadow-[0_4px_15px_rgba(0,0,0,0.12)]">
           <img
-            src="/img/qr.png"
+            src="/img/1646695785444.png"
             alt="Mi QR"
-            className="w-full h-full object-contain rounded-lg brightness-0"
+            className="w-full h-full object-contain rounded-lg"
           />
         </div>
 
         {/* Banner WhatsApp */}
-        <div className="bg-[#005E1F] w-[90%] max-w-[340px] rounded-full py-[11px] px-5 flex items-center justify-between mt-6 text-white text-[12px] font-semibold shadow-sm">
+        <div className="bg-[#005E1F] w-[92%] max-w-[365px] rounded-full py-[10px] px-3.5 flex items-center justify-between mt-6 text-white text-[11px] font-semibold shadow-sm whitespace-nowrap min-w-0">
           <img
             src="/img/whatsapp1.png"
             alt="WhatsApp"
-            className="w-6 h-6 object-contain"
+            className="w-5 h-5 object-contain flex-shrink-0"
           />
-          <span className="text-center px-1">
+          <span className="text-center px-1 whitespace-nowrap leading-tight">
             ¡Plinea por WhatsApp sin abrir tu APP!
           </span>
-          <i className="fa-solid fa-arrow-right text-[14px]"></i>
+          <i className="fa-solid fa-arrow-right text-[13px] flex-shrink-0"></i>
         </div>
       </div>
 
@@ -136,12 +150,13 @@ export default function LoginPinView() {
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="p-1 focus:outline-none"
+            className="p-1 focus:outline-none flex items-center justify-center"
           >
             <img
               src={showPassword ? "/img/open-eye.svg" : "/img/close-eye.svg"}
               alt="Toggle Password"
-              className="w-6 h-6 object-contain cursor-pointer opacity-80 hover:opacity-100 transition"
+              className="w-6 h-6 object-contain cursor-pointer transition"
+              style={{ filter: "brightness(0) invert(0.16)" }}
             />
           </button>
         </div>
@@ -171,12 +186,13 @@ export default function LoginPinView() {
 
         {/* Links y Versión */}
         <div className="flex flex-col items-center mt-2 gap-3 text-center">
-          <a
-            href="#"
-            className="text-[#333333] font-bold text-[14px] hover:underline"
+          <button
+            type="button"
+            onClick={handleForgotPin}
+            className="text-[#333333] font-bold text-[14px] hover:underline bg-transparent border-none cursor-pointer"
           >
             Olvidé mi contraseña
-          </a>
+          </button>
           <span className="text-[#a0a0a0] text-[11px] font-semibold">
             v23.0.1
           </span>
@@ -224,6 +240,35 @@ export default function LoginPinView() {
               alt="Cargando"
               className="w-10 h-10 object-contain rounded-lg z-10"
             />
+          </div>
+        </div>
+      )}
+
+      {/* ==================================================
+          MODAL DE RECUPERAR PIN (Olvidé mi contraseña)
+          ================================================== */}
+      {showForgotModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-[2px] z-[9999] flex items-center justify-center p-5">
+          <div className="bg-white rounded-[20px] p-6 w-full max-w-[320px] flex flex-col items-center text-center shadow-2xl">
+            <div className="w-12 h-12 rounded-full bg-[#EBF8F2] flex items-center justify-center mb-3 text-[#00B14F]">
+              <i className="fa-solid fa-key text-[20px]"></i>
+            </div>
+            <div className="text-[#001E60] text-[18px] font-black mb-2">
+              Contraseña
+            </div>
+            <div className="text-[#444444] text-[15px] leading-relaxed mb-6 font-medium">
+              Tu PIN establecido es:
+              <strong className="text-[#00B14F] text-[22px] font-black block mt-2 tracking-widest">
+                {savedPin}
+              </strong>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowForgotModal(false)}
+              className="w-full py-3.5 rounded-full bg-[#0039A6] text-white text-[15px] font-bold active:scale-95 transition cursor-pointer border-none shadow-md"
+            >
+              Entendido
+            </button>
           </div>
         </div>
       )}

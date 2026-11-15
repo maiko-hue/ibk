@@ -193,7 +193,10 @@ export default function InicioPage() {
             </Link>
 
             {/* 2. Transferir */}
-            <div className="flex flex-col items-center text-center cursor-pointer group">
+            <div
+              onClick={() => router.push('/trans')}
+              className="flex flex-col items-center text-center cursor-pointer group"
+            >
               <div className="w-[54px] h-[54px] rounded-[16px] bg-white border-[1.5px] border-[#F0F0F0] flex items-center justify-center shadow-[0_4px_10px_rgba(0,0,0,0.04)] mb-2 relative group-active:scale-95 transition">
                 <img
                   src="/img/transferencias.png"
@@ -241,7 +244,10 @@ export default function InicioPage() {
             </div>
 
             {/* 5. Recargas */}
-            <div className="flex flex-col items-center text-center cursor-pointer group">
+            <div
+              onClick={() => router.push('/recel')}
+              className="flex flex-col items-center text-center cursor-pointer group"
+            >
               <div className="w-[54px] h-[54px] rounded-[16px] bg-white border-[1.5px] border-[#F0F0F0] flex items-center justify-center shadow-[0_4px_10px_rgba(0,0,0,0.04)] mb-2 relative group-active:scale-95 transition">
                 <img
                   src="/img/recargas.png"
@@ -270,7 +276,7 @@ export default function InicioPage() {
 
             {/* 7. Agregar producto */}
             <div className="flex flex-col items-center text-center cursor-pointer group">
-              <div className="w-[54px] h-[54px] rounded-[16px] bg-white border-[1.5px] border-[#F0F0F0] flex items-center justify-center shadow-[0_4px_10px_rgba(0,0,0,0.04)] mb-2 relative group-active:scale-95 transition">
+              <div className="w-[54px] h-[54px] rounded-[16px] bg-[#EEFFEE] border-[1.5px] border-[#F0F0F0] flex items-center justify-center shadow-[0_4px_10px_rgba(0,0,0,0.04)] mb-2 relative group-active:scale-95 transition">
                 <img
                   src="/cuenta_credito.png"
                   alt="Agregar producto"
@@ -407,17 +413,17 @@ function SharedBottom() {
       <div className="flex gap-2.5 mb-6">
         <button
           type="button"
-          className="flex-1 bg-[#EBF8F2] text-[#00B14F] flex items-center justify-center gap-1.5 py-3 px-2 rounded-full text-[12px] font-bold active:scale-[0.98] transition whitespace-nowrap min-w-0"
+          className="flex-[1.4] bg-[#EEFFEE] text-[#00B14F] flex items-center justify-center gap-1.5 py-3 px-2 rounded-full text-[11.5px] font-bold active:scale-[0.98] transition whitespace-nowrap min-w-0"
         >
-          <img src="/img/whatsapp.png" alt="WA" className="w-6 h-6 object-contain flex-shrink-0 pointer-events-none" />
-          <span className="truncate">¡Plinea por Whatsapp aquí!</span>
+          <img src="/img/whatsapp.png" alt="WA" className="w-5 h-5 object-contain flex-shrink-0 pointer-events-none" />
+          <span className="whitespace-nowrap">¡Plinea por Whatsapp aquí!</span>
         </button>
         <button
           type="button"
-          className="flex-1 bg-[#EBF8F2] text-[#00B14F] flex items-center justify-center gap-1.5 py-3 px-2 rounded-full text-[12px] font-bold active:scale-[0.98] transition whitespace-nowrap min-w-0"
+          className="flex-1 bg-[#EEFFEE] text-[#00B14F] flex items-center justify-center gap-1.5 py-3 px-2 rounded-full text-[11.5px] font-bold active:scale-[0.98] transition whitespace-nowrap min-w-0"
         >
-          <img src="/img/millas.png" alt="Millas" className="w-6 h-6 object-contain flex-shrink-0 pointer-events-none" />
-          <span className="truncate">Millas Benefit</span>
+          <img src="/img/millas.png" alt="Millas" className="w-5 h-5 object-contain flex-shrink-0 pointer-events-none" />
+          <span className="whitespace-nowrap">Millas Benefit</span>
         </button>
       </div>
 

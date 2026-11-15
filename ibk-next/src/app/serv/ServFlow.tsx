@@ -328,6 +328,7 @@ export default function ServFlow({ initialView = "form" }: ServFlowProps) {
           currency: selectedAccount.curr,
           date: currentDateTime,
           opCode: opCodeGenerated,
+          accountId: String(selectedAccount.id),
           accountName: selectedAccount.name,
           serviceCode: eff.finalCodigo,
           titular: eff.finalTitular,

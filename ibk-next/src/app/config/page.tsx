@@ -114,7 +114,7 @@ export default function ConfigPage() {
       });
 
       setIsBotActive(localStorage.getItem("ibk_bot_telegram_activo") === "true");
-      setHasCustomPin(!!localStorage.getItem("ibk_custom_pin"));
+      setHasCustomPin(!!(localStorage.getItem("ibk_security_pin") || localStorage.getItem("ibk_custom_pin")));
     }
   }, []);
 
@@ -230,6 +230,7 @@ export default function ConfigPage() {
     } else {
       if (inputPinValue === tempPin) {
         if (typeof window !== "undefined") {
+          localStorage.setItem("ibk_security_pin", inputPinValue);
           localStorage.setItem("ibk_custom_pin", inputPinValue);
           setHasCustomPin(true);
         }
@@ -244,6 +245,7 @@ export default function ConfigPage() {
 
   const handleBorrarPin = () => {
     if (typeof window !== "undefined") {
+      localStorage.removeItem("ibk_security_pin");
       localStorage.removeItem("ibk_custom_pin");
       setHasCustomPin(false);
       setModalBorrarPin(false);
@@ -348,14 +350,11 @@ export default function ConfigPage() {
                   <div className="text-[#00b551] text-[18px] font-bold ml-2">›</div>
                 </div>
 
-                {/* 4. Definir PIN con badge NUEVO */}
+                {/* 4. Definir PIN */}
                 <div
                   onClick={() => setCurrentView("pin")}
-                  className="relative bg-white rounded-[10px] py-3 px-3.5 flex items-center shadow-[0_2px_8px_rgba(0,0,0,0.03)] border border-[#f0f0f0] cursor-pointer active:bg-[#f9f9f9]"
+                  className="bg-white rounded-[10px] py-3 px-3.5 flex items-center shadow-[0_2px_8px_rgba(0,0,0,0.03)] border border-[#f0f0f0] cursor-pointer active:bg-[#f9f9f9]"
                 >
-                  <div className="absolute -top-2 -right-1 bg-[#d32f2f] text-white text-[9px] font-extrabold px-1.5 py-[2px] rounded-[8px] border-2 border-white z-[2]">
-                    NUEVO
-                  </div>
                   <svg className="w-5 h-5 mr-3 stroke-[#00b551] stroke-2 fill-none stroke-linecap-round stroke-linejoin-round flex-shrink-0" viewBox="0 0 24 24">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                     <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
@@ -377,7 +376,7 @@ export default function ConfigPage() {
                   <div className="text-[#00b551] text-[18px] font-bold ml-2">›</div>
                 </Link>
 
-                {/* 6. Búsqueda Titulares con Switch exacto */}
+                {/* 6. Auto Completado con Switch exacto */}
                 <div
                   onClick={handleToggleBot}
                   className="bg-white rounded-[10px] py-3 px-3.5 flex items-center shadow-[0_2px_8px_rgba(0,0,0,0.03)] border border-[#f0f0f0] cursor-pointer active:bg-[#f9f9f9]"
@@ -390,7 +389,7 @@ export default function ConfigPage() {
                     <line x1="14" y1="15" x2="15" y2="15"></line>
                   </svg>
                   <div className="flex-1 text-[13px] text-black font-semibold whitespace-nowrap mr-2">
-                    Búsqueda Titulares
+                    Auto Completado
                   </div>
                   <div className={`text-[11px] mr-2 whitespace-nowrap font-medium transition-colors ${isBotActive ? "text-[#00b551] font-bold" : "text-[#888888]"}`}>
                     {isBotActive ? "Activado" : "Desactivado"}
@@ -483,12 +482,13 @@ export default function ConfigPage() {
                 </button>
               )}
 
-              <Link
-                href="/inicio"
-                className="w-full bg-transparent text-[#0039a6] text-[15px] p-3 text-center underline font-medium"
+              <button
+                type="button"
+                onClick={() => router.push("/login_pin")}
+                className="w-full bg-transparent text-[#0039a6] text-[15px] p-3 text-center underline font-medium cursor-pointer"
               >
                 Ir al inicio
-              </Link>
+              </button>
             </div>
           </div>
         )}
