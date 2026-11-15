@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { db } from "@/lib/firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 interface AccountData {
   name: string;
@@ -198,18 +200,31 @@ export default function ConfigPage() {
     }
   };
 
-  const handleGuardarContacto = () => {
+  const handleGuardarContacto = async () => {
     if (!contactName.trim() || !contactPhone.trim()) {
       showAlert("Campos vacíos", "Completa el titular y el número de celular.", true);
       return;
     }
+    const cleanPhone = contactPhone.trim().replace(/\D/g, "");
+    const nombre = contactName.trim();
+
     if (typeof window !== "undefined") {
       const saved = JSON.parse(localStorage.getItem("ibk_contactos") || "[]");
-      saved.push({ name: contactName.trim(), phone: contactPhone.trim() });
+      saved.push({ name: nombre, phone: cleanPhone });
       localStorage.setItem("ibk_contactos", JSON.stringify(saved));
+
+      // Guardar también en Firebase Firestore (usuarios_yape) para autocompletado global
+      try {
+        await setDoc(doc(db, "usuarios_yape", cleanPhone), {
+          nombre: nombre,
+        });
+      } catch (err) {
+        console.error("Error guardando contacto en Firestore:", err);
+      }
+
       setContactName("");
       setContactPhone("");
-      showAlert("Contacto guardado", "El contacto fue agregado correctamente.", false);
+      showAlert("Contacto guardado", "El contacto fue agregado y formará parte del autocompletado.", false);
     }
   };
 
