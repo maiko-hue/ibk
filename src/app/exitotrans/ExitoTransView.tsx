@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import BottomNav from "@/components/BottomNav";
+import { captureAndShareVoucher } from "@/lib/shareVoucher";
 
 export default function ExitoTransView() {
   const [cargoNombre, setCargoNombre] = useState("Cuenta Simple Soles");
@@ -16,6 +17,10 @@ export default function ExitoTransView() {
   // Push notification state
   const [showNotification, setShowNotification] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Captura de constancia
+  const [isCapturing, setIsCapturing] = useState(false);
+  const captureRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -80,19 +85,25 @@ export default function ExitoTransView() {
     }
   }, []);
 
-  const handleEnviarConstancia = () => {
-    if (typeof navigator !== "undefined" && navigator.share) {
-      navigator.share({
-        title: `Constancia de transferencia a ${destNombre}`,
-        text: `Transferencia exitosa de ${moneda} ${monto} a ${destNombre}. Op: ${opCode}`,
-      }).catch(() => {});
-    } else {
-      alert("Constancia guardada en tu dispositivo.");
-    }
+  const handleEnviarConstancia = async () => {
+    const cleanNombre = (destNombre || "Transferencia").replace(/[^a-zA-Z0-9]/g, "_");
+    await captureAndShareVoucher({
+      captureElement: captureRef.current,
+      fileName: `Constancia_Transf_${cleanNombre}.png`,
+      title: `Transferencia a ${destNombre}`,
+      text: `Transferencia exitosa de ${moneda} ${monto} a ${destNombre}. Op: ${opCode}`,
+      onBeforeCapture: () => {
+        setIsCapturing(true);
+        setShowNotification(false);
+      },
+      onAfterCapture: () => {
+        setIsCapturing(false);
+      },
+    });
   };
 
   return (
-    <div className="min-h-screen bg-white text-[#333333] select-none flex flex-col font-sans relative overflow-x-hidden">
+    <div ref={captureRef} className="flex flex-col h-[100dvh] bg-white text-[#333333] select-none relative overflow-hidden font-sans">
       <audio ref={audioRef} src="/noti.mp3" preload="auto" />
 
       {/* ==================================================
@@ -101,7 +112,11 @@ export default function ExitoTransView() {
       <div
         onClick={() => setShowNotification(false)}
         className={`fixed top-4 left-1/2 -translate-x-1/2 w-[92%] max-w-[420px] bg-white rounded-[14px] shadow-[0_8px_25px_rgba(0,0,0,0.15)] flex items-center p-3 z-[9999] transition-all duration-500 ease-out cursor-pointer ${
-          showNotification ? "translate-y-0 opacity-100" : "-translate-y-32 opacity-0 pointer-events-none"
+          isCapturing
+            ? "hidden pointer-events-none"
+            : showNotification
+            ? "translate-y-0 opacity-100"
+            : "-translate-y-32 opacity-0 pointer-events-none"
         }`}
       >
         <img
@@ -128,10 +143,10 @@ export default function ExitoTransView() {
       {/* ==================================================
           CONTENIDO CONSTANCIA (TICKET)
           ================================================== */}
-      <div className="flex-1 overflow-y-auto pb-28 flex flex-col items-center px-4 pt-6">
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-36 flex flex-col items-center px-4 pt-4 w-full">
         {/* Cabecera Éxito */}
-        <div className="flex flex-col items-center mb-6 text-center">
-          <div className="w-[50px] h-[50px] rounded-full bg-[#2BD071] flex justify-center items-center mb-3.5 shadow-sm">
+        <div className="flex flex-col items-center mb-4 text-center w-[92%] max-w-[420px] flex-shrink-0">
+          <div className="w-[50px] h-[50px] rounded-full bg-[#2BD071] flex justify-center items-center mb-2.5 shadow-sm">
             <svg className="w-7 h-7 stroke-white stroke-[3] fill-none stroke-linecap-round stroke-linejoin-round" viewBox="0 0 24 24">
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
@@ -144,8 +159,8 @@ export default function ExitoTransView() {
           <div className="text-[14px] font-bold text-[#111]">Gratis e inmediato</div>
         </div>
 
-        {/* Ticket Recibo con corte dentado exacto */}
-        <div className="relative bg-[#F3F5F4] w-full max-w-[340px] p-[25px_20px] rounded-[6px] shadow-sm mb-6">
+        {/* Ticket Recibo con corte dentado sic-sac exacto */}
+        <div className="ticket-voucher shadow-sm flex-shrink-0">
           <div className="flex flex-col gap-3.5">
             {/* Cuenta a Cargo */}
             <div className="flex flex-col gap-0.5">
@@ -184,8 +199,11 @@ export default function ExitoTransView() {
         {/* Botón Enviar constancia */}
         <button
           type="button"
+          id="actionButton"
           onClick={handleEnviarConstancia}
-          className="text-[#00B551] text-[15px] font-bold bg-transparent border-none cursor-pointer py-2 hover:underline active:opacity-75 transition"
+          className={`text-[#00B551] text-[15px] font-semibold bg-transparent border-none cursor-pointer py-2.5 px-6 mb-8 hover:underline active:opacity-75 transition z-10 flex-shrink-0 ${
+            isCapturing ? "hidden pointer-events-none" : "block"
+          }`}
         >
           Enviar constancia
         </button>
@@ -194,7 +212,7 @@ export default function ExitoTransView() {
       {/* ==================================================
           BARRA DE NAVEGACIÓN INFERIOR (COMPONENTE CENTRALIZADO)
           ================================================== */}
-      <BottomNav activeTab="inicio" />
+      {!isCapturing && <BottomNav activeTab="inicio" />}
     </div>
   );
 }

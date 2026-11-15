@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import BottomNav from "@/components/BottomNav";
+import { captureAndShareVoucher } from "@/lib/shareVoucher";
 
 interface Account {
   id: number;
@@ -62,6 +63,10 @@ export default function RecelFlow({ initialView = "form" }: RecelFlowProps) {
   const [showPush, setShowPush] = useState(false);
   const [pushDismissed, setPushDismissed] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Captura y compartir de constancia
+  const [isCapturing, setIsCapturing] = useState(false);
+  const captureRef = useRef<HTMLDivElement>(null);
 
   // Format date helper
   function getFormattedDateTime() {
@@ -278,21 +283,21 @@ export default function RecelFlow({ initialView = "form" }: RecelFlowProps) {
     }, 1800);
   };
 
-  const handleShareConstancia = () => {
-    const shareText = `Constancia de Recarga de Celular\nEmpresa: ${exitoData.empresa}\nCelular: ${exitoData.celular}\nMonto: ${exitoData.moneda} ${exitoData.monto}\nCuenta a cargo: ${exitoData.cargoNombre}\nCódigo de operación: ${exitoData.opCode}\nFecha: ${exitoData.fechaHora}`;
-
-    if (navigator.share) {
-      navigator
-        .share({
-          title: `Recarga de celular a ${exitoData.empresa}`,
-          text: shareText,
-        })
-        .catch(() => {});
-    } else {
-      navigator.clipboard?.writeText(shareText);
-      setToastMessage("Constancia copiada al portapapeles");
-      setTimeout(() => setToastMessage(null), 3000);
-    }
+  const handleShareConstancia = async () => {
+    const cleanEmpresa = (exitoData.empresa || "Recarga").replace(/[^a-zA-Z0-9]/g, "_");
+    await captureAndShareVoucher({
+      captureElement: captureRef.current,
+      fileName: `Constancia_Recarga_${cleanEmpresa}.png`,
+      title: `Recarga de celular a ${exitoData.empresa}`,
+      text: `Recarga exitosa de ${exitoData.moneda} ${exitoData.monto} a ${exitoData.celular}. Op: ${exitoData.opCode}`,
+      onBeforeCapture: () => {
+        setIsCapturing(true);
+        setShowPush(false);
+      },
+      onAfterCapture: () => {
+        setIsCapturing(false);
+      },
+    });
   };
 
   const effValues = getEffectiveData();
@@ -574,7 +579,7 @@ export default function RecelFlow({ initialView = "form" }: RecelFlowProps) {
             VIEW 4: ÉXITO (CONSTANCIA / EXITORECEL)
         ======================================================== */}
         {currentView === "exito" && (
-          <div className="flex-1 flex flex-col justify-between overflow-y-auto no-scrollbar pb-[75px]">
+          <div ref={captureRef} className="flex-1 flex flex-col justify-between overflow-y-auto no-scrollbar pb-[75px] bg-white">
             <div className="flex flex-col items-center px-4 pt-4">
               {/* Header de Éxito */}
               <div className="flex flex-col items-center mt-2 mb-3">
@@ -660,8 +665,11 @@ export default function RecelFlow({ initialView = "form" }: RecelFlowProps) {
               {/* Botón Enviar constancia */}
               <button
                 type="button"
+                id="actionButton"
                 onClick={handleShareConstancia}
-                className="mt-2 mb-4 text-[#00B14F] text-[14px] font-bold hover:underline active:opacity-75 transition cursor-pointer"
+                className={`mt-2 mb-4 text-[#00B14F] text-[14px] font-bold hover:underline active:opacity-75 transition cursor-pointer ${
+                  isCapturing ? "hidden pointer-events-none" : "block"
+                }`}
               >
                 Enviar constancia
               </button>
@@ -673,7 +681,7 @@ export default function RecelFlow({ initialView = "form" }: RecelFlowProps) {
             BARRA DE NAVEGACIÓN INFERIOR (COMPONENTE COMPARTIDO 100% IDÉNTICO A INICIO)
             Visible en la constancia (exitorecel)
         ======================================================== */}
-        {currentView === "exito" && (
+        {currentView === "exito" && !isCapturing && (
           <BottomNav activeTab="inicio" />
         )}
       </div>

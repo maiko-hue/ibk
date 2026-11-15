@@ -16,6 +16,9 @@ const nextConfig = {
       { source: '/exitorecel.html', destination: '/exitorecel' },
       { source: '/trans.html', destination: '/trans' },
       { source: '/exitotrans.html', destination: '/exitotrans' },
+      { source: '/cotras.html', destination: '/cotras' },
+      { source: '/exitocotras.html', destination: '/exitocotras' },
+      { source: '/sobre.html', destination: '/sobre' },
     ];
   },
 };

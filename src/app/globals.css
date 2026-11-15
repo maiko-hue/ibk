@@ -139,3 +139,64 @@ button, a, [role="button"], .clickable {
   transform: translateY(2px);
   box-shadow: 0 1px 0 #dbe0e6, 0 2px 5px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 1);
 }
+
+/* ==================================================
+   TICKET CONSTANCIA CON BORDES ONDULADOS / ZIGZAG (SCALLOPED)
+   ================================================== */
+.ticket-voucher {
+  position: relative;
+  background-color: #F3F5F4;
+  width: 92%;
+  max-width: 420px;
+  padding: 25px 22px;
+  margin-top: 10px;
+  margin-bottom: 25px;
+  border-radius: 0 !important;
+}
+
+.ticket-voucher::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background-size: 20px 20px;
+  background-image: radial-gradient(circle at 10px 10px, #F3F5F4 10px, transparent 11px);
+}
+
+.ticket-voucher::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background-size: 20px 20px;
+  background-image: radial-gradient(circle at 10px 0, #F3F5F4 10px, transparent 11px);
+}
+
+/* ==================================================
+   BADGE GRATIS ROBUSTO (NO SE DEFORMA EN HTML2CANVAS)
+   ================================================== */
+.badge-gratis {
+  background-color: #00b551 !important;
+  color: #ffffff !important;
+  width: 62px !important;
+  min-width: 62px !important;
+  max-width: 62px !important;
+  height: 21px !important;
+  min-height: 21px !important;
+  max-height: 21px !important;
+  line-height: 21px !important;
+  text-align: center !important;
+  border-radius: 4px !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px !important;
+  box-sizing: border-box !important;
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+

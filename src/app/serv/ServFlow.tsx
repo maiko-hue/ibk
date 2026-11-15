@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import BottomNav from "@/components/BottomNav";
+import { captureAndShareVoucher } from "@/lib/shareVoucher";
 
 interface Account {
   id: number;
@@ -85,6 +86,10 @@ export default function ServFlow({ initialView = "form" }: ServFlowProps) {
   const [showPush, setShowPush] = useState(false);
   const [pushDismissed, setPushDismissed] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Captura y compartir de constancia
+  const [isCapturing, setIsCapturing] = useState(false);
+  const captureRef = useRef<HTMLDivElement>(null);
 
   // Load stored accounts & default initial data
   useEffect(() => {
@@ -364,21 +369,21 @@ export default function ServFlow({ initialView = "form" }: ServFlowProps) {
     }, 1800);
   };
 
-  const handleShareConstancia = () => {
-    const shareText = `Constancia de Pago de Servicio\nEmpresa: ${exitoData.empresa.toUpperCase()}\nServicio: ${exitoData.servicio}\nMonto: ${exitoData.moneda} ${exitoData.monto}\nCuenta a cargo: ${exitoData.cargoNombre}\nCódigo de operación: ${exitoData.opCode}\nFecha: ${exitoData.fechaHora}`;
-
-    if (navigator.share) {
-      navigator
-        .share({
-          title: `Pago a ${exitoData.empresa}`,
-          text: shareText,
-        })
-        .catch(() => {});
-    } else {
-      navigator.clipboard?.writeText(shareText);
-      setToastMessage("Constancia copiada al portapapeles");
-      setTimeout(() => setToastMessage(null), 3000);
-    }
+  const handleShareConstancia = async () => {
+    const cleanEmpresa = (exitoData.empresa || "Servicio").replace(/[^a-zA-Z0-9]/g, "_");
+    await captureAndShareVoucher({
+      captureElement: captureRef.current,
+      fileName: `Constancia_${cleanEmpresa}.png`,
+      title: `Pago de servicio a ${exitoData.empresa}`,
+      text: `Pago de servicio exitoso de ${exitoData.moneda} ${exitoData.monto} a ${exitoData.empresa}. Op: ${exitoData.opCode}`,
+      onBeforeCapture: () => {
+        setIsCapturing(true);
+        setShowPush(false);
+      },
+      onAfterCapture: () => {
+        setIsCapturing(false);
+      },
+    });
   };
 
   const effValues = getEffectiveData();
@@ -760,7 +765,7 @@ export default function ServFlow({ initialView = "form" }: ServFlowProps) {
             VIEW 4: ÉXITO (CONSTANCIA / EXITOSERV)
         ======================================================== */}
         {currentView === "exito" && (
-          <div className="flex-1 flex flex-col justify-between overflow-y-auto no-scrollbar pb-[75px]">
+          <div ref={captureRef} className="flex-1 flex flex-col justify-between overflow-y-auto no-scrollbar pb-[75px] bg-white">
             <div className="flex flex-col items-center px-4 pt-4">
               {/* Header de Éxito */}
               <div className="flex flex-col items-center mt-2 mb-3">
@@ -866,8 +871,11 @@ export default function ServFlow({ initialView = "form" }: ServFlowProps) {
               {/* Botón Enviar constancia */}
               <button
                 type="button"
+                id="actionButton"
                 onClick={handleShareConstancia}
-                className="mt-2 mb-4 text-[#00B14F] text-[14px] font-bold hover:underline active:opacity-75 transition cursor-pointer"
+                className={`mt-2 mb-4 text-[#00B14F] text-[14px] font-bold hover:underline active:opacity-75 transition cursor-pointer ${
+                  isCapturing ? "hidden pointer-events-none" : "block"
+                }`}
               >
                 Enviar constancia
               </button>
@@ -879,7 +887,7 @@ export default function ServFlow({ initialView = "form" }: ServFlowProps) {
             BARRA DE NAVEGACIÓN INFERIOR (COMPONENTE COMPARTIDO 100% IDÉNTICO A INICIO)
             Visible en la constancia (exitoserv)
         ======================================================== */}
-        {currentView === "exito" && (
+        {currentView === "exito" && !isCapturing && (
           <BottomNav activeTab="inicio" />
         )}
       </div>

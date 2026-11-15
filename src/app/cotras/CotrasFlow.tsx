@@ -17,25 +17,30 @@ const DEFAULTS: Account[] = [
   { id: 3, name: "Cuenta de Ahorros", curr: "S/", bal: "1000.00", num: "191 2058959941" },
 ];
 
-export default function TransFlow() {
+export default function CotrasFlow() {
   const router = useRouter();
 
-  // Multi-step view: "menu" | "monto" | "destino" | "confirmacion"
-  const [currentView, setCurrentView] = useState<"menu" | "monto" | "destino" | "confirmacion">("menu");
+  // Multi-step view: "destino" | "monto" | "confirmacion"
+  const [currentView, setCurrentView] = useState<"destino" | "monto" | "confirmacion">("destino");
 
-  // State
+  // Step 1: Destino
+  const [tab, setTab] = useState<"interbank" | "otrobanco" | "exterior">("interbank");
+  const [numCuenta, setNumCuenta] = useState("");
+  const [titular, setTitular] = useState("");
+  const [banco, setBanco] = useState("");
+
+  // Step 2: Monto & Cuenta Cargo
   const [accounts, setAccounts] = useState<Account[]>(DEFAULTS);
   const [currency, setCurrency] = useState<"S/" | "US$">("S/");
-  const [monto, setMonto] = useState<string>("");
+  const [monto, setMonto] = useState("");
   const [selectedOriginId, setSelectedOriginId] = useState<number | null>(null);
   const [tempOriginId, setTempOriginId] = useState<number | null>(null);
-  const [selectedDestId, setSelectedDestId] = useState<number | null>(null);
 
   // Modals & Loaders
   const [isModalAccountsOpen, setIsModalAccountsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Load account balances from localStorage
+  // Load accounts
   useEffect(() => {
     if (typeof window !== "undefined") {
       const loaded: Account[] = DEFAULTS.map((def, idx) => {
@@ -58,25 +63,26 @@ export default function TransFlow() {
 
   const handleBack = () => {
     if (currentView === "confirmacion") {
-      setCurrentView("destino");
-    } else if (currentView === "destino") {
       setCurrentView("monto");
     } else if (currentView === "monto") {
-      setCurrentView("menu");
+      setCurrentView("destino");
     } else {
-      router.push("/inicio");
+      router.push("/trans");
     }
   };
 
-  // Cambio de divisa desde los botones Soles / Dólares
-  const handleCurrencyToggle = (newCurr: "S/" | "US$") => {
-    setCurrency(newCurr);
-    // Si la cuenta de origen actual está en otra divisa, limpiar o sincronizar
-    if (selectedOrigin && selectedOrigin.curr !== newCurr) {
-      const compatible = accounts.find((a) => a.curr === newCurr);
-      setSelectedOriginId(compatible ? compatible.id : null);
+  // Validación Step 1
+  const isDestinoValid = (() => {
+    const cleanNum = numCuenta.replace(/\s/g, "");
+    const titularOk = titular.trim().length > 0;
+    if (tab === "interbank") {
+      return cleanNum.length > 5 && titularOk;
+    } else if (tab === "otrobanco") {
+      return cleanNum.length > 10 && titularOk && banco.trim().length > 0;
+    } else {
+      return cleanNum.length > 5 && titularOk;
     }
-  };
+  })();
 
   // Entrada de monto tipo cajero (desplazamiento automático de decimales)
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,25 +97,31 @@ export default function TransFlow() {
     setMonto(formatted);
   };
 
+  // Cambio de divisa
+  const handleCurrencyToggle = (newCurr: "S/" | "US$") => {
+    setCurrency(newCurr);
+    if (selectedOrigin && selectedOrigin.curr !== newCurr) {
+      const compatible = accounts.find((a) => a.curr === newCurr);
+      setSelectedOriginId(compatible ? compatible.id : null);
+    }
+  };
+
   const selectedOrigin = accounts.find((a) => a.id === selectedOriginId);
-  const selectedDest = accounts.find((a) => a.id === selectedDestId);
-  const isMontoValido = parseFloat(monto) > 0 && selectedOriginId !== null;
+  const isMontoValid = parseFloat(monto) > 0 && selectedOriginId !== null;
 
   const handleOpenAccountModal = () => {
-    // Si ya hay una cuenta seleccionada compatible, usarla como temporal; de lo contrario buscar compatible
     const compatible = accounts.find((a) => a.curr === currency);
     setTempOriginId(selectedOriginId || (compatible ? compatible.id : 1));
     setIsModalAccountsOpen(true);
   };
 
   const handleSelectTempOrigin = (acc: Account) => {
-    // Regla: si el monto está en dólares, no permitir elegir cuentas en soles
+    // Si la divisa fijada es dólares, no dejar seleccionar cuentas en soles
     if (currency === "US$" && acc.curr !== "US$") {
       alert("No puedes elegir una cuenta en soles porque el monto está configurado en dólares (US$).");
       return;
     }
 
-    // Al cambiar la cuenta a dólares, el símbolo de divisa cambia automáticamente a US$
     if (acc.curr === "US$") {
       setCurrency("US$");
     } else if (acc.curr === "S/") {
@@ -130,47 +142,43 @@ export default function TransFlow() {
     setIsModalAccountsOpen(false);
   };
 
-  const handleSelectDest = (destId: number) => {
-    setSelectedDestId(destId);
-    setCurrentView("confirmacion");
-  };
-
-  const handleProcesarTransferencia = () => {
-    if (!selectedOrigin || !selectedDest) return;
+  const handleProcesarTransferenciaOtras = () => {
+    if (!selectedOrigin) return;
 
     const montoFloat = parseFloat(monto) || 0;
     const formattedMonto = montoFloat.toFixed(2);
 
     if (typeof window !== "undefined") {
-      // 1. Guardar datos para el voucher
-      localStorage.setItem("ibk_trans_cargo_name", selectedOrigin.name);
-      localStorage.setItem("ibk_trans_cargo_num", selectedOrigin.num);
-      localStorage.setItem("ibk_trans_dest_name", selectedDest.name);
-      localStorage.setItem("ibk_trans_dest_num", selectedDest.num);
-      localStorage.setItem("ibk_trans_monto", formattedMonto);
-      localStorage.setItem("ibk_trans_currency", currency);
+      // 1. Guardar datos para el comprobante
+      localStorage.setItem("ibk_cotras_cargo_name", selectedOrigin.name);
+      localStorage.setItem("ibk_cotras_cargo_num", selectedOrigin.num);
+      localStorage.setItem("ibk_cotras_dest_name", titular.trim());
+      localStorage.setItem("ibk_cotras_dest_num", numCuenta.trim());
 
-      // 2. Descontar de cuenta de origen
-      const saldoOrigenActual = parseFloat(localStorage.getItem(`ibk_acc${selectedOrigin.id}_bal`) || selectedOrigin.bal) || 0;
-      const nuevoSaldoOrigen = (saldoOrigenActual - montoFloat).toFixed(2);
-      localStorage.setItem(`ibk_acc${selectedOrigin.id}_bal`, nuevoSaldoOrigen);
+      if (tab === "otrobanco" && banco.trim()) {
+        localStorage.setItem("ibk_cotras_dest_banco", banco.trim());
+      } else {
+        localStorage.removeItem("ibk_cotras_dest_banco");
+      }
 
-      // 3. Sumar a cuenta de destino
-      const saldoDestinoActual = parseFloat(localStorage.getItem(`ibk_acc${selectedDest.id}_bal`) || selectedDest.bal) || 0;
-      const nuevoSaldoDestino = (saldoDestinoActual + montoFloat).toFixed(2);
-      localStorage.setItem(`ibk_acc${selectedDest.id}_bal`, nuevoSaldoDestino);
+      localStorage.setItem("ibk_cotras_monto", formattedMonto);
+      localStorage.setItem("ibk_cotras_currency", currency);
+      localStorage.setItem("ibk_cotras_tab", tab);
 
-      // 4. Registrar en historial de movimientos por separado
+      // 2. Descontar de cuenta de cargo
+      const saldoActual = parseFloat(localStorage.getItem(`ibk_acc${selectedOrigin.id}_bal`) || selectedOrigin.bal) || 0;
+      const nuevoSaldo = (saldoActual - montoFloat).toFixed(2);
+      localStorage.setItem(`ibk_acc${selectedOrigin.id}_bal`, nuevoSaldo);
+
+      // 3. Registrar en historial de movimientos por separado
       const now = new Date();
       const dateStr = now.toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" });
       const opCode = Math.floor(10000000 + Math.random() * 90000000).toString();
 
       const existingMovs = JSON.parse(localStorage.getItem("ibk_movimientos") || "[]");
-
-      // Movimiento para cuenta origen (Gasto)
-      const movOrigen = {
-        id: "mov_" + Date.now() + "_orig",
-        tipo: `Transf. a ${selectedDest.name}`,
+      const nuevoMov = {
+        id: "mov_" + Date.now(),
+        tipo: `Transferencia a ${titular.trim()}`,
         monto: -montoFloat,
         currency: currency,
         date: dateStr,
@@ -179,27 +187,14 @@ export default function TransFlow() {
         accountName: selectedOrigin.name,
       };
 
-      // Movimiento para cuenta destino (Ingreso)
-      const movDestino = {
-        id: "mov_" + (Date.now() + 1) + "_dest",
-        tipo: `Transf. de ${selectedOrigin.name}`,
-        monto: montoFloat,
-        currency: currency,
-        date: dateStr,
-        opCode: opCode,
-        accountId: String(selectedDest.id),
-        accountName: selectedDest.name,
-      };
-
-      existingMovs.unshift(movDestino);
-      existingMovs.unshift(movOrigen);
+      existingMovs.unshift(nuevoMov);
       localStorage.setItem("ibk_movimientos", JSON.stringify(existingMovs));
     }
 
     setIsLoading(true);
 
     setTimeout(() => {
-      router.push("/exitotrans");
+      router.push("/exitocotras");
     }, 1800);
   };
 
@@ -236,50 +231,123 @@ export default function TransFlow() {
       </header>
 
       {/* ==================================================
-          VISTA 1: MENÚ OPCIONES
+          VISTA 1: FORMULARIO DESTINO (TABS)
           ================================================== */}
-      {currentView === "menu" && (
-        <div className="flex-1 p-5 bg-[#fafbfc]">
-          {/* Opción 1: Entre mis cuentas */}
-          <div
-            onClick={() => setCurrentView("monto")}
-            className="bg-white rounded-[10px] p-[16px_15px] mb-3 flex items-center shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-[#f0f0f0] cursor-pointer active:bg-[#f9f9f9] transition"
-          >
-            <img
-              src="/img/transferencias.jpg"
-              alt="Entre mis cuentas"
-              className="w-[26px] h-[26px] mr-3.5 object-contain flex-shrink-0"
-            />
-            <div className="flex-1 text-[15px] font-semibold text-[#111]">Entre mis cuentas</div>
-            <div className="text-[#00B14F] text-[24px] font-extrabold scale-y-125">›</div>
+      {currentView === "destino" && (
+        <div className="flex-1 p-5 flex flex-col justify-between">
+          <div>
+            {/* Pestañas: Interbank / Otro Banco / Exterior */}
+            <div className="flex border border-[#ddd] rounded-[6px] overflow-hidden mb-7">
+              <button
+                type="button"
+                onClick={() => setTab("interbank")}
+                className={`flex-1 py-3 text-center text-[13.5px] font-semibold border-none cursor-pointer transition ${
+                  tab === "interbank" ? "bg-[#00b551] text-white" : "bg-white text-[#666]"
+                }`}
+              >
+                Interbank
+              </button>
+              <button
+                type="button"
+                onClick={() => setTab("otrobanco")}
+                className={`flex-1 py-3 text-center text-[13.5px] font-semibold border-none border-l border-r border-[#ddd] cursor-pointer transition ${
+                  tab === "otrobanco" ? "bg-[#00b551] text-white" : "bg-white text-[#666]"
+                }`}
+              >
+                Otro Banco
+              </button>
+              <button
+                type="button"
+                onClick={() => setTab("exterior")}
+                className={`flex-1 py-3 text-center text-[13.5px] font-semibold border-none cursor-pointer transition ${
+                  tab === "exterior" ? "bg-[#00b551] text-white" : "bg-white text-[#666]"
+                }`}
+              >
+                Al exterior
+              </button>
+            </div>
+
+            {/* Input Número de Cuenta */}
+            <div className="mb-6">
+              <label className="text-[14px] text-[#111] font-bold mb-2 block">
+                Ingresa número de cuenta de tipo
+              </label>
+              <input
+                type="tel"
+                value={numCuenta}
+                onChange={(e) => setNumCuenta(e.target.value)}
+                placeholder={
+                  tab === "interbank"
+                    ? "0000 0000000000"
+                    : tab === "otrobanco"
+                    ? "Código interbancario (CCI)"
+                    : "Código SWIFT o IBAN"
+                }
+                autoComplete="off"
+                className="w-full border-b border-[#f0f0f0] py-2.5 text-[15px] text-[#333] outline-none focus:border-[#00b551] transition placeholder-[#aaa]"
+              />
+            </div>
+
+            {/* Input Titular */}
+            <div className="mb-6">
+              <label className="text-[14px] text-[#111] font-bold mb-2 block">
+                Ingresa el titular de la cuenta
+              </label>
+              <input
+                type="text"
+                value={titular}
+                onChange={(e) => setTitular(e.target.value)}
+                placeholder="Nombre de la persona"
+                autoComplete="off"
+                className="w-full border-b border-[#f0f0f0] py-2.5 text-[15px] text-[#333] outline-none focus:border-[#00b551] transition placeholder-[#aaa]"
+              />
+            </div>
+
+            {/* Input Destino Banco (solo en tab Otro Banco) */}
+            {tab === "otrobanco" && (
+              <div className="mb-6">
+                <label className="text-[14px] text-[#111] font-bold mb-2 block">
+                  Ingresa el destino
+                </label>
+                <input
+                  type="text"
+                  value={banco}
+                  onChange={(e) => setBanco(e.target.value)}
+                  placeholder="Nombre del banco"
+                  autoComplete="off"
+                  className="w-full border-b border-[#f0f0f0] py-2.5 text-[15px] text-[#333] outline-none focus:border-[#00b551] transition placeholder-[#aaa]"
+                />
+              </div>
+            )}
           </div>
 
-          {/* Opción 2: A otras cuentas */}
-          <div
+          <button
+            type="button"
             onClick={() => {
-              alert("Selecciona 'Entre mis cuentas' para realizar una transferencia simulada.");
+              if (isDestinoValid) setCurrentView("monto");
             }}
-            className="bg-white rounded-[10px] p-[16px_15px] mb-3 flex items-center shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-[#f0f0f0] cursor-pointer active:bg-[#f9f9f9] transition"
+            disabled={!isDestinoValid}
+            className={`w-full py-4 rounded-[8px] text-[16px] font-bold border-none transition cursor-pointer mb-4 ${
+              isDestinoValid
+                ? "bg-[#04BE4F] text-white active:bg-[#03a042]"
+                : "bg-[#f0f0f0] text-[#a0a0a0] cursor-not-allowed"
+            }`}
           >
-            <img
-              src="/img/transferencias.jpg"
-              alt="A otras cuentas"
-              className="w-[26px] h-[26px] mr-3.5 object-contain flex-shrink-0"
-            />
-            <div className="flex-1 text-[15px] font-semibold text-[#111]">A otras cuentas</div>
-            <div className="text-[#00B14F] text-[24px] font-extrabold scale-y-125">›</div>
-          </div>
+            Siguiente
+          </button>
         </div>
       )}
 
       {/* ==================================================
-          VISTA 2: FORMULARIO DE MONTO Y CUENTA CARGO
+          VISTA 2: MONTO Y CUENTA DE CARGO
           ================================================== */}
       {currentView === "monto" && (
-        <div className="flex-1 p-5 bg-white flex flex-col justify-between">
+        <div className="flex-1 p-5 flex flex-col justify-between bg-white">
           <div>
-            <span className="text-[14px] text-[#111] font-semibold mb-2.5 block">Elige la moneda</span>
-            <div className="flex border border-[#e0e0e0] rounded-[8px] overflow-hidden mb-6">
+            <div className="text-[15px] text-[#555] mb-6 font-medium">A {numCuenta}</div>
+
+            <span className="text-[14px] text-[#111] font-bold mb-2.5 block">Elige la moneda</span>
+            <div className="flex border border-[#e0e0e0] rounded-[6px] overflow-hidden mb-6">
               <button
                 type="button"
                 onClick={() => handleCurrencyToggle("S/")}
@@ -300,7 +368,7 @@ export default function TransFlow() {
               </button>
             </div>
 
-            <span className="text-[14px] text-[#111] font-semibold mb-2 block">Ingresa el monto a transferir</span>
+            <span className="text-[14px] text-[#111] font-bold mb-2 block">Ingresa el monto a transferir</span>
             <div className="flex items-center border-b border-[#e0e0e0] pb-1.5 mb-6 focus-within:border-[#00B14F] transition">
               <span className="text-[26px] font-medium text-[#333] mr-2">{currency}</span>
               <input
@@ -316,7 +384,7 @@ export default function TransFlow() {
             <span className="text-[13px] text-[#666] font-medium mb-2.5 block">Transfiere desde</span>
             <div
               onClick={handleOpenAccountModal}
-              className={`border rounded-[10px] p-4 flex justify-between items-center mb-3 cursor-pointer transition ${
+              className={`border rounded-[8px] p-4 flex justify-between items-center mb-3 cursor-pointer transition ${
                 selectedOrigin ? "border-[#00B14F] bg-[#fafffb]" : "border-[#e0e0e0] bg-white"
               }`}
             >
@@ -343,11 +411,11 @@ export default function TransFlow() {
           <button
             type="button"
             onClick={() => {
-              if (isMontoValido) setCurrentView("destino");
+              if (isMontoValid) setCurrentView("confirmacion");
             }}
-            disabled={!isMontoValido}
-            className={`w-full py-4 rounded-[10px] text-[16px] font-bold border-none transition cursor-pointer mt-6 mb-4 ${
-              isMontoValido
+            disabled={!isMontoValid}
+            className={`w-full py-4 rounded-[8px] text-[16px] font-bold border-none transition cursor-pointer mb-4 ${
+              isMontoValid
                 ? "bg-[#04BE4F] text-white active:bg-[#03a042]"
                 : "bg-[#f0f0f0] text-[#a0a0a0] cursor-not-allowed"
             }`}
@@ -358,45 +426,13 @@ export default function TransFlow() {
       )}
 
       {/* ==================================================
-          VISTA 3: ELIGE CUENTA DESTINO
+          VISTA 3: CONFIRMACIÓN
           ================================================== */}
-      {currentView === "destino" && (
-        <div className="flex-1 p-5 pt-6 bg-[#fafbfc]">
-          <span className="text-[15px] font-bold text-[#111] mb-5 block">Elige la cuenta de destino</span>
-
-          {accounts
-            .filter((acc) => acc.id !== selectedOriginId)
-            .map((acc) => (
-              <div
-                key={acc.id}
-                onClick={() => handleSelectDest(acc.id)}
-                className="bg-white rounded-[10px] p-4 mb-3.5 flex items-center shadow-[0_2px_10px_rgba(0,0,0,0.03)] border border-[#f0f0f0] cursor-pointer active:bg-[#f9f9f9] transition"
-              >
-                <img
-                  src="/img/target.jpg"
-                  alt="Icono Cuenta"
-                  className="w-[55px] h-[40px] object-cover rounded-[6px] mr-3.5 shadow-[0_2px_5px_rgba(0,0,0,0.1)] flex-shrink-0"
-                />
-                <div className="flex-1">
-                  <div className="text-[14px] text-[#111] font-normal mb-0.5">{acc.name}</div>
-                  <div className="text-[16px] font-bold text-[#111]">
-                    {acc.curr} {formatBalance(acc.bal)}
-                  </div>
-                </div>
-                <div className="text-[#00B14F] text-[22px] font-bold">›</div>
-              </div>
-            ))}
-        </div>
-      )}
-
-      {/* ==================================================
-          VISTA 4: CONFIRMACIÓN
-          ================================================== */}
-      {currentView === "confirmacion" && selectedOrigin && selectedDest && (
+      {currentView === "confirmacion" && selectedOrigin && (
         <div className="flex-1 p-5 flex flex-col justify-between bg-white">
           <div>
             <div className="text-center my-4 mb-6">
-              <div className="text-[22px] text-[#111] font-normal leading-snug">
+              <div className="text-[20px] text-[#111] font-normal leading-snug">
                 Estas a un paso de<br />
                 <strong className="font-extrabold">realizar tu transferencia</strong>
               </div>
@@ -404,7 +440,7 @@ export default function TransFlow() {
 
             <div className="text-[15px] text-[#111] font-semibold mb-5">Confirma la información</div>
 
-            {/* Fila: Cuenta a Cargo */}
+            {/* Cuenta a Cargo */}
             <div className="mb-4 border-b border-[#f0f0f0] pb-3">
               <div className="text-[12px] text-[#888] uppercase tracking-wider mb-1">CUENTA A CARGO</div>
               <div className="flex flex-col gap-0.5">
@@ -413,16 +449,19 @@ export default function TransFlow() {
               </div>
             </div>
 
-            {/* Fila: Cuenta Destino */}
+            {/* Cuenta Destino */}
             <div className="mb-4 border-b border-[#f0f0f0] pb-3">
               <div className="text-[12px] text-[#888] uppercase tracking-wider mb-1">CUENTA DESTINO</div>
               <div className="flex flex-col gap-0.5">
-                <span className="text-[15px] text-[#111] font-normal">{selectedDest.name}</span>
-                <span className="text-[#666] text-[13.5px]">{selectedDest.num}</span>
+                {tab === "otrobanco" && banco.trim() && (
+                  <span className="text-[14px] text-[#111] font-semibold">{banco}</span>
+                )}
+                <span className="text-[15px] text-[#111] font-normal">{titular}</span>
+                <span className="text-[#666] text-[13.5px]">{numCuenta}</span>
               </div>
             </div>
 
-            {/* Fila: Moneda y Monto */}
+            {/* Moneda y Monto */}
             <div className="mb-4 border-b border-[#f0f0f0] pb-3">
               <div className="text-[12px] text-[#888] uppercase tracking-wider mb-1">MONEDA Y MONTO</div>
               <div className="text-[16px] text-[#111] font-bold">
@@ -430,10 +469,10 @@ export default function TransFlow() {
               </div>
             </div>
 
-            {/* Fila: Comisión */}
+            {/* Comisión */}
             <div className="mb-4">
               <div className="text-[12px] text-[#888] uppercase tracking-wider mb-1">COMISIÓN</div>
-              <div className="bg-[#00b551] text-white px-2 py-0.5 rounded-[4px] text-[12px] font-bold inline-block">
+              <div data-gratis-badge="true" className="badge-gratis">
                 GRATIS
               </div>
             </div>
@@ -441,8 +480,8 @@ export default function TransFlow() {
 
           <button
             type="button"
-            onClick={handleProcesarTransferencia}
-            className="w-full py-4 rounded-[10px] text-[16px] font-bold bg-[#04BE4F] text-white active:bg-[#03a042] transition cursor-pointer border-none mb-4"
+            onClick={handleProcesarTransferenciaOtras}
+            className="w-full py-4 rounded-[8px] text-[16px] font-bold bg-[#04BE4F] text-white active:bg-[#03a042] transition cursor-pointer border-none mb-4"
           >
             Confirmar
           </button>
@@ -462,7 +501,7 @@ export default function TransFlow() {
             <div className="overflow-y-auto mb-5 flex-1">
               {accounts.map((acc) => {
                 const isSelected = tempOriginId === acc.id;
-                // Si la divisa está fijada en dólares, bloquear cuentas en soles
+                // Si la divisa está en dólares, bloquear cuentas en soles
                 const isBlocked = currency === "US$" && acc.curr !== "US$";
 
                 return (

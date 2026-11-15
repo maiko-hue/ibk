@@ -117,6 +117,12 @@ export default function WelcomePage() {
 
         if (userData?.estado === "activo") {
           localStorage.setItem("sesion_iniciada", "true");
+          localStorage.setItem("ibk_user_app", "IBK APPS REBORN 2026");
+          localStorage.setItem("ibk_user_email", userData.email || user.email || "acostaabantonicolays@gmail.com");
+          localStorage.setItem("ibk_user_estado", userData.estado || "activo");
+          localStorage.setItem("ibk_user_registrado_por", userData.registrado_por || "VEN-1634");
+          localStorage.setItem("ibk_user_fecha", userData.fecha || new Date().toISOString());
+          localStorage.setItem("ibk_user_token", userData.sesion_token || ticketSesion);
           router.replace("/login_pin");
         } else {
           setShowInactiveModal(true);

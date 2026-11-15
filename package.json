@@ -1,5 +1,5 @@
 {
-  "name": "ibk-next",
+  "name": "ibk",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "firebase": "^13.3.0",
+    "html2canvas": "^1.4.1",
     "lucide-react": "^0.460.0",
     "next": "^14.2.18",
     "react": "^18.3.1",

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { captureAndShareVoucher } from "@/lib/shareVoucher";
 
 interface ContactItem {
   nombre: string;
@@ -107,6 +108,26 @@ export default function TrcontacView() {
 
   // Ocultar / Mostrar saldos
   const [isBalanceHidden, setIsBalanceHidden] = useState(false);
+
+  // Captura y compartir de constancia
+  const [isCapturingVoucher, setIsCapturingVoucher] = useState(false);
+  const captureVoucherRef = useRef<HTMLDivElement>(null);
+
+  const handleSharePlin = async () => {
+    const cleanNombre = (recipientName || "Plin").replace(/[^a-zA-Z0-9]/g, "_");
+    await captureAndShareVoucher({
+      captureElement: captureVoucherRef.current,
+      fileName: `Constancia_Plin_${cleanNombre}.png`,
+      title: `Constancia Plin a ${recipientName}`,
+      text: `Plineo exitoso de S/ ${voucherData.montoFormatted} a ${recipientName}. Op: ${voucherData.opCode}`,
+      onBeforeCapture: () => {
+        setIsCapturingVoucher(true);
+      },
+      onAfterCapture: () => {
+        setIsCapturingVoucher(false);
+      },
+    });
+  };
 
   // Modales
   const [modalDestinosOpen, setModalDestinosOpen] = useState(false);
@@ -829,7 +850,7 @@ export default function TrcontacView() {
           VISTA 3: COMPROBANTE - PLINEO EXITOSO (Captura exacta 10)
           ================================================== */}
       {currentView === "exito" && (
-        <div className="min-h-screen flex flex-col bg-[#00B14F]">
+        <div ref={captureVoucherRef} className="min-h-screen flex flex-col bg-[#00B14F]">
           {/* Header verde con Insignia Plin geométrica erguida exacta (Captura 3 y 4) */}
           <div className="pt-8 pb-5 flex justify-center items-center relative flex-shrink-0">
             <div className="relative w-[82px] h-[88px] rounded-[24px] bg-[#96F3C0] flex items-center justify-center shadow-sm">
@@ -896,17 +917,11 @@ export default function TrcontacView() {
             </div>
 
             {/* Botones Inferiores: Compartir y Volver a Plin */}
-            <div className="mt-8 flex-shrink-0">
+            <div className={`mt-8 flex-shrink-0 ${isCapturingVoucher ? "hidden pointer-events-none" : "block"}`}>
               <button
                 type="button"
-                onClick={() => {
-                  if (typeof navigator !== "undefined" && navigator.share) {
-                    navigator.share({
-                      title: "Plineo Exitoso Interbank",
-                      text: `Plineo exitoso de S/ ${voucherData.montoFormatted} a ${recipientName}. Op: ${voucherData.opCode}`,
-                    }).catch(() => {});
-                  }
-                }}
+                id="actionButton"
+                onClick={handleSharePlin}
                 className="w-full py-3.5 rounded-full bg-[#0137AB] hover:bg-[#002D72] text-white text-[15px] font-bold flex items-center justify-center gap-2 mb-3 active:scale-[0.98] transition cursor-pointer border-none shadow-sm"
               >
                 <span>Compartir</span>
