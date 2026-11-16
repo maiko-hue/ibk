@@ -231,3 +231,41 @@ export function finishTutorial(): void {
     })
   );
 }
+
+// ==================================================
+// MINI TUTORIAL: PRUEBA DE NOTIFICACIÓN FALSA
+// ==================================================
+export const MINI_TUTORIAL_NOTI_KEY = "ibk_mini_noti_active";
+export const MINI_TUTORIAL_EVENT_NAME = "ibk_mini_tutorial_change";
+
+export function isMiniNotiActive(): boolean {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem(MINI_TUTORIAL_NOTI_KEY) === "true";
+}
+
+export function startMiniNotiTutorial(): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(TUTORIAL_ACTIVE_KEY, "false");
+  localStorage.setItem(MINI_TUTORIAL_NOTI_KEY, "true");
+  window.dispatchEvent(
+    new CustomEvent(MINI_TUTORIAL_EVENT_NAME, {
+      detail: { active: true },
+    })
+  );
+  window.dispatchEvent(
+    new CustomEvent(TUTORIAL_EVENT_NAME, {
+      detail: { step: 0, active: false },
+    })
+  );
+}
+
+export function finishMiniNotiTutorial(): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(MINI_TUTORIAL_NOTI_KEY, "false");
+  localStorage.removeItem(MINI_TUTORIAL_NOTI_KEY);
+  window.dispatchEvent(
+    new CustomEvent(MINI_TUTORIAL_EVENT_NAME, {
+      detail: { active: false },
+    })
+  );
+}

@@ -11,8 +11,12 @@ import {
   setTutorialStep,
   startTutorial,
   finishTutorial,
+  isMiniNotiActive,
+  finishMiniNotiTutorial,
+  MINI_TUTORIAL_EVENT_NAME,
 } from "@/lib/tutorial";
 import { getAppZoom, ZOOM_EVENT_NAME } from "@/lib/zoom";
+import { executeFakePlinDeposit } from "@/lib/fakeNotification";
 
 interface SpotlightRect {
   top: number;
@@ -26,6 +30,7 @@ export default function TutorialTour() {
   const pathname = usePathname();
 
   const [active, setActive] = useState<boolean>(false);
+  const [miniNotiActive, setMiniNotiActive] = useState<boolean>(false);
   const [stepIndex, setStepIndex] = useState<number>(1);
   const [spotlight, setSpotlight] = useState<SpotlightRect | null>(null);
   const [zoomFactor, setZoomFactor] = useState<number>(1);
@@ -41,6 +46,18 @@ export default function TutorialTour() {
 
     if (isIndexOrAuthPage) {
       setActive(false);
+      setMiniNotiActive(false);
+      return;
+    }
+
+    const isMini = isMiniNotiActive();
+    setMiniNotiActive(isMini);
+
+    if (isMini) {
+      setActive(false);
+      if (pathname !== "/inicio") {
+        router.push("/inicio");
+      }
       return;
     }
 
@@ -67,9 +84,9 @@ export default function TutorialTour() {
         setActive(false);
       }
     }
-  }, [pathname, isIndexOrAuthPage]);
+  }, [pathname, isIndexOrAuthPage, router]);
 
-  // Escuchar cambios de zoom y eventos del tutorial
+  // Escuchar cambios de zoom y eventos del tutorial / mini tutorial
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -81,41 +98,66 @@ export default function TutorialTour() {
     const handleTutorialEvent = (e: Event) => {
       const custom = e as CustomEvent<{ step: number; active: boolean }>;
       if (custom.detail) {
-        setActive(custom.detail.active && !isIndexOrAuthPage);
+        setActive(custom.detail.active && !isIndexOrAuthPage && !isMiniNotiActive());
         if (custom.detail.step > 0) {
           setStepIndex(custom.detail.step);
         }
       } else {
-        setActive(isTutorialActive() && !isIndexOrAuthPage);
+        setActive(isTutorialActive() && !isIndexOrAuthPage && !isMiniNotiActive());
         setStepIndex(getCurrentTutorialStep());
       }
     };
 
+    const handleMiniEvent = (e: Event) => {
+      const custom = e as CustomEvent<{ active: boolean }>;
+      const isMini = custom.detail ? custom.detail.active : isMiniNotiActive();
+      setMiniNotiActive(isMini && !isIndexOrAuthPage);
+      if (isMini) {
+        setActive(false);
+      }
+    };
+
     window.addEventListener(TUTORIAL_EVENT_NAME, handleTutorialEvent);
+    window.addEventListener(MINI_TUTORIAL_EVENT_NAME, handleMiniEvent);
     window.addEventListener(ZOOM_EVENT_NAME, updateZoom);
     window.addEventListener("resize", updateZoom);
 
     return () => {
       window.removeEventListener(TUTORIAL_EVENT_NAME, handleTutorialEvent);
+      window.removeEventListener(MINI_TUTORIAL_EVENT_NAME, handleMiniEvent);
       window.removeEventListener(ZOOM_EVENT_NAME, updateZoom);
       window.removeEventListener("resize", updateZoom);
     };
   }, [isIndexOrAuthPage]);
 
+  // Selector y ruta del paso o mini-tutorial activo
+  const currentTargetSelector = miniNotiActive
+    ? '[data-tour="inicio-bell-noti-btn"]'
+    : active
+    ? step.targetSelector
+    : "";
+
+  const currentTargetRoute = miniNotiActive
+    ? "/inicio"
+    : active
+    ? step.route
+    : "";
+
   // Actualizar posición del elemento objetivo
   const updateSpotlightPosition = useCallback(() => {
-    if (!active || isIndexOrAuthPage || !step.targetSelector) {
+    const isShowing = (active || miniNotiActive) && !isIndexOrAuthPage;
+    if (!isShowing || !currentTargetSelector) {
       setSpotlight(null);
       return;
     }
 
     // Solo medir si estamos en la ruta correcta del paso
-    if (step.route && pathname !== step.route) {
+    if (currentTargetRoute && pathname !== currentTargetRoute) {
       setSpotlight(null);
       return;
     }
 
-    const el = document.querySelector(step.targetSelector);
+    const el = document.querySelector(currentTargetSelector);
     if (!el) {
       setSpotlight(null);
       return;
@@ -125,7 +167,7 @@ export default function TutorialTour() {
     el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
 
     const measure = () => {
-      const target = document.querySelector(step.targetSelector);
+      const target = document.querySelector(currentTargetSelector);
       if (!target) return;
       const raw = target.getBoundingClientRect();
       const z = getAppZoom() / 100;
@@ -146,7 +188,41 @@ export default function TutorialTour() {
       clearTimeout(t1);
       clearTimeout(t2);
     };
-  }, [active, isIndexOrAuthPage, step.targetSelector, step.route, pathname]);
+  }, [active, miniNotiActive, isIndexOrAuthPage, currentTargetSelector, currentTargetRoute, pathname]);
+
+  // Efecto del Mini Tutorial de Notificación
+  useEffect(() => {
+    if (!miniNotiActive || isIndexOrAuthPage) return;
+
+    if (pathname !== "/inicio") {
+      router.push("/inicio");
+      return;
+    }
+
+    let attempts = 0;
+    const interval = setInterval(() => {
+      attempts++;
+      const el = document.querySelector('[data-tour="inicio-bell-noti-btn"]');
+      if (el) {
+        updateSpotlightPosition();
+        clearInterval(interval);
+      }
+      if (attempts > 20) clearInterval(interval);
+    }, 100);
+
+    // Si el usuario hace clic directamente en la campana, ejecutar y cerrar mini tutorial
+    const bellEl = document.querySelector('[data-tour="inicio-bell-noti-btn"]');
+    if (bellEl) {
+      const handleBellClick = () => {
+        setTimeout(() => {
+          finishMiniNotiTutorial();
+        }, 500);
+      };
+      bellEl.addEventListener("click", handleBellClick, { once: true });
+    }
+
+    return () => clearInterval(interval);
+  }, [miniNotiActive, isIndexOrAuthPage, pathname, router, updateSpotlightPosition]);
 
   // Sincronización automática de ruta si el usuario navega a /sobre mientras estaba en el paso 8
   useEffect(() => {
@@ -161,8 +237,8 @@ export default function TutorialTour() {
 
   // Manejar acciones del paso activo en la ruta actual
   useEffect(() => {
-    if (!active || isIndexOrAuthPage) {
-      setSpotlight(null);
+    if (!active || isIndexOrAuthPage || miniNotiActive) {
+      if (!miniNotiActive) setSpotlight(null);
       return;
     }
 
@@ -227,14 +303,15 @@ export default function TutorialTour() {
     }
 
     return () => clearInterval(interval);
-  }, [active, isIndexOrAuthPage, step, pathname, updateSpotlightPosition]);
+  }, [active, miniNotiActive, isIndexOrAuthPage, step, pathname, updateSpotlightPosition]);
 
   // Escuchar scroll para mantener el spotlight centrado
   useEffect(() => {
-    if (!active || isIndexOrAuthPage) return;
+    const isShowing = (active || miniNotiActive) && !isIndexOrAuthPage;
+    if (!isShowing) return;
     const handleScroll = () => {
-      if (!step.targetSelector) return;
-      const target = document.querySelector(step.targetSelector);
+      if (!currentTargetSelector) return;
+      const target = document.querySelector(currentTargetSelector);
       if (!target) return;
       const raw = target.getBoundingClientRect();
       const z = getAppZoom() / 100;
@@ -247,7 +324,7 @@ export default function TutorialTour() {
     };
     window.addEventListener("scroll", handleScroll, true);
     return () => window.removeEventListener("scroll", handleScroll, true);
-  }, [active, isIndexOrAuthPage, step.targetSelector]);
+  }, [active, miniNotiActive, isIndexOrAuthPage, currentTargetSelector]);
 
   // Avanzar al siguiente paso (solo al hacer clic en Siguiente)
   const handleNext = () => {
@@ -271,7 +348,101 @@ export default function TutorialTour() {
   };
 
   // Si está inactivo o estamos en la página del index/login, no renderizar NADA
-  if (!active || isIndexOrAuthPage) return null;
+  if ((!active && !miniNotiActive) || isIndexOrAuthPage) return null;
+
+  // Mini Tutorial de Notificación Falsa
+  if (miniNotiActive) {
+    if (pathname !== "/inicio") return null;
+
+    return (
+      <div className="fixed inset-0 z-[99990] pointer-events-none select-none">
+        {/* 1. Fondo Oscuro con Recorte Spotlight en la Campana */}
+        {spotlight ? (
+          <div
+            style={{
+              position: "fixed",
+              top: spotlight.top - 6,
+              left: spotlight.left - 6,
+              width: spotlight.width + 12,
+              height: spotlight.height + 12,
+              borderRadius: "14px",
+              boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.60), 0 0 16px rgba(0, 177, 79, 0.45), inset 0 0 8px rgba(0, 177, 79, 0.15)",
+              border: "2.5px solid #00B14F",
+              pointerEvents: "none",
+              transition: "top 0.45s cubic-bezier(0.22, 1, 0.36, 1), left 0.45s cubic-bezier(0.22, 1, 0.36, 1), width 0.45s cubic-bezier(0.22, 1, 0.36, 1), height 0.45s cubic-bezier(0.22, 1, 0.36, 1)",
+            }}
+          />
+        ) : (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-[2px] pointer-events-auto transition-opacity duration-300" />
+        )}
+
+        {/* 2. Tarjeta del Mini Tutorial */}
+        <div
+          style={{
+            position: "fixed",
+            bottom: 24,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "calc(100% - 32px)",
+            maxWidth: "340px",
+            transition: "all 0.35s cubic-bezier(0.22, 1, 0.36, 1)",
+          }}
+          className="bg-white rounded-[20px] p-5 shadow-[0_12px_40px_rgba(0,0,0,0.25)] border border-[#E5E7EB] pointer-events-auto z-[99995] animate-fadeIn flex flex-col"
+        >
+          {/* Cabecera */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className="bg-[#E8F8EE] text-[#00B14F] text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">
+                Prueba
+              </span>
+              <span className="text-[15px] font-extrabold text-[#111111] truncate">
+                Simular notificación
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => finishMiniNotiTutorial()}
+              className="w-6 h-6 rounded-full bg-[#F3F4F6] text-[#6B7280] hover:text-[#111] flex items-center justify-center text-[11px] font-bold border-none cursor-pointer active:scale-90 transition p-0"
+              title="Cerrar"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Mensaje exacto solicitado */}
+          <p className="text-[13px] text-[#4B5563] leading-relaxed mb-4">
+            Al clickear este icono recibiras una noti falsa, los datos varian segun tu configuracion
+          </p>
+
+          {/* Botones de acción */}
+          <div className="flex items-center justify-between pt-2 border-t border-[#F3F4F6]">
+            <button
+              type="button"
+              onClick={() => finishMiniNotiTutorial()}
+              className="text-[13px] font-semibold text-[#888888] hover:text-[#111111] bg-transparent border-none cursor-pointer p-1 active:scale-95 transition"
+            >
+              Cerrar
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                executeFakePlinDeposit();
+                setTimeout(() => {
+                  finishMiniNotiTutorial();
+                }, 400);
+              }}
+              className="bg-[#00B14F] hover:bg-[#009E43] text-white px-4 py-2.5 rounded-[12px] font-bold text-[13px] cursor-pointer border-none shadow-xs active:scale-95 transition flex items-center gap-1.5"
+            >
+              <span>Probar ahora</span>
+              <span className="text-[15px] leading-none">›</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Si el paso actual pertenece a otra página y aún estamos cargando la transición, no renderizar
   if (step.route && pathname !== step.route) return null;

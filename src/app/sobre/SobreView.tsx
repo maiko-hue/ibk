@@ -18,7 +18,7 @@ import {
   DEFAULT_NOTI_CONFIG,
   DEFAULT_RANDOM_NAMES,
 } from "@/lib/fakeNotification";
-import { startTutorial } from "@/lib/tutorial";
+import { startTutorial, startMiniNotiTutorial } from "@/lib/tutorial";
 
 export default function SobreView() {
   const router = useRouter();
@@ -26,6 +26,12 @@ export default function SobreView() {
   // Vista: "menu" | "cuenta" | "noti"
   const [currentView, setCurrentView] = useState<"menu" | "cuenta" | "noti">("menu");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const handleProbarNoti = () => {
+    saveFakeNotiConfig(notiConfig);
+    startMiniNotiTutorial();
+    router.push("/inicio");
+  };
 
   // Configuración de Notificación Falsa
   const [notiConfig, setNotiConfig] = useState<FakeNotiConfig>(DEFAULT_NOTI_CONFIG);
@@ -248,7 +254,18 @@ export default function SobreView() {
             ? "Configurar notificación"
             : "Información de App"}
         </div>
-        <div className="w-8"></div>
+        {currentView === "noti" ? (
+          <button
+            type="button"
+            onClick={handleProbarNoti}
+            className="bg-[#E8F8EE] text-[#00B14F] hover:bg-[#00B14F] hover:text-white px-2.5 py-1 rounded-[8px] text-[12px] font-extrabold transition active:scale-95 cursor-pointer border border-[#00B14F]/30 flex items-center gap-1 shadow-2xs"
+            title="Probar notificación en Inicio"
+          >
+            <span>Probar</span>
+          </button>
+        ) : (
+          <div className="w-8"></div>
+        )}
       </header>
 
       {/* ==================================================
@@ -422,6 +439,28 @@ export default function SobreView() {
       {currentView === "noti" && (
         <div className="flex-1 overflow-y-auto no-scrollbar p-5 flex flex-col justify-between">
           <div className="flex flex-col gap-4">
+            {/* Banner pequeño de Prueba Rápida */}
+            <div className="bg-[#E8F8EE] border border-[#00B14F]/25 rounded-[14px] p-3 flex items-center justify-between">
+              <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                <div className="w-7 h-7 rounded-full bg-[#00B14F] text-white flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3.5 h-3.5 stroke-white stroke-[2.5] fill-none" viewBox="0 0 24 24">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[12.5px] font-bold text-[#0D5B2C] truncate">¿Quieres ver cómo funciona?</div>
+                  <div className="text-[11px] text-[#2E7D4E] truncate">Pruébalo en la pantalla de inicio</div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleProbarNoti}
+                className="bg-[#00B14F] hover:bg-[#009E43] text-white text-[12px] font-bold px-3 py-1.5 rounded-[8px] border-none cursor-pointer active:scale-95 transition shadow-2xs flex-shrink-0"
+              >
+                Probar
+              </button>
+            </div>
+
             {/* Switch 1: Notificaciones con datos randoms */}
             <div className="bg-white rounded-[16px] p-4 flex items-center justify-between shadow-[0_2px_10px_rgba(0,0,0,0.03)] border border-[#f0f0f0]">
               <div className="pr-3">

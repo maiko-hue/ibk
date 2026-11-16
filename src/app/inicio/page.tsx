@@ -231,6 +231,7 @@ export default function InicioPage() {
         </div>
 
         <button
+          data-tour="inicio-bell-noti-btn"
           type="button"
           onClick={() => executeFakePlinDeposit()}
           className="bg-transparent border-none p-1 flex items-center justify-center active:scale-95 transition cursor-pointer"
